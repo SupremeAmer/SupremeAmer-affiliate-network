@@ -1,36 +1,55 @@
-// Add event listener to button
-document.querySelector('.cta button').addEventListener('click', function() {
-  // Redirect to
-// Add event listener to button
-document.querySelector('.cta button').addEventListener('click', function() {
-  // Redirect to registration page
-  window.location.href = 'register.html';
-});
+<!-- register.html -->
+<form id="register-form">
+  <label>Name:</label>
+  <input type="text" id="name" name="name"><br><br>
+  <label>Email:</label>
+  <input type="email" id="email" name="email"><br><br>
+  <label>Password:</label>
+  <input type="password" id="password" name="password"><br><br>
+  <label>Confirm Password:</label>
+  <input type="password" id="confirm-password" name="confirm-password"><br><br>
+  <button id="register-btn">Register</button>
+</form>
 
-// Add event listener to navigation links
-document.querySelectorAll('nav ul li a').forEach(function(link) {
-  link.addEventListener('click', function(event) {
-    event.preventDefault();
-    // Scroll to corresponding section
-    var sectionId = link.getAttribute('href');
-    var section = document.querySelector(sectionId);
-    section.scrollIntoView({ behavior: 'smooth' });
+<!-- JavaScript code to handle form submission -->
+<script>
+  const registerForm = document.getElementById('register-form');
+  registerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    const userData = {
+      name,
+      email,
+      password
+    };
+
+    fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert('Registration successful');
+        window.location.href = '/login';
+      } else {
+        alert('Registration failed');
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   });
-});
-
-// Initialize background video
-var video = document.querySelector('.background video');
-video.play();
-
-// Handle video playback errors
-video.addEventListener('error', function(event) {
-  console.error('Error playing background video:', event);
-});
-
-// Add loading animation
-document.body.classList.add('loading');
-
-// Remove loading animation after 2 seconds
-setTimeout(function() {
-  document.body.classList.remove('loading');
-}, 2000)
+</script>
