@@ -1,6 +1,8 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
+  background-image:url('durdle-door-beautiful-phone-d7tr9b8vd6dvc5ut.webp');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 header {
