@@ -68,6 +68,10 @@ function SignUpForm() {
       <br />
       <button type="submit">Sign Up</button>
     </form>
+function register() {
+// Your JavaScript code here
+alert("Registration successful!");
+}
   );
 }
 
