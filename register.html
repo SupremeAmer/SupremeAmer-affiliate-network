@@ -1,7 +1,29 @@
 <!DOCTYPE HTML>
-<html lan= "en">
-<link rel="stylesheet" href="styles-reg.css">
-<form action="payment_process.php" method="post">
-  ...
-</form>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupremeAmer Affiliate Network Registration</title>
+    <link rel="stylesheet" href="styles-reg.css">
+</head>
+<body>
+    <div class="container">
+        <form action="payment_process.php" method="post">
+            <h2>Register for SupremeAmer</h2>
+            
+            <label for="telegram">Telegram Username:</label>
+            <input type="text" id="telegram" name="telegram" placeholder="@YourTelegramUsername" required>
+            
+            <label for="payment">Payment Method:</label>
+            <select id="payment" name="payment" required>
+                <option value="telegramstar">20 TelegramStar</option>
+                <option value="paystack">500 NGN via Paystack</option>
+            </select>
+            
+            <input type="hidden" name="amount" id="amount" value="500">
+            
+            <input type="submit" value="Proceed to Payment">
+        </form>
+    </div>
+</body>
 </html>
