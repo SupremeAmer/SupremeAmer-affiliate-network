@@ -1,29 +1,39 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SupremeAmer Affiliate Network Registration</title>
-    <link rel="stylesheet" href="styles-reg.css">
+    <title>Telegram Login and Payment</title>
+    <script async src="https://telegram.org/js/telegram-widget.js?7" 
+            data-telegram-login="YOUR_BOT_NAME" 
+            data-size="large" 
+            data-auth-url="https://your-backend.com/auth" 
+            data-request-access="write"></script>
+    <script>
+        function displayUserData(user) {
+            document.getElementById('user-details').innerHTML = `
+                <h3>Welcome, ${user.first_name} ${user.last_name || ''}</h3>
+                <p>Telegram Username: @${user.username}</p>
+            `;
+        }
+    </script>
 </head>
 <body>
-    <div class="container">
-        <form action="payment_process.php" method="post">
-            <h2>Register for SupremeAmer</h2>
-            
-            <label for="telegram">Telegram Username:</label>
-            <input type="text" id="telegram" name="telegram" placeholder="@YourTelegramUsername" required>
-            
-            <label for="payment">Payment Method:</label>
-            <select id="payment" name="payment" required>
-                <option value="telegramstar">20 TelegramStar</option>
-                <option value="paystack">500 NGN via Paystack</option>
-            </select>
-            
-            <input type="hidden" name="amount" id="amount" value="500">
-            
-            <input type="submit" value="Proceed to Payment">
-        </form>
-    </div>
+    <h1>Welcome to Our Service</h1>
+    <!-- Telegram Login Button -->
+    <div id="telegram-login"></div>
+    <!-- User Details -->
+    <div id="user-details" style="margin-top: 20px;"></div>
+    
+    <!-- Payment Integration -->
+    <h2>Make Payment</h2>
+    <button onclick="startPayment()">Pay Now</button>
+
+    <script>
+        function startPayment() {
+            // Redirect to your payment gateway or Telegram Payments API integration
+            window.location.href = "https://your-payment-gateway.com";
+        }
+    </script>
 </body>
 </html>
