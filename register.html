@@ -78,6 +78,37 @@
       console.log({ name, email, password });
       // Send this data to your backend
     });
+    const express = require('express');
+const bodyParser = require('body-parser');
+const { OAuth2Client } = require('google-auth-library');
+
+const app = express();
+const client = new OAuth2Client('162953436158-1lhj30tqs7hvh2r9jschd01qlnsu0pj7.apps.googleusercontent.com');
+
+app.use(bodyParser.json());
+
+app.post('/verify-google-token', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: 'Y162953436158-1lhj30tqs7hvh2r9jschd01qlnsu0pj7.apps.googleusercontent.com',
+    });
+    const payload = ticket.getPayload();
+
+    console.log(payload);
+    // Save user to your database or log them in
+
+    res.status(200).json({ status: 'success', user: payload });
+  } catch (error) {
+    res.status(400).json({ status: 'error', message: error.message });
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
+});
   </script>
 </body>
 </html>
