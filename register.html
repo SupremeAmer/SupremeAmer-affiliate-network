@@ -3,34 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Login and Payment</title>
+    <title>Telegram Login</title>
     <script async src="https://telegram.org/js/telegram-widget.js?7" 
             data-telegram-login="@Suprememer_bot" 
             data-size="large" 
             data-auth-url="https://yourdomain.com/api/telegram/auth" 
             data-request-access="write"></script>
     <script>
-        function displayUserData(user) {
+        // Handle Telegram login success
+        async function handleLogin(user) {
+            // Display user data
             document.getElementById('user-details').innerHTML = `
                 <h3>Welcome, ${user.first_name} ${user.last_name || ''}</h3>
                 <p>Telegram Username: @${user.username}</p>
             `;
+
+            // Save login data to local storage for auto-login
+            localStorage.setItem('session_token', user.auth_token);
+
+            // Redirect to the home page
+            setTimeout(() => {
+                window.location.href = "/home";
+            }, 2000); // 2-second delay to show user data before redirect
         }
+
+        // Check for existing session token in local storage
+        window.onload = function() {
+            const token = localStorage.getItem('session_token');
+            if (token) {
+                // Auto-login if session token exists
+                fetch('/api/verify-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.valid) {
+                        window.location.href = "/home";
+                    }
+                });
+            }
+        };
     </script>
 </head>
 <body>
     <h1>Welcome to Our Service</h1>
     <div id="telegram-login"></div>
     <div id="user-details" style="margin-top: 20px;"></div>
-    
-    <h2>Make Payment</h2>
-    <button onclick="startPayment()">Pay Now</button>
-
-    <script>
-        function startPayment() {
-            // Redirect to payment gateway
-            window.location.href = "https://pay.yourdomain.com/initialize-payment";
-        }
-    </script>
 </body>
 </html>
