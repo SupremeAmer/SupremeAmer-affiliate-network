@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SupremeAmer Affiliate Network</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      animation: zoomIn 0.5s ease-in-out;
+    }
+    @keyframes zoomIn {
+      from {
+        transform: scale(0.8);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+    }
+    header h1 {
+      font-size: 16px;
+    }
+    main {
+      padding: 20px;
+    }
+    .affiliate-programs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .affiliate-program {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+      width: calc(50% - 10px);
+    }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #333;
+      color: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+    footer button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="user-details">User: SupremeAmer</div>
+    <div id="settings">Settings</div>
+  </header>
+  <main>
+    <h1>Welcome to SupremeAmer Affiliate Marketing Network</h1>
+    <button id="upload-ad-btn" style="margin-bottom: 20px;">+ Upload Advertisement</button>
+    <div class="affiliate-programs">
+      <!-- Example affiliate programs -->
+      <div class="affiliate-program">Program 1: Electronics</div>
+      <div class="affiliate-program">Program 2: Social Media</div>
+    </div>
+  </main>
+  <footer>
+    <button onclick="navigateTo('home')">Home</button>
+    <button onclick="navigateTo('chat')">Chat</button>
+    <button onclick="navigateTo('cashout')">Cashout</button>
+  </footer>
+
+  <script>
+    function navigateTo(page) {
+      alert('Navigating to ' + page + ' page!');
+    }
+  </script>
+</body>
+</html>
