@@ -63,12 +63,26 @@
     function handleCredentialResponse(response) {
       // Decode the JWT response from Google
       const token = response.credential;
-      console.log("Google Token: ", token);
+      console.log("Google ID Token:", token);
 
-      // You can send this token to your backend for verification
-      // and to create a new user in your database
+      // Decode the ID token to get user info (optional)
+      const user = JSON.parse(atob(token.split('.')[1]));
+      console.log("User Info:", user);
+
+      // Use the user info in your frontend application
+      alert(`Welcome, ${user.name}!`);
     }
 
+    // Initialize Google Sign-In
+    window.onload = function () {
+      google.accounts.id.initialize({
+        client_id: "162953436158-1lhj30tqs7hvh2r9jschd01qlnsu0pj7.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.prompt(); // Automatically prompts the user to sign in
+    };
+
+    // Handle the form submission
     document.getElementById("registration-form").addEventListener("submit", function(e) {
       e.preventDefault();
       const name = document.getElementById("name").value;
@@ -76,39 +90,8 @@
       const password = document.getElementById("password").value;
 
       console.log({ name, email, password });
-      // Send this data to your backend
+      // Use this data as needed (e.g., save locally or send to a backend)
     });
-    const express = require('express');
-const bodyParser = require('body-parser');
-const { OAuth2Client } = require('google-auth-library');
-
-const app = express();
-const client = new OAuth2Client('162953436158-1lhj30tqs7hvh2r9jschd01qlnsu0pj7.apps.googleusercontent.com');
-
-app.use(bodyParser.json());
-
-app.post('/verify-google-token', async (req, res) => {
-  const { token } = req.body;
-
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: 'Y162953436158-1lhj30tqs7hvh2r9jschd01qlnsu0pj7.apps.googleusercontent.com',
-    });
-    const payload = ticket.getPayload();
-
-    console.log(payload);
-    // Save user to your database or log them in
-
-    res.status(200).json({ status: 'success', user: payload });
-  } catch (error) {
-    res.status(400).json({ status: 'error', message: error.message });
-  }
-});
-
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
-});
   </script>
 </body>
 </html>
