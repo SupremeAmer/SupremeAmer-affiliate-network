@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Referral Program</title>
+</head>
+<body>
+  <h1>SupremeAmer Referral Program</h1>
+  
+  <!-- Registration Form -->
+  <h2>Register</h2>
+  <form id="registerForm">
+    <input type="text" id="username" placeholder="Enter username" required>
+    <button type="submit">Register</button>
+  </form>
+  <p id="registerResponse"></p>
+
+  <!-- Register with Referral -->
+  <h2>Register with a Referral Code</h2>
+  <form id="referralForm">
+    <input type="text" id="referralUsername" placeholder="Enter username" required>
+    <input type="text" id="referralCode" placeholder="Enter referral code" required>
+    <button type="submit">Register</button>
+  </form>
+  <p id="referralResponse"></p>
+
+  <!-- Fetch Balance -->
+  <h2>Check Balance</h2>
+  <input type="text" id="balanceUsername" placeholder="Enter username">
+  <button id="checkBalance">Check Balance</button>
+  <p id="balanceResponse"></p>
+
+  <script>
+    const API_URL = 'http://localhost:3000';
+
+    // Register
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const response = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      const data = await response.json();
+      document.getElementById('registerResponse').innerText = JSON.stringify(data);
+    });
+
+    // Register with Referral
+    document.getElementById('referralForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('referralUsername').value;
+      const referralCode = document.getElementById('referralCode').value;
+      const response = await fetch(`${API_URL}/register-with-referral`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, referralCode })
+      });
+      const data = await response.json();
+      document.getElementById('referralResponse').innerText = JSON.stringify(data);
+    });
+
+    // Check Balance
+    document.getElementById('checkBalance').addEventListener('click', async () => {
+      const username = document.getElementById('balanceUsername').value;
+      const response = await fetch(`${API_URL}/balance/${username}`);
+      const data = await response.json();
+      document.getElementById('balanceResponse').innerText = JSON.stringify(data);
+    });
+  </script>
+</body>
+</html>
