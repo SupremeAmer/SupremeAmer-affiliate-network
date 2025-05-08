@@ -63,91 +63,53 @@ button {
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const clicksInput = document.getElementById("clicks");
-            const costPreview = document.getElementById("costPreview");
-            const submitBtn = document.getElementById("submitBtn");
-            const cancelBtn = document.getElementById("cancelBtn");
-            const advertForm = document.getElementById("advertForm");
+       document.addEventListener("DOMContentLoaded", () => {
+    const clicksInput = document.getElementById("clicks");
+    const costPreview = document.getElementById("costPreview");
+    const advertForm = document.getElementById("advertForm");
 
-            const TOKEN_COST_PER_CLICK = 10;
+    const TOKEN_COST_PER_CLICK = 10;
 
-            // Update cost preview when clicks are updated
-            clicksInput.addEventListener("input", function () {
-                const clicks = parseInt(clicksInput.value) || 0;
-                const totalCost = clicks * TOKEN_COST_PER_CLICK;
-                costPreview.textContent = `Cost: ${totalCost} SupremeAmer Tokens`;
-            });
+    // Update cost preview
+    clicksInput.addEventListener("input", () => {
+        const clicks = parseInt(clicksInput.value) || 0;
+        const totalCost = clicks * TOKEN_COST_PER_CLICK;
+        costPreview.textContent = `Cost: ${totalCost} SupremeAmer Tokens`;
+    });
 
-            // Handle form submission
-            advertForm.addEventListener("submit", async function (event) {
-                event.preventDefault();
+    // Handle form submission
+    advertForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-                const clicks = parseInt(clicksInput.value) || 0;
-                const totalCost = clicks * TOKEN_COST_PER_CLICK;
+        const clicks = parseInt(clicksInput.value);
+        const totalCost = clicks * TOKEN_COST_PER_CLICK;
 
-                // Simulate checking the user's balance
-                const userBalance = await getUserBalance();
-
-                if (userBalance < totalCost) {
-                    alert("Insufficient balance. Redirecting to fund page...");
-                    redirectToFundPage();
-                    return;
-                }
-
-                // Deduct tokens and proceed with upload
-                const deductionSuccessful = await deductTokens(totalCost);
-                if (!deductionSuccessful) {
-                    alert("Error deducting tokens. Please try again.");
-                    return;
-                }
-
-                alert("Payment successful. Uploading advert...");
-
-                // Simulate file upload and advert creation
-                const uploadSuccess = await uploadAdvert();
-                if (uploadSuccess) {
-                    alert("Advert uploaded successfully!");
-                } else {
-                    alert("Error uploading advert. Please try again.");
-                }
-            });
-
-            // Handle cancellation
-            cancelBtn.addEventListener("click", function () {
-                if (confirm("Are you sure you want to cancel?")) {
-                    resetForm();
-                }
-            });
-
-            // Simulated API calls
-            async function getUserBalance() {
-                // Simulate getting user balance (replace with actual API call)
-                return 1000; // Example balance
-            }
-
-            async function redirectToFundPage() {
-                // Simulate redirect to fund page
-                window.location.href = "/fund";
-            }
-
-            async function deductTokens(amount) {
-                // Simulate deducting tokens (replace with actual API call)
-                console.log(`Deducting ${amount} tokens...`);
-                return true; // Simulate success
-            }
-
-            async function uploadAdvert() {
-                // Simulate advert upload (replace with actual API call)
-                console.log("Uploading advert...");
-                return true; // Simulate success
-            }
-
-            function resetForm() {
-                advertForm.reset();
-                costPreview.textContent = `Cost: ${TOKEN_COST_PER_CLICK} SupremeAmer Tokens`;
-            }
+        // Deduct tokens
+        const deductResponse = await fetch("/api/deduct-tokens", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cost: totalCost }),
         });
+
+        if (!deductResponse.ok) {
+            alert("Insufficient balance. Please fund your account.");
+            return;
+        }
+
+        // Upload advert
+        const formData = new FormData(advertForm);
+        const uploadResponse = await fetch("/api/upload-advert", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (uploadResponse.ok) {
+            alert("Advert uploaded successfully!");
+        } else {
+            alert("Error uploading advert. Please try again.");
+        }
+    });
+});
     </script>
 </body>
 </html>
