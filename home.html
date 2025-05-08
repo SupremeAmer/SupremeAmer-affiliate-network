@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SupremeAmer Affiliate Network</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="sty.css">
 </head>
 <body>
     <header class="header">
@@ -78,5 +78,216 @@
             <a href="#" class="nav-item">More</a>
         </nav>
     </footer>
+    <style>
+    
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #4b0082;
+    color: white;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.profile-section p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.logout {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.main-content {
+    padding: 20px;
+}
+
+.balance-section {
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.balance-section h2 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.action-buttons {
+    margin: 20px 0;
+}
+
+.fund-btn, .withdraw-btn {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    background-color: #4b0082;
+    cursor: pointer;
+}
+
+.buy-airtime {
+    display: inline-block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: #4b0082;
+    font-weight: bold;
+}
+
+.stats-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.stats-card {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    flex: 1;
+    margin: 0 10px;
+}
+
+.task-card {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.get-started-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #4b0082;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.advertise-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.post-advert-btn {
+    padding: 10px 20px;
+    background-color: #4b0082;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.advert-list {
+    display: flex;
+    justify-content: space-between;
+}
+
+.advert-card {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    flex: 1;
+    margin: 0 10px;
+}
+
+.advert-card img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.footer {
+    background-color: #4b0082;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    color: white;
+}
+
+.nav-menu .nav-item {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+</style>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Withdraw functionality
+    const withdrawBtn = document.querySelector(".withdraw-btn");
+    withdrawBtn.addEventListener("click", function () {
+        alert("Withdraw functionality executed.");
+        // Simulate withdraw logic (e.g., opening a modal or redirecting to a payment gateway)
+        // Example: window.location.href = "/withdraw";
+    });
+
+    // Post Advert functionality
+    const postAdvertBtn = document.querySelector(".post-advert-btn");
+    postAdvertBtn.addEventListener("click", function () {
+        alert("Post Advert functionality executed.");
+        // Simulate post advert logic (e.g., opening an advert form)
+        // Example: window.location.href = "/post-advert";
+    });
+
+    // Logout functionality
+    const logoutBtn = document.querySelector(".logout");
+    logoutBtn.addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent default link behavior
+        alert("You have been logged out.");
+        // Simulate logging out (e.g., clearing user session, redirecting to login page)
+        // Example: window.location.href = "/logout";
+    });
+
+    // Notifications functionality
+    const notificationsBtn = document.querySelector(".nav-item:nth-child(4)"); // Assuming the 4th menu item is Notifications
+    notificationsBtn.addEventListener("click", function () {
+        alert("Notifications functionality executed.");
+        // Simulate notifications logic (e.g., showing a dropdown or navigating to notifications page)
+        // Example: window.location.href = "/notifications";
+    });
+
+    // Earn functionality
+    const earnBtn = document.querySelector(".nav-item:nth-child(2)"); // Assuming the 2nd menu item is Earn
+    earnBtn.addEventListener("click", function () {
+        alert("Earn functionality executed.");
+        // Simulate earn logic (e.g., navigating to tasks or rewards page)
+        // Example: window.location.href = "/earn";
+    });
+
+    // Market functionality
+    const marketBtn = document.querySelector(".nav-item:nth-child(4)"); // Assuming the 4th menu item is Market
+    marketBtn.addEventListener("click", function () {
+        alert("Market functionality executed.");
+        // Simulate market logic (e.g., navigating to market page)
+        // Example: window.location.href = "/market";
+    });
+});
+    </script>
 </body>
 </html>
