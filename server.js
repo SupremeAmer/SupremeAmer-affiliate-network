@@ -1,13 +1,23 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-
+const path = require('path');
+const advertRoutes = require('./backend/advert-upload');
 const app = express();
-app.use(bodyParser.json());
-
-// Example API endpoint
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
-
 const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+// Middleware for parsing JSON and form data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// API routes
+app.use('/api', advertRoutes);
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
