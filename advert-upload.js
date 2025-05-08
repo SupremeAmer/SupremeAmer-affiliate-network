@@ -25,8 +25,7 @@ router.post('/deduct-tokens', (req, res) => {
     }
 
     user.balance -= cost;
-    res.json({ success: true, balance: user.balance });
-});
+   res.json({ success: true, balance: `$SA${user.balance}` }); // Updated from ₦ to $SA
 
 // Upload advert API
 router.post('/upload-advert', upload.array('images', 2), (req, res) => {
