@@ -1,92 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SupremeAmer Affiliate Network</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      animation: zoomIn 0.5s ease-in-out;
-    }
-    @keyframes zoomIn {
-      from {
-        transform: scale(0.8);
-      }
-      to {
-        transform: scale(1);
-      }
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #333;
-      color: white;
-      padding: 10px 20px;
-    }
-    header h1 {
-      font-size: 16px;
-    }
-    main {
-      padding: 20px;
-    }
-    .affiliate-programs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    .affiliate-program {
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 5px;
-      width: calc(50% - 10px);
-    }
-    footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #333;
-      color: white;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
-    footer button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 14px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SupremeAmer Affiliate Network</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <div id="user-details">User: SupremeAmer</div>
-    <div id="settings">Settings</div>
-  </header>
-  <main>
-    <h1>Welcome to SupremeAmer Affiliate Marketing Network</h1>
-    <button id="upload-ad-btn" style="margin-bottom: 20px;">+ Upload Advertisement</button>
-    <div class="affiliate-programs">
-      <!-- Example affiliate programs -->
-      <div class="affiliate-program">Program 1: Electronics</div>
-      <div class="affiliate-program">Program 2: Social Media</div>
-    </div>
-  </main>
-  <footer>
-    <button onclick="navigateTo('home')">Home</button>
-    <button onclick="navigateTo('chat')">Chat</button>
-    <button onclick="navigateTo('cashout')">Cashout</button>
-  </footer>
+    <header class="header">
+        <div class="logo">SupremeAmer</div>
+        <div class="profile-section">
+            <p>Welcome, Adebayor</p>
+            <a href="#" class="logout">Logout</a>
+        </div>
+    </header>
 
-  <script>
-    function navigateTo(page) {
-      alert('Navigating to ' + page + ' page!');
-    }
-  </script>
+    <main class="main-content">
+        <section class="balance-section">
+            <h2>₦50,970.50</h2>
+            <div class="action-buttons">
+                <button class="fund-btn">FUND</button>
+                <button class="withdraw-btn">WITHDRAW</button>
+            </div>
+            <a href="#" class="buy-airtime">Buy Airtime/Data</a>
+        </section>
+
+        <section class="stats-section">
+            <div class="stats-card">
+                <p>Total Earnings</p>
+                <h3>₦64.00</h3>
+            </div>
+            <div class="stats-card">
+                <p>Pending Balance</p>
+                <h3>₦0.00</h3>
+            </div>
+            <div class="stats-card">
+                <p>Amount Spent</p>
+                <h3>₦262,833.50</h3>
+            </div>
+        </section>
+
+        <section class="tasks-section">
+            <div class="task-card">
+                <p>Earn daily by posting adverts and performing tasks on your social media accounts</p>
+                <a href="#" class="get-started-btn">Get Started</a>
+            </div>
+            <div class="task-card">
+                <p>Get people to repost your adverts and perform social tasks for you on their social media account</p>
+                <a href="#" class="get-started-btn">Get Started</a>
+            </div>
+        </section>
+
+        <section class="advertise-section">
+            <h3>Advertise on SupremeAmer</h3>
+            <p>See top adverts from sellers near you</p>
+            <button class="post-advert-btn">Post Advert</button>
+        </section>
+
+        <section class="advert-list">
+            <div class="advert-card">
+                <img src="ad1.jpg" alt="Ad 1">
+                <p>rheenaautos @ Ikeja, Lagos, Nigeria</p>
+            </div>
+            <div class="advert-card">
+                <img src="ad2.jpg" alt="Ad 2">
+                <p>michaelokung @ Ikeja, Lagos, Nigeria</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <nav class="nav-menu">
+            <a href="#" class="nav-item">Home</a>
+            <a href="#" class="nav-item">Earn</a>
+            <a href="#" class="nav-item">Advertise</a>
+            <a href="#" class="nav-item">Market</a>
+            <a href="#" class="nav-item">More</a>
+        </nav>
+    </footer>
 </body>
 </html>
