@@ -1,98 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload Advertisement</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Advert</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    label {
-      font-weight: bold;
-    }
-    input, select, textarea {
-      padding: 5px;
-      font-size: 14px;
-      width: 100%;
-    }
-    button {
-      padding: 10px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+label {
+    font-weight: bold;
+}
+input, select, textarea {
+    padding: 5px;
+    font-size: 14px;
+    width: 100%;
+}
+button {
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
   </style>
 </head>
 <body>
-  <h1>Upload Advertisement</h1>
-  <form id="ad-upload-form">
-    <label for="category">Category:</label>
-    <select id="category" name="category" required>
-      <option value="electronics">Electronics</option>
-      <option value="computer">Computer and Phones</option>
-      <option value="clothing">Clothing</option>
-      <option value="social-media">Social Media</option>
-      <option value="services">Services</option>
-    </select>
-    <div id="dynamic-fields">
-      <!-- Dynamic fields will be added here -->
+    <div class="upload-advert-container">
+        <h1>Upload Your Advert</h1>
+        <form id="advertForm">
+            <label for="file1">Upload Image 1:</label>
+            <input type="file" id="file1" accept="image/*" required><br><br>
+
+            <label for="file2">Upload Image 2:</label>
+            <input type="file" id="file2" accept="image/*" required><br><br>
+
+            <label for="clicks">Select Number of Clicks:</label>
+            <input type="number" id="clicks" min="10" max="1000000" step="10" value="10" required><br><br>
+
+            <label for="socialMedia">Choose Social Media:</label>
+            <select id="socialMedia" required>
+                <option value="facebook">Facebook</option>
+                <option value="instagram">Instagram</option>
+                <option value="twitter">Twitter</option>
+            </select><br><br>
+
+            <label for="redirectUrl">Redirect URL:</label>
+            <input type="url" id="redirectUrl" placeholder="https://example.com" required><br><br>
+
+            <p id="costPreview">Cost: 10 SupremeAmer Tokens</p>
+
+            <button type="submit" id="submitBtn">Submit</button>
+            <button type="button" id="cancelBtn">Cancel</button>
+        </form>
     </div>
-    <button type="submit">Upload Advertisement</button>
-  </form>
 
-  <script>
-    const categorySelect = document.getElementById('category');
-    const dynamicFields = document.getElementById('dynamic-fields');
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const clicksInput = document.getElementById("clicks");
+            const costPreview = document.getElementById("costPreview");
+            const submitBtn = document.getElementById("submitBtn");
+            const cancelBtn = document.getElementById("cancelBtn");
+            const advertForm = document.getElementById("advertForm");
 
-    categorySelect.addEventListener('change', () => {
-      const selectedCategory = categorySelect.value;
-      dynamicFields.innerHTML = '';
+            const TOKEN_COST_PER_CLICK = 10;
 
-      if (['electronics', 'computer', 'clothing'].includes(selectedCategory)) {
-        dynamicFields.innerHTML = `
-          <label for="name">Name:</label>
-          <input type="text" id="name" name="name" required>
-          <label for="description">Description:</label>
-          <textarea id="description" name="description" required></textarea>
-          <label for="type">Type:</label>
-          <input type="text" id="type" name="type" required>
-          <label for="brand">Brand:</label>
-          <input type="text" id="brand" name="brand" required>
-          <label for="price">Price:</label>
-          <input type="number" id="price" name="price" required>
-        `;
-      } else if (selectedCategory === 'social-media') {
-        dynamicFields.innerHTML = `
-          <label for="social-media-type">Social Media Type:</label>
-          <select id="social-media-type" name="social-media-type" required>
-            <option value="facebook">Facebook</option>
-            <option value="instagram">Instagram</option>
-            <option value="x">X</option>
-            <option value="telegram">Telegram</option>
-            <option value="tiktok">TikTok</option>
-            <option value="youtube">YouTube</option>
-          </select>
-          <label for="description">Description:</label>
-          <textarea id="description" name="description" required></textarea>
-          <label for="clicks">Amount of Clicks:</label>
-          <input type="number" id="clicks" name="clicks" required>
-        `;
-      }
-    });
+            // Update cost preview when clicks are updated
+            clicksInput.addEventListener("input", function () {
+                const clicks = parseInt(clicksInput.value) || 0;
+                const totalCost = clicks * TOKEN_COST_PER_CLICK;
+                costPreview.textContent = `Cost: ${totalCost} SupremeAmer Tokens`;
+            });
 
-    document.getElementById('ad-upload-form').addEventListener('submit', (event) => {
-      event.preventDefault();
-      alert('Advertisement uploaded successfully!');
-    });
-  </script>
+            // Handle form submission
+            advertForm.addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const clicks = parseInt(clicksInput.value) || 0;
+                const totalCost = clicks * TOKEN_COST_PER_CLICK;
+
+                // Simulate checking the user's balance
+                const userBalance = await getUserBalance();
+
+                if (userBalance < totalCost) {
+                    alert("Insufficient balance. Redirecting to fund page...");
+                    redirectToFundPage();
+                    return;
+                }
+
+                // Deduct tokens and proceed with upload
+                const deductionSuccessful = await deductTokens(totalCost);
+                if (!deductionSuccessful) {
+                    alert("Error deducting tokens. Please try again.");
+                    return;
+                }
+
+                alert("Payment successful. Uploading advert...");
+
+                // Simulate file upload and advert creation
+                const uploadSuccess = await uploadAdvert();
+                if (uploadSuccess) {
+                    alert("Advert uploaded successfully!");
+                } else {
+                    alert("Error uploading advert. Please try again.");
+                }
+            });
+
+            // Handle cancellation
+            cancelBtn.addEventListener("click", function () {
+                if (confirm("Are you sure you want to cancel?")) {
+                    resetForm();
+                }
+            });
+
+            // Simulated API calls
+            async function getUserBalance() {
+                // Simulate getting user balance (replace with actual API call)
+                return 1000; // Example balance
+            }
+
+            async function redirectToFundPage() {
+                // Simulate redirect to fund page
+                window.location.href = "/fund";
+            }
+
+            async function deductTokens(amount) {
+                // Simulate deducting tokens (replace with actual API call)
+                console.log(`Deducting ${amount} tokens...`);
+                return true; // Simulate success
+            }
+
+            async function uploadAdvert() {
+                // Simulate advert upload (replace with actual API call)
+                console.log("Uploading advert...");
+                return true; // Simulate success
+            }
+
+            function resetForm() {
+                advertForm.reset();
+                costPreview.textContent = `Cost: ${TOKEN_COST_PER_CLICK} SupremeAmer Tokens`;
+            }
+        });
+    </script>
 </body>
 </html>
