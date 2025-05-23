@@ -60,38 +60,57 @@
   </div>
 
   <script>
-    function handleCredentialResponse(response) {
-      // Decode the JWT response from Google
-      const token = response.credential;
-      console.log("Google ID Token:", token);
+    let username = document.getElementById('username');
+let email = document.getElementById('email');
+let password = document.getElementById('password');
+let confirmPassword = document.getElementById('confirmPassword');
+let submitButton = document.getElementById('submit');
 
-      // Decode the ID token to get user info (optional)
-      const user = JSON.parse(atob(token.split('.')[1]));
-      console.log("User Info:", user);
+submitButton.addEventListener('click', (e) => {
+  e.preventDefault();
+  let errors = validateForm();
+  if (Object.keys(errors).length === 0) {
+    // Handle form submission here
+    console.log('Form submitted:', username.value, email.value, password.value, confirmPassword.value);
+    submitButton.disabled = true;
+    submitButton.innerHTML = 'Loading...';
+    setTimeout(() => {
+      window.location.href = 'home.html';
+    }, 30000);
+  } else {
+    displayErrors(errors);
+  }
+});
 
-      // Use the user info in your frontend application
-      alert(`Welcome, ${user.name}!`);
-    }
+function validateForm() {
+  let errors = {};
+  if (!username.value) {
+    errors.username = 'Username is required';
+  }
+  if (!email.value) {
+    errors.email = 'Email is required';
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email.value)) {
+    errors.email = 'Invalid email address';
+  }
+  if (!password.value) {
+    errors.password = 'Password is required';
+  } else if (password.value.length < 8) {
+    errors.password = 'Password must be at least 8 characters';
+  }
+  if (!confirmPassword.value) {
+    errors.confirmPassword = 'Confirm password is required';
+  } else if (password.value !== confirmPassword.value) {
+    errors.confirmPassword = 'Passwords do not match';
+  }
+  return errors;
+}
 
-    // Initialize Google Sign-In
-    window.onload = function () {
-      google.accounts.id.initialize({
-        client_id: "162953436158-1lhj30tqs7hvh2r9jschd01qlnsu0pj7.apps.googleusercontent.com",
-        callback: handleCredentialResponse
-      });
-      google.accounts.id.prompt(); // Automatically prompts the user to sign in
-    };
-
-    // Handle the form submission
-    document.getElementById("registration-form").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      console.log({ name, email, password });
-      // Use this data as needed (e.g., save locally or send to a backend)
-    });
+function displayErrors(errors) {
+  for (let id in errors) {
+    let errorElement = document.getElementById(`${id}Error`);
+    errorElement.innerHTML = errors[id];
+  }
+}
   </script>
 </body>
 </html>
