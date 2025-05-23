@@ -4,8 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registration Form</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
+  <form>
+  <label>
+    Username:
+    <input type="text" id="username" />
+    <div id="usernameError" style="color: red;"></div>
+  </label>
+  <br />
+  <label>
+    Email:
+    <input type="email" id="email" />
+    <div id="emailError" style="color: red;"></div>
+  </label>
+  <br />
+  <label>
+    Password:
+    <input type="password" id="password" />
+    <div id="passwordError" style="color: red;"></div>
+  </label>
+  <br />
+  <label>
+    Confirm Password:
+    <input type="password" id="confirmPassword" />
+    <div id="confirmPasswordError" style="color: red;"></div>
+  </label>
+  <br />
+  <button id="submit">Sign Up</button>
+  </form>
+  
+    <style>
     body {
       font-family: Arial, sans-serif;
     }
