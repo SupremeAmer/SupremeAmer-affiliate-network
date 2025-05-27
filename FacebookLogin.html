@@ -2,163 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Sign in with Facebook</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Google Fonts for Material feel -->
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
-  <!-- Google Material Icons for Facebook icon -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <style>
-    html, body {
-      min-height: 100vh;
-      margin: 0;
-      font-family: 'Roboto', Arial, sans-serif;
-      background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100vw;
-    }
-    .paper {
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 6px 30px 0 rgba(33,203,243,0.15);
-      min-width: 340px;
-      padding: 40px 32px;
-      text-align: center;
-      animation: pop-in 0.5s cubic-bezier(.68,-0.55,.27,1.55);
-    }
-    @keyframes pop-in {
-      0% { transform: scale(0.94) translateY(60px); opacity: 0; }
-      100% { transform: scale(1) translateY(0); opacity: 1; }
-    }
-    .fb-icon {
-      color: #1877f3;
-      font-size: 54px !important;
-      margin-bottom: 8px;
-      display: inline-block;
-    }
-    .fb-btn {
-      background: linear-gradient(90deg, #1877f3 0%, #21cbf3 100%);
-      color: #fff;
-      font-weight: 600;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      padding: 14px 32px;
-      margin-top: 18px;
-      margin-bottom: 0;
-      cursor: pointer;
-      box-shadow: 0 4px 20px 0 rgba(33,150,243,0.18);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: background 0.2s;
-      justify-content: center;
-    }
-    .fb-btn:hover {
-      background: linear-gradient(90deg, #125ccc 0%, #1696b6 100%);
-    }
-    .loading-spinner {
-      margin: 24px 0 0 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      animation: fadein 0.3s;
-    }
-    .loading-spinner .material-icons {
-      animation: spin 1.1s linear infinite;
-      font-size: 38px;
-      color: #2196F3;
-    }
-    @keyframes spin {
-      100% { transform: rotate(360deg);}
-    }
-    .error-message {
-      color: #d32f2f;
-      margin-top: 24px;
-      font-size: 15px;
-      animation: fadein 0.4s;
-    }
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(10px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-  </style>
+  <title>Telegram Login</title>
 </head>
 <body>
-  <div class="container">
-    <div class="paper">
-      <span class="material-icons fb-icon">facebook</span>
-      <h2 style="font-weight:700; margin-bottom:12px;">Sign in with Facebook</h2>
-      <div style="color:#616161; font-size:15px; margin-bottom:22px;">
-        Secure one-click login. No password required.
-      </div>
-      <button class="fb-btn" id="fb-login-btn">
-        <span class="material-icons">facebook</span>
-        Continue with Facebook
-      </button>
-      <div id="loading" style="display:none;" class="loading-spinner">
-        <span class="material-icons">autorenew</span>
-        <div style="margin-top:8px; font-size:13px; color:#555;">
-          Connecting to Facebook...
-        </div>
-      </div>
-      <div id="error" class="error-message" style="display:none;"></div>
-    </div>
-  </div>
-  <!-- Facebook SDK -->
+  <h2>Login with Telegram</h2>
+  <script async src="https://telegram.org/js/telegram-widget.js?7"
+    data-telegram-login="YourBotUsername"  <!-- Replace with your bot -->
+    data-size="large"
+    data-userpic="true"
+    data-onauth="onTelegramAuth(user)"></script>
+
   <script>
-    const FB_APP_ID = "3535690456739980"; // Your FB App ID
-
-    // Load Facebook SDK Asynchronously
-    window.fbAsyncInit = function () {
-      FB.init({
-        appId: FB_APP_ID,
-        cookie: true,
-        xfbml: true,
-        version: "v19.0"
-      });
-    };
-    (function(d, s, id){
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) {return;}
-      js = d.createElement(s); js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-
-    // UI Elements
-    const fbLoginBtn = document.getElementById("fb-login-btn");
-    const loadingDiv = document.getElementById("loading");
-    const errorDiv = document.getElementById("error");
-
-    fbLoginBtn.onclick = function () {
-      loadingDiv.style.display = "flex";
-      errorDiv.style.display = "none";
-      fbLoginBtn.style.display = "none";
-      FB.login(function(response) {
-        if (response.authResponse) {
-          FB.api('/me', { fields: 'id,name,email,picture' }, function(userData) {
-            loadingDiv.style.display = "none";
-            // You can send userData and response.authResponse.accessToken to your backend here
-            // For demo, just redirect:
-            window.location.href = "home.html";
-          });
-        } else {
-          loadingDiv.style.display = "none";
-          fbLoginBtn.style.display = "flex";
-          errorDiv.style.display = "block";
-          errorDiv.textContent = "Facebook login was cancelled.";
-        }
-      }, {scope: 'public_profile,email'});
-    };
+    function onTelegramAuth(user) {
+      // Store Telegram user info in localStorage/sessionStorage
+      localStorage.setItem('telegramUser', JSON.stringify(user));
+      // Redirect to home.html
+      window.location.href = 'home.html';
+    }
   </script>
 </body>
 </html>
