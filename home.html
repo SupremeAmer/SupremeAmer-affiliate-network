@@ -194,7 +194,10 @@
         <b>Advertisers:</b> Reach a motivated audience.<br>
         <b>Affiliates:</b> Get paid for your influence and effort.
       </p>
+      
       <button class="btn onboard-btn" id="onboardBtn">New? Take a Quick Tour</button>
+      <div id="user-info" style="margin:24px 0;text-align:center;"></div>
+<div id="activity-log" style="max-width:460px;margin:0 auto 24px auto;text-align:left;"></div>
     </section>
     <!-- Dashboard overview -->
     <section class="balance-section">
@@ -380,6 +383,37 @@
     document.querySelectorAll('.modal-bg').forEach(function(bg){
       bg.onclick = function(){ bg.classList.remove('open'); }
     });
+    <script>
+// --- Telegram User Info and Activity Logging (automatic) ---
+const user = JSON.parse(localStorage.getItem('telegramUser'));
+if (!user) {
+  // Not logged in, redirect to Telegram login page
+  window.location.href = 'TelegramLogin.html';
+} else {
+  // Show user info
+  document.getElementById('user-info').innerHTML = `
+    <p><b>ID:</b> ${user.id}</p>
+    <p><b>Name:</b> ${user.first_name} ${user.last_name || ""}</p>
+    <p><b>Username:</b> @${user.username || ""}</p>
+    <img src="${user.photo_url}" alt="Profile photo" style="max-width:100px;">
+  `;
+  // Auto-store activity
+  const activities = JSON.parse(localStorage.getItem('activities') || '{}');
+  const uid = user.id;
+  if (!activities[uid]) activities[uid] = [];
+  activities[uid].push({
+    action: "Visited home.html",
+    time: new Date().toISOString()
+  });
+  localStorage.setItem('activities', JSON.stringify(activities));
+  // Show activity log
+  const log = activities[uid] || [];
+  document.getElementById('activity-log').innerHTML =
+    log.length
+      ? `<h4>Your Recent Activities:</h4>` + log.map(a => `<div>${a.time}: ${a.action}</div>`).join('')
+      : '<div>No activities found.</div>';
+}
+</script>
   </script>
 </body>
 </html>
