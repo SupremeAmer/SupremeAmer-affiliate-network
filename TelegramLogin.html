@@ -2,33 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Appwrite Login</title>
+  <title>Appwrite Auth - Modern UI</title>
   <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h2>Login with Appwrite</h2>
-  <form id="login-form">
-    <input type="email" id="email" placeholder="Email" required /><br/>
-    <input type="password" id="password" placeholder="Password" required /><br/>
-    <button type="submit">Login</button>
-  </form>
-  <div id="error" style="color:red;"></div>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+    <div id="form-toggle" class="flex justify-center mb-6">
+      <button id="show-login" class="px-4 py-2 mr-2 bg-blue-100 text-blue-700 rounded">Login</button>
+      <button id="show-register" class="px-4 py-2 bg-gray-100 text-gray-700 rounded">Register</button>
+    </div>
+    <form id="register-form" class="hidden space-y-4">
+      <input type="text" id="reg-username" class="w-full border p-2 rounded" placeholder="Username" required />
+      <input type="email" id="reg-email" class="w-full border p-2 rounded" placeholder="Email" required />
+      <input type="password" id="reg-password" class="w-full border p-2 rounded" placeholder="Password" required />
+      <button type="submit" class="w-full bg-green-600 text-white p-2 rounded">Register</button>
+    </form>
+    <form id="login-form" class="space-y-4">
+      <input type="email" id="login-email" class="w-full border p-2 rounded" placeholder="Email" required />
+      <input type="password" id="login-password" class="w-full border p-2 rounded" placeholder="Password" required />
+      <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded">Login</button>
+    </form>
+    <div id="error" class="mt-4 text-red-600"></div>
+  </div>
   <script>
     // Initialize Appwrite
     const client = new Appwrite.Client();
     client
-      .setEndpoint(': https://cloud.appwrite.io/v1') // Replace with your endpoint
-      .setProject('6836db1d002d60646b91'); // Replace with your project ID
+      .setEndpoint('https://cloud.appwrite.io/v1') // Your endpoint
+      .setProject('fra-6836db1d002d60646b91');     // Your project ID
 
     const account = new Appwrite.Account(client);
 
-    document.getElementById('login-form').onsubmit = async function(e) {
+    // Toggle forms
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    document.getElementById('show-login').onclick = () => {
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+    };
+    document.getElementById('show-register').onclick = () => {
+      registerForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+    };
+
+    // Registration
+    registerForm.onsubmit = async function(e) {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      const username = document.getElementById('reg-username').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      try {
+        await account.create('unique()', email, password, username);
+        // Optionally, auto-login after registration
+        await account.createEmailSession(email, password);
+        window.location.href = 'home.html';
+      } catch (error) {
+        document.getElementById('error').innerText = error.message;
+      }
+    };
+
+    // Login
+    loginForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
       try {
         await account.createEmailSession(email, password);
-        // Redirect on successful login
         window.location.href = 'home.html';
       } catch (error) {
         document.getElementById('error').innerText = error.message;
