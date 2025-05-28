@@ -47,7 +47,7 @@
       loginForm.classList.add('hidden');
     };
 
-    // Helper: Record user activity
+    // Helper: Record user activity in Appwrite Database (optional)
     async function recordUserActivity(type, data = '') {
       try {
         const user = await account.get();
@@ -70,6 +70,26 @@
       }
     }
 
+    // Helper: Record user activity using Appwrite Function (recommended for central logic)
+    async function recordUserActivityFunction(type, data = '') {
+      try {
+        const user = await account.get();
+        await fetch('https://cloud.appwrite.io/v1/functions/YOUR_FUNCTION_ID/executions', { // <-- Replace YOUR_FUNCTION_ID!
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.$id,
+            username: user.name,
+            email: user.email,
+            activityType: type,
+            activityData: data
+          })
+        });
+      } catch (err) {
+        console.error('Function activity log error:', err);
+      }
+    }
+
     // Registration
     registerForm.onsubmit = async function(e) {
       e.preventDefault();
@@ -79,7 +99,10 @@
       try {
         await account.create('unique()', email, password, username);
         await account.createEmailSession(email, password);
-        await recordUserActivity('register', 'User registered');
+        // Log with Appwrite Function
+        await recordUserActivityFunction('register', 'User registered from TelegramLogin.html');
+        // (Optional: also log directly to DB)
+        // await recordUserActivity('register', 'User registered from TelegramLogin.html');
         window.location.href = 'home.html';
       } catch (error) {
         document.getElementById('error').innerText = error.message;
@@ -93,7 +116,10 @@
       const password = document.getElementById('login-password').value;
       try {
         await account.createEmailSession(email, password);
-        await recordUserActivity('login', 'User logged in');
+        // Log with Appwrite Function
+        await recordUserActivityFunction('login', 'User logged in from TelegramLogin.html');
+        // (Optional: also log directly to DB)
+        // await recordUserActivity('login', 'User logged in from TelegramLogin.html');
         window.location.href = 'home.html';
       } catch (error) {
         document.getElementById('error').innerText = error.message;
