@@ -2,22 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Telegram Login</title>
+  <title>Appwrite Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
 </head>
 <body>
-  <h2>Login with Telegram</h2>
-  <script async src="https://telegram.org/js/telegram-widget.js?7"
-    data-telegram-login="@supremeameraffiliate_network_bot"
-    data-userpic="true"
-    data-onauth="onTelegramAuth(user)"></script>
-
+  <h2>Login with Appwrite</h2>
+  <form id="login-form">
+    <input type="email" id="email" placeholder="Email" required /><br/>
+    <input type="password" id="password" placeholder="Password" required /><br/>
+    <button type="submit">Login</button>
+  </form>
+  <div id="error" style="color:red;"></div>
   <script>
-    function onTelegramAuth(user) {
-      // Store Telegram user info in localStorage/sessionStorage
-      localStorage.setItem('telegramUser', JSON.stringify(user));
-      // Redirect to home.html
-      window.location.href = 'home.html';
-    }
+    // Initialize Appwrite
+    const client = new Appwrite.Client();
+    client
+      .setEndpoint(': https://cloud.appwrite.io/v1') // Replace with your endpoint
+      .setProject('6836db1d002d60646b91'); // Replace with your project ID
+
+    const account = new Appwrite.Account(client);
+
+    document.getElementById('login-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await account.createEmailSession(email, password);
+        // Redirect on successful login
+        window.location.href = 'home.html';
+      } catch (error) {
+        document.getElementById('error').innerText = error.message;
+      }
+    };
   </script>
 </body>
 </html>
