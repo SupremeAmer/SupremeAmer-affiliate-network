@@ -18,20 +18,26 @@
     .modal-bg.open { display:flex; }
     .modal { background: #fff; border-radius: 18px; padding: 32px 27px; max-width: 95vw; box-shadow: 0 8px 36px #7c43bd28;}
     .footer-nav { position:fixed; bottom:0; left:0; width:100vw; z-index:100; background:#fff; box-shadow: 0 -2px 16px #0001;}
+    .welcome-card { animation: bounceIn 0.9s; }
+    @keyframes bounceIn { 0%{transform:scale(0.7);opacity:0;} 80%{transform:scale(1.1);} 100%{transform:scale(1);opacity:1;} }
   </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen pb-20 bg-gradient-to-b from-indigo-50 to-white">
 
   <!-- Header -->
   <header class="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-indigo-900 to-purple-700 shadow text-white">
-    <div>
-      <div class="text-2xl font-bold">SupremeAmer</div>
-      <div class="text-xs">The Affiliate Network for Smart Earners & Advertisers</div>
+    <div class="flex items-center gap-2">
+      <img src="logo.png" alt="Logo" class="w-10 h-10 rounded-full" /> <!-- TODO: Replace with your logo -->
+      <div>
+        <div class="text-2xl font-bold">SupremeAmer</div>
+        <div class="text-xs">The Affiliate Network for Smart Earners & Advertisers</div>
+      </div>
     </div>
     <div class="flex flex-col items-end">
       <span id="user-email" class="text-xs opacity-80"></span>
       <span id="user-username" class="text-lg font-semibold"></span>
       <button id="profileBtn" class="text-2xl">&#x263A;</button>
+      <button id="logoutBtn" class="text-red-600 px-3 py-1 rounded-lg mt-2 bg-white hover:bg-red-600 hover:text-white transition">Logout</button>
     </div>
     <!-- Profile Modal -->
     <div id="profileModal" class="modal-bg">
@@ -47,6 +53,22 @@
       </div>
     </div>
   </header>
+
+  <!-- Welcome Card (hidden by default, shown via JS) -->
+  <div id="welcomeCard" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+    <div class="welcome-card bg-white p-8 rounded-xl shadow-xl text-center relative max-w-xs mx-auto">
+      <img src="logo.png" class="mx-auto mb-4 w-20" alt="Logo" />
+      <h2 class="text-xl font-bold mb-2 text-indigo-900">Welcome to SupremeAmer!</h2>
+      <p class="mb-4">Congrats! You just earned a <b class="text-green-700">$SA500</b> bonus for joining.</p>
+      <button id="dismissWelcome" class="bg-purple-600 text-white px-6 py-2 rounded transition hover:bg-indigo-700">Let's Go!</button>
+      <span class="absolute top-1 right-2 text-2xl cursor-pointer" id="closeWelcome">&times;</span>
+    </div>
+  </div>
+
+  <!-- Pending rewards notice (stub) -->
+  <div id="pendingRewardsNotice" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-yellow-50 border border-yellow-300 text-yellow-900 px-6 py-3 rounded-xl shadow-lg hidden">
+    <span>Pending reward: <b id="pendingRewardAmt">$SA0</b>. Will be credited after verification.</span>
+  </div>
 
   <!-- Main Content -->
   <main class="pt-3 pb-24 max-w-3xl mx-auto">
@@ -83,7 +105,8 @@
             </select>
             <input type="number" id="ad-clicks" class="border rounded px-3 py-2" min="50" placeholder="Clicks (min 50)" required />
             <input type="url" id="ad-url" class="border rounded px-3 py-2" placeholder="Advert URL" required />
-            <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded">Submit</button>
+            <div id="ad-cost" class="text-sm text-indigo-700 my-2"></div>
+            <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded">Submit Advert</button>
           </form>
           <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal">Cancel</button>
         </div>
@@ -95,7 +118,7 @@
       <div class="mb-3">Share your unique invitation link to earn rewards!</div>
       <input type="text" readonly class="w-full border rounded px-3 py-2 mb-3 bg-gray-100" id="invite-link" />
       <button class="bg-green-600 text-white px-5 py-2 rounded" id="copyInviteBtn">Copy Invite Link</button>
-      <div class="mt-6">
+      <div class="my-5">
         <h3 class="font-semibold mb-2 text-indigo-800">Your Invited Friends</h3>
         <div id="invitee-list"></div>
       </div>
@@ -113,7 +136,7 @@
   </main>
 
   <!-- Footer Navigation -->
-  <nav class="footer-nav flex justify-around py-3 border-t">
+  <nav class="footer-nav flex justify-around py-3 border-t bg-white">
     <button class="tab-btn flex-1 py-2 rounded mx-1 active" data-tab="homeTab">Home</button>
     <button class="tab-btn flex-1 py-2 rounded mx-1" data-tab="marketTab">Market</button>
     <button class="tab-btn flex-1 py-2 rounded mx-1" data-tab="inviteTab">Invite</button>
@@ -140,16 +163,13 @@
   </div>
 
   <script>
-    // Appwrite config
+    // --- Appwrite Setup ---
     const client = new Appwrite.Client();
-    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370442000c3c15b9f3');
+    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370ba7000729b594e6'); // TODO: Replace
     const account = new Appwrite.Account(client);
     const databases = new Appwrite.Databases(client);
 
-    const SUPREMEAMER_TOKEN_ADDRESS = "YOUR_SUPREMEAMER_TOKEN_CONTRACT_ADDRESS";
-    const SUPREMEAMER_TOKEN_ABI = [ /* ... Your ERC20 ABI ... */ ];
-
-    // Tab navigation logic
+    // --- Tab Navigation ---
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.onclick = function() {
         document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
@@ -159,24 +179,35 @@
       };
     });
 
-    // Profile modal logic
+    // --- Modals & UI ---
     document.getElementById("profileBtn").onclick = () =>
       document.getElementById("profileModal").classList.add("open");
     document.querySelectorAll(".close-modal").forEach(btn =>
       btn.onclick = () => btn.closest(".modal-bg").classList.remove("open")
     );
-
-    // Help/Support modal
     document.getElementById("helpSupportBtn").onclick = () =>
       document.getElementById("helpSupportModal").classList.add("open");
 
-    // Appwrite authentication and main logic
+    // --- Logout ---
+    document.getElementById("logoutBtn").onclick = async () => {
+      await account.deleteSession('current');
+      window.location.reload();
+    };
+
+    // --- Dynamic Advert Cost Calculation ---
+    document.getElementById('ad-clicks').oninput = function() {
+      const clicks = parseInt(this.value) || 0;
+      document.getElementById('ad-cost').textContent = 'Total Cost: $' + (clicks * 0.10).toFixed(2);
+    };
+
+    // --- Main App Logic ---
     let currentUser = null;
     (async () => {
+      // --- Authentication ---
       try {
         currentUser = await account.get();
       } catch (error) {
-        // Prompt for login (replace this with a real login modal for production)
+        // Prompt for login (replace with a real login modal for production)
         const email = prompt("Enter your email to log in:");
         const password = prompt("Enter your password:");
         if (email && password) {
@@ -194,7 +225,7 @@
         }
       }
 
-      // User info UI
+      // --- User Profile Display ---
       document.getElementById("user-email").textContent = currentUser.email;
       document.getElementById("user-username").textContent =
         currentUser.name || currentUser.email.split('@')[0];
@@ -202,83 +233,94 @@
         currentUser.name || currentUser.email.split('@')[0];
       document.getElementById("user-email-modal").textContent = currentUser.email;
       document.getElementById("user-id").textContent = currentUser.$id;
+
+      // --- Invite Link Generation ---
       const inviteUrl = window.location.origin + "/register.html?invite=" + currentUser.$id;
       document.getElementById("invitation-url").textContent = inviteUrl;
       document.getElementById("invite-link").value = inviteUrl;
-
-      // Fetch account balance
-      try {
-        const txs = await databases.listDocuments('683705ff00244f73e93f', '6838d452002b08ad3c9c', [
-          Appwrite.Query.equal('userId', currentUser.$id),
-        ]);
-        let balance = txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
-        document.getElementById("account-balance").textContent = `$SA ${balance}`;
-      } catch {}
-
-      // Payment history modal
-      document.getElementById("paymentHistoryBtn").onclick = async () => {
-        const txs = await databases.listDocuments('683705ff00244f73e93f', '6838d452002b08ad3c9c', [
-          Appwrite.Query.equal('userId', currentUser.$id)
-        ]);
-        document.getElementById("payment-history-content").innerHTML =
-          "<ul>" + txs.documents.map(
-            tx => `<li>${tx.date}: <span class="text-green-700">${tx.type}</span> <b>${tx.amount}</b></li>`
-          ).join("") + "</ul>";
-        document.getElementById("paymentHistoryModal").classList.add("open");
-      };
-
-      // Invitee list on Invite tab activation
-      document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
-        const invited = await databases.listDocuments('683705ff00244f73e93f', '6838d38200133d8c3de0', [
-          Appwrite.Query.equal('invitedBy', currentUser.$id)
-        ]);
-        document.getElementById("invitee-list").innerHTML = invited.documents.length
-          ? invited.documents.map(u =>
-              `<div class="text-green-700">${u.name || u.email}</div>`
-            ).join('')
-          : "<div class='text-gray-500'>No invitees yet.</div>";
-      };
-
-      // Market list (adverts)
-      const renderMarket = async () => {
-        const ads = await databases.listDocuments('683705ff00244f73e93f', '6838d38200133d8c3de0');
-        document.getElementById("market-list").innerHTML = ads.documents.length
-          ? ads.documents.map(ad => `
-            <div class="border border-indigo-100 p-4 rounded-lg shadow my-2">
-              <div class="font-bold text-lg mb-1">${ad.title}</div>
-              <div class="text-xs mb-2">${ad.category} &bull; Goal: ${ad.goal} clicks</div>
-              <a href="${ad.url}" target="_blank" class="text-blue-500 underline">Visit Advert</a>
-            </div>
-          `).join('')
-          : "<div class='text-gray-500'>No adverts available. Upload one!</div>";
-      };
-      renderMarket();
-
-      // Upload Advert modal
-      document.getElementById("uploadAdvertBtn").onclick = () =>
-        document.getElementById("uploadAdvertModal").classList.add("open");
-      document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
-        e.preventDefault();
-        await databases.createDocument('683705ff00244f73e93f', '6838d38200133d8c3de0', 'unique()', {
-          title: document.getElementById('ad-title').value,
-          category: document.getElementById('ad-category').value,
-          goal: parseInt(document.getElementById('ad-clicks').value),
-          url: document.getElementById('ad-url').value,
-          poster: currentUser.$id
-        });
-        document.getElementById("uploadAdvertModal").classList.remove("open");
-        renderMarket();
-        this.reset();
-      };
-
-      // Copy invite link
       document.getElementById("copyInviteBtn").onclick = () => {
-        navigator.clipboard.writeText(document.getElementById("invite-link").value);
+        navigator.clipboard.writeText(inviteUrl);
         document.getElementById("copyInviteBtn").textContent = "Copied!";
         setTimeout(()=>{document.getElementById("copyInviteBtn").textContent="Copy Invite Link"},1200);
       };
 
-      // Wallet tab connect logic
+      // --- Invitee List (Stub: Replace with your Appwrite users collection logic) ---
+      document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
+        // TODO: Query your users collection for invitedBy == currentUser.$id
+        const invited = []; // Example: await databases.listDocuments('DB_ID', 'users', [Appwrite.Query.equal('invitedBy', currentUser.$id)]);
+        document.getElementById("invitee-list").innerHTML = invited.length
+          ? invited.map(u => `<div class="text-green-700">${u.name || u.email}</div>`).join('')
+          : "<div class='text-gray-500'>No invitees yet.</div>";
+      };
+
+      // --- Welcome Card & $SA500 Reward (Stub: Replace with real logic) ---
+      // TODO: Use your database to check if welcome bonus was given. Stub below:
+      let welcomeBonusGiven = false; // Example: from user profile document
+      if (!welcomeBonusGiven) {
+        document.getElementById("welcomeCard").classList.remove("hidden");
+        // On dismiss, mark as given and credit $SA500
+        function dismissWelcome() {
+          document.getElementById("welcomeCard").classList.add("hidden");
+          // TODO: Credit $SA500 to user's account (Appwrite transaction)
+          // TODO: Mark welcomeBonusGiven = true in your database
+        }
+        document.getElementById("dismissWelcome").onclick = dismissWelcome;
+        document.getElementById("closeWelcome").onclick = dismissWelcome;
+        document.getElementById("welcomeCard").onclick = e => { if (e.target === document.getElementById("welcomeCard")) dismissWelcome(); }
+      }
+
+      // --- Fetch Account Balance (Stub) ---
+      // TODO: Query transactions and sum up for current user
+      document.getElementById("account-balance").textContent = `$SA 0`; // Example
+
+      // --- Payment History Modal (Stub) ---
+      document.getElementById("paymentHistoryBtn").onclick = async () => {
+        // TODO: Query user's transactions
+        document.getElementById("payment-history-content").innerHTML = "<ul><li>Feature coming soon</li></ul>";
+        document.getElementById("paymentHistoryModal").classList.add("open");
+      };
+
+      // --- Render Market Adverts (Stub) ---
+      function renderMarket() {
+        // TODO: Query adverts collection
+        document.getElementById("market-list").innerHTML = `
+          <div class="border border-indigo-100 p-4 rounded-lg shadow my-2 flex justify-between items-center">
+            <div>
+              <div class="font-bold text-lg mb-1">Sample Advert</div>
+              <div class="text-xs mb-2">Social Media &bull; Goal: 100 clicks</div>
+              <a href="https://example.com" target="_blank" class="text-blue-500 underline">Visit Advert</a>
+            </div>
+            <button class="bg-green-500 text-white px-3 py-1 rounded participate-btn">Participate</button>
+          </div>
+        `;
+        // --- Participation Logic (Stub) ---
+        document.querySelectorAll('.participate-btn').forEach(btn => {
+          btn.onclick = function() {
+            // TODO: Handle participation (show screenshot upload modal, mark as pending, etc.)
+            document.getElementById("pendingRewardsNotice").classList.remove("hidden");
+            document.getElementById("pendingRewardAmt").textContent = "$SA500"; // Example value
+            setTimeout(() => document.getElementById("pendingRewardsNotice").classList.add("hidden"), 5000);
+          };
+        });
+      }
+      renderMarket();
+
+      // --- Upload Advert Logic (Stub) ---
+      document.getElementById("uploadAdvertBtn").onclick = () =>
+        document.getElementById("uploadAdvertModal").classList.add("open");
+      document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
+        e.preventDefault();
+        const clicks = parseInt(document.getElementById('ad-clicks').value);
+        const cost = clicks * 0.10;
+        // TODO: Simulate wallet deduction (use MetaMask/Ethers.js)
+        // TODO: Only upload advert if payment confirmed
+        alert('Advert upload stub: would deduct $' + cost + ' from wallet.');
+        document.getElementById("uploadAdvertModal").classList.remove("open");
+        this.reset();
+        renderMarket();
+      };
+
+      // --- Wallet Connect (Stub) ---
       document.getElementById("connectWalletBtn").onclick = async function() {
         if(window.ethereum) {
           const provider = new ethers.BrowserProvider(window.ethereum);
@@ -288,17 +330,15 @@
           document.getElementById("wallet-address").textContent = address;
           const ethBalance = ethers.formatEther(await provider.getBalance(address));
           document.getElementById("eth-balance").textContent = Number(ethBalance).toFixed(4) + " ETH";
-          // SupremeAmer token balance (requires real contract and ABI)
-          // const saToken = new ethers.Contract(SUPREMEAMER_TOKEN_ADDRESS, SUPREMEAMER_TOKEN_ABI, provider);
-          // const saBal = await saToken.balanceOf(address);
-          // const saDec = await saToken.decimals();
-          // document.getElementById("sa-balance").textContent = "$SA " + ethers.formatUnits(saBal, saDec);
+          // TODO: Query $SA balance from contract
           document.getElementById("wallet-details").classList.remove("hidden");
           document.getElementById("connectWalletBtn").textContent = "Wallet Connected";
         } else {
           alert("Please install MetaMask or a compatible wallet.");
         }
       };
+
+      // --- TODO: Implement advert completion verification, screenshot upload, delayed rewards, etc. ---
 
     })();
   </script>
