@@ -28,8 +28,14 @@
     <div class="flex justify-center my-4">
       <button id="fb-login-btn" class="w-full bg-blue-800 text-white p-2 rounded">Login with Facebook</button>
     </div>
+    <!-- GitHub Login Button -->
+    <div class="flex justify-center my-2">
+      <button id="github-login-btn" class="w-full bg-gray-900 text-white p-2 rounded flex items-center justify-center gap-2">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 .198a8 8 0 0 0-2.53 15.6c.4.074.547-.174.547-.386 0-.19-.007-.693-.01-1.36-2.226.483-2.695-1.073-2.695-1.073-.364-.924-.89-1.17-.89-1.17-.726-.497.055-.487.055-.487.803.057 1.226.825 1.226.825.714 1.222 1.872.87 2.328.666.072-.517.28-.871.508-1.073-1.777-.202-3.644-.889-3.644-3.956 0-.874.312-1.588.823-2.148-.083-.203-.357-1.018.078-2.122 0 0 .672-.215 2.2.82A7.67 7.67 0 0 1 8 4.844c.68.003 1.366.092 2.005.27 1.527-1.035 2.198-.82 2.198-.82.437 1.104.162 1.919.08 2.122.513.56.823 1.274.823 2.148 0 3.074-1.87 3.752-3.65 3.95.287.25.543.739.543 1.49 0 1.075-.01 1.942-.01 2.205 0 .214.145.463.55.384A8.001 8.001 0 0 0 8 .197z"/></svg>
+        Login with GitHub
+      </button>
+    </div>
     <p id="profile" class="mt-2 text-center text-green-700"></p>
-
     <div id="error" class="mt-4 text-red-600"></div>
   </div>
 
@@ -44,18 +50,17 @@
       fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
   </script>
-
   <script>
     // Facebook SDK initialization
     window.fbAsyncInit = function() {
       FB.init({
-        appId      : '{3535690456739980}', // <-- Replace with your Facebook App ID
+        appId      : '3535690456739980', // Your Facebook App ID
         xfbml      : true,
-        version    : '{v22.0}' // e.g., 'v20.0'
+        version    : 'v22.0' // Facebook Graph API version
       });
     };
 
-    // Facebook login handler
+    // Facebook login handler (click only)
     document.addEventListener('DOMContentLoaded', function() {
       const fbLoginBtn = document.getElementById('fb-login-btn');
       if (fbLoginBtn) {
@@ -66,7 +71,7 @@
               FB.api('/me', {fields: 'name,email'}, function(response) {
                 document.getElementById("profile").innerText =
                   "Good to see you, " + response.name + ". I see your email address is " + response.email + ".";
-                // You can also send response.email and response.name to your backend here if you want to register/login them
+                // Optionally, send response.email and response.name to your backend here
               });
             } else {
               document.getElementById("profile").innerText = "User cancelled Facebook login or did not authorize.";
@@ -76,13 +81,12 @@
       }
     });
   </script>
-
   <script>
     // Initialize Appwrite
     const client = new Appwrite.Client();
     client
-      .setEndpoint('https://cloud.appwrite.io/v1')
-      .setProject('fra-6836db1d002d60646b91');
+      .setEndpoint('https://fra.cloud.appwrite.io/v1')
+      .setProject('68370442000c3c15b9f3');
 
     const account = new Appwrite.Account(client);
     const databases = new Appwrite.Databases(client);
@@ -105,7 +109,7 @@
         const user = await account.get();
         await databases.createDocument(
           '683705ff00244f73e93f', // Your Database ID
-          '683706240012232516b0',      // Your Collection ID
+          '683706240012232516b0', // Your Collection ID
           'unique()',             // Document ID
           {
             userId: user.$id,
@@ -126,7 +130,7 @@
     async function recordUserActivityFunction(type, data = '') {
       try {
         const user = await account.get();
-        await fetch('https://cloud.appwrite.io/v1/functions/YOUR_FUNCTION_ID/executions', { // <-- Replace YOUR_FUNCTION_ID!
+        await fetch('https://cloud.appwrite.io/v1/functions/68370ba7000729b594e6/executions', { 
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -176,6 +180,16 @@
       } catch (error) {
         document.getElementById('error').innerText = error.message;
       }
+    };
+
+    // GitHub Login Handler
+    document.getElementById('github-login-btn').onclick = function(e) {
+      e.preventDefault();
+      account.createOAuth2Session(
+        'github',
+        window.location.origin + '/home.html',  // Success redirect (change as needed)
+        window.location.href                    // Failure redirect (back to login page)
+      );
     };
   </script>
 </body>
