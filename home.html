@@ -70,6 +70,16 @@
     <span>Pending reward: <b id="pendingRewardAmt">$SA0</b>. Will be credited after verification.</span>
   </div>
 
+  <!-- Screenshot proof modal -->
+  <div id="screenshotModal" class="modal-bg">
+    <div class="modal text-center">
+      <h3 class="font-bold mb-2 text-indigo-800">Upload Screenshot Proof</h3>
+      <input type="file" id="proofFile" accept="image/*" class="mb-3 block mx-auto" />
+      <button id="submitProofBtn" class="bg-green-600 text-white px-5 py-2 rounded">Submit Proof</button>
+      <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal">Cancel</button>
+    </div>
+  </div>
+
   <main class="pt-3 pb-24 max-w-3xl mx-auto">
     <div id="homeTab" class="tab-content active bg-white rounded-xl shadow p-7 my-3">
       <h2 class="text-xl font-bold mb-3 text-indigo-900">Dashboard Overview</h2>
@@ -166,6 +176,7 @@
     client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370442000c3c15b9f3'); // <-- Replace!
     const account = new Appwrite.Account(client);
     const databases = new Appwrite.Databases(client);
+    const storage = new Appwrite.Storage(client);
 
     // Tab Navigation
     document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -200,6 +211,10 @@
 
     // Main Logic
     let currentUser = null;
+    let userDocId = null;
+    let marketAdverts = [];
+    let pendingParticipation = null;
+
     (async () => {
       // Authentication
       try {
@@ -239,67 +254,164 @@
         setTimeout(()=>{document.getElementById("copyInviteBtn").textContent="Copy Invite Link"},1200);
       };
 
-      // Welcome Card & $SA500 Reward (Stub - Replace logic for actual bonus DB check)
-      let welcomeBonusGiven = false; // TODO: Check in your DB if user has welcomeBonus
-      if (!welcomeBonusGiven) {
+      // Get user document for referral and welcome bonus
+      let usersColl = 'users'; // Replace with your real collection
+      let txColl = 'transaction_collection'; // Replace with your real collection
+      let advertsColl = 'adverts'; // Replace with your real collection
+      let partsColl = 'participations'; // Replace with your real collection
+      let dbId = '683705ff00244f73e93f'; // Replace with your real DB ID
+
+      let userDocs = await databases.listDocuments(dbId, usersColl, [
+        Appwrite.Query.equal('email', currentUser.email)
+      ]);
+      let userDoc;
+      if (userDocs.documents.length > 0) {
+        userDoc = userDocs.documents[0];
+        userDocId = userDoc.$id;
+      }
+      else {
+        // Create user doc, set invitedBy if present in URL query
+        const urlParams = new URLSearchParams(window.location.search);
+        const invitedBy = urlParams.get('invite');
+        userDoc = await databases.createDocument(dbId, usersColl, 'unique()', {
+          email: currentUser.email,
+          name: currentUser.name,
+          invitedBy: invitedBy || "",
+          welcomeBonus: false
+        });
+        userDocId = userDoc.$id;
+      }
+
+      // Welcome Card & $SA500 Reward
+      if (!userDoc.welcomeBonus) {
         document.getElementById("welcomeCard").classList.remove("hidden");
-        function dismissWelcome() {
+        async function dismissWelcome() {
           document.getElementById("welcomeCard").classList.add("hidden");
-          // TODO: Credit $SA500 to user's account (Appwrite transaction)
-          // TODO: Mark welcomeBonusGiven = true in your database
+          // Credit $SA500
+          await databases.createDocument(dbId, txColl, 'unique()', {
+            userId: currentUser.$id,
+            type: "credit",
+            amount: 500,
+            date: new Date().toISOString(),
+            description: "Welcome Bonus",
+            status: "completed"
+          });
+          await databases.updateDocument(dbId, usersColl, userDocId, { welcomeBonus: true });
+          loadBalance();
         }
         document.getElementById("dismissWelcome").onclick = dismissWelcome;
         document.getElementById("closeWelcome").onclick = dismissWelcome;
         document.getElementById("welcomeCard").onclick = e => { if (e.target === document.getElementById("welcomeCard")) dismissWelcome(); }
       }
 
-      // Fetch account balance (Stub)
-      try {
-        const txs = await databases.listDocuments('YOUR_DB_ID', 'transactions', [Appwrite.Query.equal('userId', currentUser.$id)]);
+      // Account Balance
+      async function loadBalance() {
+        const txs = await databases.listDocuments(dbId, txColl, [
+          Appwrite.Query.equal('userId', currentUser.$id)
+        ]);
         let balance = txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
         document.getElementById("account-balance").textContent = `$SA ${balance}`;
-      } catch {}
+      }
+      await loadBalance();
 
-      // Payment history (Stub)
+      // Payment history
       document.getElementById("paymentHistoryBtn").onclick = async () => {
-        // TODO: Query user's transactions
-        document.getElementById("payment-history-content").innerHTML = "<ul><li>Feature coming soon</li></ul>";
+        const txs = await databases.listDocuments(dbId, txColl, [
+          Appwrite.Query.equal('userId', currentUser.$id)
+        ]);
+        document.getElementById("payment-history-content").innerHTML =
+          "<ul>" + txs.documents.map(
+            tx => `<li>${tx.date}: <span class="text-green-700">${tx.type}</span> <b>${tx.amount}</b> (${tx.description || ""})</li>`
+          ).join("") + "</ul>";
         document.getElementById("paymentHistoryModal").classList.add("open");
       };
 
       // Invitee List
       document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
-        // TODO: Query your users collection for invitedBy == currentUser.$id
-        const invited = []; // Example: await databases.listDocuments('YOUR_DB_ID', 'users', [Appwrite.Query.equal('invitedBy', currentUser.$id)]);
-        document.getElementById("invitee-list").innerHTML = invited.length
-          ? invited.map(u => `<div class="text-green-700">${u.name || u.email} <span class="text-xs text-gray-500">(${u.$id})</span></div>`).join('')
+        const invited = await databases.listDocuments(dbId, usersColl, [
+          Appwrite.Query.equal('invitedBy', currentUser.$id)
+        ]);
+        document.getElementById("invitee-list").innerHTML = invited.documents.length
+          ? invited.documents.map(u => `<div class="text-green-700">${u.name || u.email} <span class="text-xs text-gray-500">(${u.$id})</span></div>`).join('')
           : "<div class='text-gray-500'>No invitees yet.</div>";
       };
 
-      // Render Market Adverts
-      function renderMarket() {
-        // TODO: Query adverts collection
-        document.getElementById("market-list").innerHTML = `
-          <div class="border border-indigo-100 p-4 rounded-lg shadow my-2 flex justify-between items-center">
-            <div>
-              <div class="font-bold text-lg mb-1">Sample Advert</div>
-              <div class="text-xs mb-2">Social Media &bull; Goal: 100 clicks</div>
-              <a href="https://example.com" target="_blank" class="text-blue-500 underline">Visit Advert</a>
+      // Market Adverts
+      async function renderMarket() {
+        let docs = await databases.listDocuments(dbId, advertsColl, [
+          Appwrite.Query.equal('active', true)
+        ]);
+        marketAdverts = docs.documents;
+        document.getElementById("market-list").innerHTML = marketAdverts.length
+          ? marketAdverts.map(ad => `
+            <div class="border border-indigo-100 p-4 rounded-lg shadow my-2 flex flex-col md:flex-row md:items-center justify-between transition-all duration-200">
+              <div>
+                <div class="font-bold text-lg mb-1">${ad.title}</div>
+                <div class="text-xs mb-2">${ad.category} &bull; Goal: ${ad.goal} clicks</div>
+                <a href="${ad.url}" target="_blank" class="text-blue-500 underline">Visit Advert</a>
+              </div>
+              <button class="bg-green-500 text-white px-3 py-1 rounded participate-btn mt-2 md:mt-0" data-adid="${ad.$id}">Participate</button>
             </div>
-            <button class="bg-green-500 text-white px-3 py-1 rounded participate-btn">Participate</button>
-          </div>
-        `;
-        // Participation Logic (Stub: show pending reward)
+          `).join('')
+          : "<div class='text-gray-500'>No adverts available. Upload one!</div>";
+
+        // Participation logic
         document.querySelectorAll('.participate-btn').forEach(btn => {
           btn.onclick = function() {
-            document.getElementById("pendingRewardsNotice").classList.remove("hidden");
-            document.getElementById("pendingRewardAmt").textContent = "$SA500"; // Example
-            setTimeout(() => document.getElementById("pendingRewardsNotice").classList.add("hidden"), 5000);
-            // TODO: Remove advert after 1.55*goal clicks, handle screenshot upload, etc.
+            pendingParticipation = btn.getAttribute('data-adid');
+            document.getElementById("screenshotModal").classList.add("open");
           };
         });
       }
-      renderMarket();
+      await renderMarket();
+
+      // Screenshot proof logic
+      document.getElementById("submitProofBtn").onclick = async function() {
+        const fileInput = document.getElementById('proofFile');
+        if (!fileInput.files[0]) return alert("Please select a screenshot!");
+        // Upload to Appwrite Storage
+        let file = fileInput.files[0];
+        let up = await storage.createFile(dbId, 'adproofs', 'unique()', file);
+        let proofUrl = storage.getFileView(dbId, 'adproofs', up.$id).href;
+        // Store participation
+        let ad = marketAdverts.find(a => a.$id === pendingParticipation);
+        let reward = Math.floor(Math.random()*701) + 300; // 300-1000
+        await databases.createDocument(dbId, partsColl, 'unique()', {
+          advertId: ad.$id,
+          userId: currentUser.$id,
+          posterId: ad.poster,
+          screenshotUrl: proofUrl,
+          status: "pending",
+          joinedAt: new Date().toISOString(),
+          rewardAmount: reward
+        });
+        // Update ad clicks
+        await databases.updateDocument(dbId, advertsColl, ad.$id, {
+          clicks: (ad.clicks || 0) + 1
+        });
+        // If reached maxClicks, deactivate
+        if ((ad.clicks || 0) + 1 >= Math.round(ad.goal * 1.55)) {
+          await databases.updateDocument(dbId, advertsColl, ad.$id, {active: false});
+        }
+        document.getElementById("screenshotModal").classList.remove("open");
+        document.getElementById("pendingRewardsNotice").classList.remove("hidden");
+        document.getElementById("pendingRewardAmt").textContent = "$SA" + reward;
+        setTimeout(() => document.getElementById("pendingRewardsNotice").classList.add("hidden"), 5000);
+        // Delayed reward (simulate with setTimeout for demo, use Appwrite functions for real!!)
+        setTimeout(async () => {
+          await databases.createDocument(dbId, txColl, 'unique()', {
+            userId: currentUser.$id,
+            type: "credit",
+            amount: reward,
+            date: new Date().toISOString(),
+            description: "Advert reward",
+            status: "completed"
+          });
+          await databases.updateDocument(dbId, partsColl, up.$id, {status: "rewarded"});
+          loadBalance();
+        }, 3 * 3600 * 1000); // 3 hours
+        await renderMarket();
+      };
 
       // Upload Advert
       document.getElementById("uploadAdvertBtn").onclick = () =>
@@ -317,11 +429,30 @@
             // TODO: Real payment logic - send cost in ETH to your wallet
             // await signer.sendTransaction({ to: "YOUR_WALLET_ADDRESS", value: ethers.parseEther(costInEth) });
             // On success, upload advert:
-            // await databases.createDocument('YOUR_DB_ID', 'adverts', 'unique()', {...});
-            alert('Advert upload stub: would deduct $' + cost + ' from wallet.');
+            await databases.createDocument(dbId, advertsColl, 'unique()', {
+              title: document.getElementById('ad-title').value,
+              category: document.getElementById('ad-category').value,
+              goal: clicks,
+              url: document.getElementById('ad-url').value,
+              poster: currentUser.$id,
+              active: true,
+              clicks: 0,
+              maxClicks: Math.round(clicks * 1.55),
+              createdAt: new Date().toISOString()
+            });
+            await databases.createDocument(dbId, txColl, 'unique()', {
+              userId: currentUser.$id,
+              type: "debit",
+              amount: -cost,
+              date: new Date().toISOString(),
+              description: "Advert upload payment",
+              status: "completed"
+            });
+            alert('Advert uploaded!');
             document.getElementById("uploadAdvertModal").classList.remove("open");
             this.reset();
-            renderMarket();
+            await renderMarket();
+            loadBalance();
           } catch (err) {
             alert('Wallet transaction failed or rejected.');
           }
@@ -340,15 +471,12 @@
           document.getElementById("wallet-address").textContent = address;
           const ethBalance = ethers.formatEther(await provider.getBalance(address));
           document.getElementById("eth-balance").textContent = Number(ethBalance).toFixed(4) + " ETH";
-          // TODO: Query $SA balance from contract
           document.getElementById("wallet-details").classList.remove("hidden");
           document.getElementById("connectWalletBtn").textContent = "Wallet Connected";
         } else {
           alert("Please install MetaMask or a compatible wallet.");
         }
       };
-
-      // TODO: Implement advert completion verification, screenshot upload, delayed rewards, etc.
 
     })();
   </script>
