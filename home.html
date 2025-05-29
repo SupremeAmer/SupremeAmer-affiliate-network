@@ -27,7 +27,7 @@
   <!-- Header -->
   <header class="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-indigo-900 to-purple-700 shadow text-white">
     <div class="flex items-center gap-2">
-      <img src="logo.png" alt="Logo" class="w-10 h-10 rounded-full" /> <!-- TODO: Replace with your logo -->
+      <img src="logo.png" alt="Logo" class="w-10 h-10 rounded-full" />
       <div>
         <div class="text-2xl font-bold">SupremeAmer</div>
         <div class="text-xs">The Affiliate Network for Smart Earners & Advertisers</div>
@@ -54,9 +54,9 @@
     </div>
   </header>
 
-  <!-- Welcome Card (hidden by default, shown via JS) -->
+  <!-- Welcome Card -->
   <div id="welcomeCard" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
-    <div class="welcome-card bg-white p-8 rounded-xl shadow-xl text-center relative max-w-xs mx-auto">
+    <div class="welcome-card bg-white p-8 rounded-xl shadow-xl text-center relative max-w-xs mx-auto animate-bounce">
       <img src="logo.png" class="mx-auto mb-4 w-20" alt="Logo" />
       <h2 class="text-xl font-bold mb-2 text-indigo-900">Welcome to SupremeAmer!</h2>
       <p class="mb-4">Congrats! You just earned a <b class="text-green-700">$SA500</b> bonus for joining.</p>
@@ -65,14 +65,12 @@
     </div>
   </div>
 
-  <!-- Pending rewards notice (stub) -->
+  <!-- Pending rewards notice -->
   <div id="pendingRewardsNotice" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-yellow-50 border border-yellow-300 text-yellow-900 px-6 py-3 rounded-xl shadow-lg hidden">
     <span>Pending reward: <b id="pendingRewardAmt">$SA0</b>. Will be credited after verification.</span>
   </div>
 
-  <!-- Main Content -->
   <main class="pt-3 pb-24 max-w-3xl mx-auto">
-    <!-- Tab Contents -->
     <div id="homeTab" class="tab-content active bg-white rounded-xl shadow p-7 my-3">
       <h2 class="text-xl font-bold mb-3 text-indigo-900">Dashboard Overview</h2>
       <div class="text-gray-800 font-semibold mb-1">Account Balance</div>
@@ -163,13 +161,13 @@
   </div>
 
   <script>
-    // --- Appwrite Setup ---
+    // Appwrite Setup
     const client = new Appwrite.Client();
-    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370ba7000729b594e6'); // TODO: Replace
+    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370442000c3c15b9f3'); // <-- Replace!
     const account = new Appwrite.Account(client);
     const databases = new Appwrite.Databases(client);
 
-    // --- Tab Navigation ---
+    // Tab Navigation
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.onclick = function() {
         document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
@@ -179,7 +177,7 @@
       };
     });
 
-    // --- Modals & UI ---
+    // Modals
     document.getElementById("profileBtn").onclick = () =>
       document.getElementById("profileModal").classList.add("open");
     document.querySelectorAll(".close-modal").forEach(btn =>
@@ -188,26 +186,25 @@
     document.getElementById("helpSupportBtn").onclick = () =>
       document.getElementById("helpSupportModal").classList.add("open");
 
-    // --- Logout ---
+    // Logout
     document.getElementById("logoutBtn").onclick = async () => {
       await account.deleteSession('current');
       window.location.reload();
     };
 
-    // --- Dynamic Advert Cost Calculation ---
+    // Advert Cost Calculation
     document.getElementById('ad-clicks').oninput = function() {
       const clicks = parseInt(this.value) || 0;
       document.getElementById('ad-cost').textContent = 'Total Cost: $' + (clicks * 0.10).toFixed(2);
     };
 
-    // --- Main App Logic ---
+    // Main Logic
     let currentUser = null;
     (async () => {
-      // --- Authentication ---
+      // Authentication
       try {
         currentUser = await account.get();
       } catch (error) {
-        // Prompt for login (replace with a real login modal for production)
         const email = prompt("Enter your email to log in:");
         const password = prompt("Enter your password:");
         if (email && password) {
@@ -225,7 +222,7 @@
         }
       }
 
-      // --- User Profile Display ---
+      // User Profile
       document.getElementById("user-email").textContent = currentUser.email;
       document.getElementById("user-username").textContent =
         currentUser.name || currentUser.email.split('@')[0];
@@ -233,8 +230,6 @@
         currentUser.name || currentUser.email.split('@')[0];
       document.getElementById("user-email-modal").textContent = currentUser.email;
       document.getElementById("user-id").textContent = currentUser.$id;
-
-      // --- Invite Link Generation ---
       const inviteUrl = window.location.origin + "/register.html?invite=" + currentUser.$id;
       document.getElementById("invitation-url").textContent = inviteUrl;
       document.getElementById("invite-link").value = inviteUrl;
@@ -244,21 +239,10 @@
         setTimeout(()=>{document.getElementById("copyInviteBtn").textContent="Copy Invite Link"},1200);
       };
 
-      // --- Invitee List (Stub: Replace with your Appwrite users collection logic) ---
-      document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
-        // TODO: Query your users collection for invitedBy == currentUser.$id
-        const invited = []; // Example: await databases.listDocuments('DB_ID', 'users', [Appwrite.Query.equal('invitedBy', currentUser.$id)]);
-        document.getElementById("invitee-list").innerHTML = invited.length
-          ? invited.map(u => `<div class="text-green-700">${u.name || u.email}</div>`).join('')
-          : "<div class='text-gray-500'>No invitees yet.</div>";
-      };
-
-      // --- Welcome Card & $SA500 Reward (Stub: Replace with real logic) ---
-      // TODO: Use your database to check if welcome bonus was given. Stub below:
-      let welcomeBonusGiven = false; // Example: from user profile document
+      // Welcome Card & $SA500 Reward (Stub - Replace logic for actual bonus DB check)
+      let welcomeBonusGiven = false; // TODO: Check in your DB if user has welcomeBonus
       if (!welcomeBonusGiven) {
         document.getElementById("welcomeCard").classList.remove("hidden");
-        // On dismiss, mark as given and credit $SA500
         function dismissWelcome() {
           document.getElementById("welcomeCard").classList.add("hidden");
           // TODO: Credit $SA500 to user's account (Appwrite transaction)
@@ -269,18 +253,30 @@
         document.getElementById("welcomeCard").onclick = e => { if (e.target === document.getElementById("welcomeCard")) dismissWelcome(); }
       }
 
-      // --- Fetch Account Balance (Stub) ---
-      // TODO: Query transactions and sum up for current user
-      document.getElementById("account-balance").textContent = `$SA 0`; // Example
+      // Fetch account balance (Stub)
+      try {
+        const txs = await databases.listDocuments('YOUR_DB_ID', 'transactions', [Appwrite.Query.equal('userId', currentUser.$id)]);
+        let balance = txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+        document.getElementById("account-balance").textContent = `$SA ${balance}`;
+      } catch {}
 
-      // --- Payment History Modal (Stub) ---
+      // Payment history (Stub)
       document.getElementById("paymentHistoryBtn").onclick = async () => {
         // TODO: Query user's transactions
         document.getElementById("payment-history-content").innerHTML = "<ul><li>Feature coming soon</li></ul>";
         document.getElementById("paymentHistoryModal").classList.add("open");
       };
 
-      // --- Render Market Adverts (Stub) ---
+      // Invitee List
+      document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
+        // TODO: Query your users collection for invitedBy == currentUser.$id
+        const invited = []; // Example: await databases.listDocuments('YOUR_DB_ID', 'users', [Appwrite.Query.equal('invitedBy', currentUser.$id)]);
+        document.getElementById("invitee-list").innerHTML = invited.length
+          ? invited.map(u => `<div class="text-green-700">${u.name || u.email} <span class="text-xs text-gray-500">(${u.$id})</span></div>`).join('')
+          : "<div class='text-gray-500'>No invitees yet.</div>";
+      };
+
+      // Render Market Adverts
       function renderMarket() {
         // TODO: Query adverts collection
         document.getElementById("market-list").innerHTML = `
@@ -293,34 +289,48 @@
             <button class="bg-green-500 text-white px-3 py-1 rounded participate-btn">Participate</button>
           </div>
         `;
-        // --- Participation Logic (Stub) ---
+        // Participation Logic (Stub: show pending reward)
         document.querySelectorAll('.participate-btn').forEach(btn => {
           btn.onclick = function() {
-            // TODO: Handle participation (show screenshot upload modal, mark as pending, etc.)
             document.getElementById("pendingRewardsNotice").classList.remove("hidden");
-            document.getElementById("pendingRewardAmt").textContent = "$SA500"; // Example value
+            document.getElementById("pendingRewardAmt").textContent = "$SA500"; // Example
             setTimeout(() => document.getElementById("pendingRewardsNotice").classList.add("hidden"), 5000);
+            // TODO: Remove advert after 1.55*goal clicks, handle screenshot upload, etc.
           };
         });
       }
       renderMarket();
 
-      // --- Upload Advert Logic (Stub) ---
+      // Upload Advert
       document.getElementById("uploadAdvertBtn").onclick = () =>
         document.getElementById("uploadAdvertModal").classList.add("open");
       document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
         e.preventDefault();
         const clicks = parseInt(document.getElementById('ad-clicks').value);
         const cost = clicks * 0.10;
-        // TODO: Simulate wallet deduction (use MetaMask/Ethers.js)
-        // TODO: Only upload advert if payment confirmed
-        alert('Advert upload stub: would deduct $' + cost + ' from wallet.');
-        document.getElementById("uploadAdvertModal").classList.remove("open");
-        this.reset();
-        renderMarket();
+        // Simulate wallet deduction (stub)
+        if(window.ethereum) {
+          try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            await window.ethereum.request({ method: "eth_requestAccounts" });
+            const signer = await provider.getSigner();
+            // TODO: Real payment logic - send cost in ETH to your wallet
+            // await signer.sendTransaction({ to: "YOUR_WALLET_ADDRESS", value: ethers.parseEther(costInEth) });
+            // On success, upload advert:
+            // await databases.createDocument('YOUR_DB_ID', 'adverts', 'unique()', {...});
+            alert('Advert upload stub: would deduct $' + cost + ' from wallet.');
+            document.getElementById("uploadAdvertModal").classList.remove("open");
+            this.reset();
+            renderMarket();
+          } catch (err) {
+            alert('Wallet transaction failed or rejected.');
+          }
+        } else {
+          alert("Please connect your wallet.");
+        }
       };
 
-      // --- Wallet Connect (Stub) ---
+      // Wallet connect
       document.getElementById("connectWalletBtn").onclick = async function() {
         if(window.ethereum) {
           const provider = new ethers.BrowserProvider(window.ethereum);
@@ -338,7 +348,7 @@
         }
       };
 
-      // --- TODO: Implement advert completion verification, screenshot upload, delayed rewards, etc. ---
+      // TODO: Implement advert completion verification, screenshot upload, delayed rewards, etc.
 
     })();
   </script>
