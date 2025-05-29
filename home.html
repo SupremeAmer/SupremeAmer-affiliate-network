@@ -140,12 +140,20 @@
   </div>
 
   <script>
-    // Appwrite config
-    const client = new Appwrite.Client();
-    client.setEndpoint('YOUR_APPWRITE_ENDPOINT').setProject('68370442000c3c15b9f3');
-    const account = new Appwrite.Account(client);
-    const databases = new Appwrite.Databases(client);
+const sdk = new Appwrite();
 
+sdk
+    .setEndpoint('https://fra.cloud.appwrite.io/v1')
+    .setProject('[68370442000c3c15b9f3]');
+
+try {
+    // Check if user is already logged in
+    const user = await sdk.account.get();
+    // User is logged in, no need to create a new session
+} catch (error) {
+    // User not logged in, safe to create a new session
+    await sdk.account.createEmailSession(email, password);
+}
     // SupremeAmer Token
     const SUPREMEAMER_TOKEN_ADDRESS = "YOUR_SUPREMEAMER_TOKEN_CONTRACT_ADDRESS";
     const SUPREMEAMER_TOKEN_ABI = [ /* ... Your ERC20 ABI ... */ ];
