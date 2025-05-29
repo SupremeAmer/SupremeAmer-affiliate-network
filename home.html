@@ -5,385 +5,286 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SupremeAmer Affiliate Network</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Web3Modal, Ethers.js (for wallet connections) -->
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
-  <script src="https://unpkg.com/@walletconnect/web3modal@2.4.0/dist/web3modal.umd.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', Arial, sans-serif;
-      background: linear-gradient(120deg, #f8f8f8 60%, #e8eaf6 100%);
-    }
-    .fade-in { animation: fadeIn 1s; }
-    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-    .slide-up { animation: slideUp 0.7s; }
-    @keyframes slideUp { from { transform: translateY(40px); opacity:0; } to { transform: translateY(0); opacity:1; } }
-    .scale-in { animation: scaleIn 0.7s; }
-    @keyframes scaleIn { 0% { transform: scale(0.8); opacity:0; } 60% { transform: scale(1.05); opacity:1; } 100% { transform:scale(1); } }
-    .notif-badge { background: #f59e42; color: #fff; border-radius: 50%; padding: 0.22em 0.62em; font-size: 0.87em; margin-left: 0.25em; animation: bounceIn 1s; }
-    @keyframes bounceIn { 0%{transform:scale(0.5);} 40%{transform:scale(1.3);} 100%{transform:scale(1);} }
-    /* Custom scrollbar for advert list */
-    .market-scroll::-webkit-scrollbar { width:8px; background: #eee;}
-    .market-scroll::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius:4px;}
-
-    /* Modal overlay */
-    .modal-bg {
-      display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(32,0,64,0.18); z-index: 2000; justify-content: center; align-items: center;
-    }
-    .modal-bg.open { display: flex; }
-    .modal { background: #fff; border-radius: 16px; padding: 34px 28px 28px 28px; min-width: 320px; max-width: 94vw;
-      box-shadow: 0 7px 34px rgba(75,0,130,0.19); text-align: center; animation: scaleIn 0.7s;
-    }
+    body { font-family: 'Inter', Arial, sans-serif; background: #f8f8f8; }
+    .tab-btn.active { background: linear-gradient(90deg, #4b0082 60%, #7c43bd 100%); color: #fff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.4s; }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    .modal-bg { display:none; position:fixed; top:0;left:0;width:100vw;height:100vh;background:rgba(32,0,64,0.21);z-index:1200;align-items:center;justify-content:center;}
+    .modal-bg.open { display:flex; }
+    .modal { background: #fff; border-radius: 18px; padding: 32px 27px; max-width: 95vw; box-shadow: 0 8px 36px #7c43bd28;}
   </style>
 </head>
-<body class="fade-in">
-  <!-- HEADER -->
-  <header class="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-indigo-900 to-purple-600 shadow-lg text-white">
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-indigo-900 to-purple-700 shadow text-white">
     <div>
-      <div class="text-2xl font-bold tracking-wide">SupremeAmer</div>
-      <div class="text-sm opacity-90">The Affiliate Network for Smart Earners &amp; Advertisers</div>
+      <div class="text-2xl font-bold">SupremeAmer</div>
+      <div class="text-xs">The Affiliate Network for Smart Earners & Advertisers</div>
     </div>
-    <div class="profile-section relative">
-      <span id="welcome-user" class="font-semibold"></span>
-      <button class="profile-dropdown-btn ml-2 text-lg hover:text-purple-200" title="Account">&#x25BC;</button>
-      <div class="profile-dropdown absolute right-0 top-8 bg-white text-gray-800 rounded-lg shadow-lg min-w-[170px] z-50 hidden">
-        <a href="#" class="block px-5 py-3 hover:bg-indigo-50">Profile & Settings</a>
-        <a href="#" class="block px-5 py-3 hover:bg-indigo-50">Referral Link</a>
-        <a href="#" class="block px-5 py-3 hover:bg-indigo-50">Payment History</a>
-        <a href="#" class="block px-5 py-3 hover:bg-indigo-50">Support & Help</a>
-        <button class="logout block w-full text-left px-5 py-3 hover:bg-red-50 text-red-600">Logout</button>
+    <div class="flex flex-col items-end">
+      <span id="user-email" class="text-xs opacity-80"></span>
+      <span id="user-username" class="text-lg font-semibold"></span>
+      <button id="profileBtn" class="text-2xl">&#x263A;</button>
+    </div>
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal-bg">
+      <div class="modal">
+        <h3 class="font-bold mb-2 text-indigo-800">Your Profile</h3>
+        <div><b>ID:</b> <span id="user-id"></span></div>
+        <div><b>Username:</b> <span id="user-username-modal"></span></div>
+        <div><b>Email:</b> <span id="user-email-modal"></span></div>
+        <div class="mt-3"><b>Your Invitation Link:</b>
+          <div class="bg-gray-100 rounded px-3 py-1 mt-1 select-all" id="invitation-url"></div>
+        </div>
+        <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal">Close</button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
-  <main class="main-content px-4 max-w-5xl mx-auto pt-8 pb-32">
-    <!-- User Invitation Code -->
-    <section class="welcome-section bg-white rounded-2xl shadow-lg p-8 mb-6 scale-in">
-      <div class="flex flex-col items-center">
-        <h1 class="text-2xl font-bold text-indigo-900 mb-2">Invite Friends & Earn Rewards!</h1>
-        <p class="text-gray-700 mb-3 text-center">
-          Share your unique invitation code. For each friend who joins, you earn <span class="text-green-700 font-semibold">$SA 300</span>!
-        </p>
-        <div class="flex flex-col gap-2 items-center">
-          <span class="bg-indigo-100 rounded px-4 py-2 text-indigo-900 text-lg" id="invite-code">Loading...</span>
-          <button class="btn bg-purple-600 text-white font-semibold px-5 py-2 rounded hover:bg-purple-700 transition" id="copyInviteBtn">Copy Invite Code</button>
-          <button class="btn bg-indigo-500 text-white font-semibold px-5 py-2 rounded hover:bg-indigo-700 transition mt-2" id="showInviteesBtn">Show My Invited Friends</button>
-        </div>
-        <div id="invitee-list" class="mt-3 w-full"></div>
+  <!-- Account Balance -->
+  <section class="bg-white shadow rounded-2xl mx-auto mt-2 mb-2 p-5 max-w-lg flex flex-col items-center">
+    <div class="text-gray-800 font-semibold mb-1">Account Balance</div>
+    <div class="text-3xl text-indigo-800 font-bold mb-2" id="account-balance">$SA 0</div>
+    <div class="flex gap-4">
+      <button class="bg-blue-600 text-white px-5 py-2 rounded" id="fundBtn">Fund</button>
+      <button class="bg-green-600 text-white px-5 py-2 rounded" id="cashoutBtn">Cashout</button>
+      <button class="bg-orange-600 text-white px-5 py-2 rounded" id="paymentHistoryBtn">Payment History</button>
+    </div>
+  </section>
+
+  <!-- Tabs Navigation -->
+  <nav class="flex justify-center gap-2 mb-4 mt-2">
+    <button class="tab-btn px-5 py-2 rounded active" data-tab="homeTab">Home</button>
+    <button class="tab-btn px-5 py-2 rounded" data-tab="marketTab">Market</button>
+    <button class="tab-btn px-5 py-2 rounded" data-tab="inviteTab">Invite</button>
+    <button class="tab-btn px-5 py-2 rounded" data-tab="walletTab">Wallet</button>
+    <button class="tab-btn px-5 py-2 rounded" id="helpSupportBtn">Help & Support</button>
+  </nav>
+
+  <!-- Tab Contents -->
+  <div id="homeTab" class="tab-content active max-w-2xl mx-auto bg-white rounded-xl shadow p-7">
+    <h2 class="text-xl font-bold mb-3 text-indigo-900">Dashboard Overview</h2>
+    <div id="dashboard-content"></div>
+  </div>
+
+  <div id="marketTab" class="tab-content max-w-2xl mx-auto bg-white rounded-xl shadow p-7">
+    <h2 class="text-xl font-bold mb-3 text-indigo-900">Marketplace</h2>
+    <div id="market-list" class="mb-5"></div>
+    <button id="uploadAdvertBtn" class="bg-indigo-600 text-white px-6 py-2 rounded mb-2">Upload Advert</button>
+    <!-- Upload Modal -->
+    <div id="uploadAdvertModal" class="modal-bg">
+      <div class="modal">
+        <h3 class="font-bold mb-2 text-indigo-800">Upload Advert</h3>
+        <form id="uploadAdvertForm" class="flex flex-col gap-3">
+          <input type="text" id="ad-title" class="border rounded px-3 py-2" placeholder="Advert Title" required />
+          <select id="ad-category" class="border rounded px-3 py-2" required>
+            <option value="">Select Category</option>
+            <option value="Social Media">Social Media</option>
+            <option value="Referral">Referral</option>
+            <option value="Video/Content">Video/Content</option>
+            <option value="Crypto">Crypto</option>
+            <option value="Others">Others</option>
+          </select>
+          <input type="number" id="ad-clicks" class="border rounded px-3 py-2" min="50" placeholder="Clicks (min 50)" required />
+          <input type="url" id="ad-url" class="border rounded px-3 py-2" placeholder="Advert URL" required />
+          <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded">Submit</button>
+        </form>
+        <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal">Cancel</button>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- Account Balance & Wallet -->
-    <section class="balance-section flex flex-col items-center bg-white rounded-xl shadow-lg p-7 mb-6 fade-in">
-      <div class="balance-label text-lg text-gray-600 mb-2">Account Balance</div>
-      <h2 id="account-balance" class="text-3xl font-bold text-indigo-700 mb-2">$SA 0</h2>
-      <div class="flex gap-4 mb-2">
-        <button class="btn bg-blue-600 hover:bg-blue-800 transition text-white px-6 py-2 rounded fund-btn" id="fundBtn">FUND</button>
-        <button class="btn bg-green-600 hover:bg-green-800 transition text-white px-6 py-2 rounded withdraw-btn" id="withdrawBtn">WITHDRAW</button>
-      </div>
-      <div id="wallet-connect-section" class="w-full max-w-md">
-        <button id="connectWalletBtn" class="btn bg-yellow-500 hover:bg-yellow-600 transition text-black px-4 py-2 rounded my-2">Connect Wallet</button>
-        <div id="wallet-details" class="hidden mt-2 border border-indigo-200 rounded p-3 bg-indigo-50 text-indigo-900">
-          <div><b>Wallet Address:</b> <span id="wallet-address"></span></div>
-          <div><b>ETH Balance:</b> <span id="eth-balance"></span></div>
-          <div><b>SupremeAmer Token ($SA) Balance:</b> <span id="sa-balance"></span></div>
-        </div>
-      </div>
-      <div id="fund-modal" class="modal-bg"><div class="modal"><h3>Fund Wallet</h3><div id="fund-content"></div><button class="btn bg-blue-500 text-white mt-3 close-modal">Close</button></div></div>
-      <div id="withdraw-modal" class="modal-bg"><div class="modal"><h3>Withdraw Funds</h3>
-        <div id="withdraw-content"></div>
-        <button class="btn bg-green-500 text-white mt-3 close-modal">Close</button>
-      </div></div>
-    </section>
+  <div id="inviteTab" class="tab-content max-w-2xl mx-auto bg-white rounded-xl shadow p-7">
+    <h2 class="text-xl font-bold mb-3 text-indigo-900">Invite Friends</h2>
+    <div class="mb-3">Share your unique invitation link to earn rewards!</div>
+    <input type="text" readonly class="w-full border rounded px-3 py-2 mb-3 bg-gray-100" id="invite-link" />
+    <button class="bg-green-600 text-white px-5 py-2 rounded" id="copyInviteBtn">Copy Invite Link</button>
+    <div class="mt-6">
+      <h3 class="font-semibold mb-2 text-indigo-800">Your Invited Friends</h3>
+      <div id="invitee-list"></div>
+    </div>
+  </div>
 
-    <!-- Pending Rewards Notification -->
-    <section class="mb-5">
-      <div class="flex items-center gap-2">
-        <span class="text-lg text-gray-700 font-semibold">Pending Rewards:</span>
-        <span id="pending-balance" class="text-xl text-orange-600 font-bold">$SA 0</span>
-        <span id="pending-notif" class="notif-badge hidden"></span>
-      </div>
-    </section>
+  <div id="walletTab" class="tab-content max-w-2xl mx-auto bg-white rounded-xl shadow p-7">
+    <h2 class="text-xl font-bold mb-3 text-indigo-900">Wallet</h2>
+    <button id="connectWalletBtn" class="bg-yellow-400 hover:bg-yellow-500 transition text-black px-4 py-2 rounded">Connect Wallet</button>
+    <div id="wallet-details" class="hidden mt-3 border border-indigo-200 rounded p-3 bg-indigo-50 text-indigo-900">
+      <div><b>Wallet Address:</b> <span id="wallet-address"></span></div>
+      <div><b>ETH Balance:</b> <span id="eth-balance"></span></div>
+      <div><b>$SA Balance:</b> <span id="sa-balance"></span></div>
+    </div>
+  </div>
 
-    <!-- Upload Advert -->
-    <section class="tasks-discovery bg-white rounded-xl shadow-lg p-6 mb-6 scale-in">
-      <h2 class="text-xl font-bold mb-3 text-indigo-900">Upload Advert</h2>
-      <form id="uploadAdvertForm" class="flex flex-wrap gap-4 items-end mb-4">
-        <input type="text" id="ad-title" class="border rounded px-3 py-2 w-52" placeholder="Advert Title" required />
-        <select id="ad-category" class="border rounded px-3 py-2 w-40" required>
-          <option value="">Select Category</option>
-          <option value="Social Media">Social Media</option>
-          <option value="Referral">Referral</option>
-          <option value="Video/Content">Video/Content</option>
-          <option value="Crypto">Crypto</option>
-          <option value="Others">Others</option>
-        </select>
-        <input type="number" id="ad-clicks" class="border rounded px-3 py-2 w-40" min="50" placeholder="Clicks (min 50)" required />
-        <input type="url" id="ad-url" class="border rounded px-3 py-2 w-80" placeholder="Advert URL" required />
-        <button type="submit" class="btn bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-800 transition">Upload Advert</button>
-      </form>
-      <div id="upload-status"></div>
-    </section>
+  <!-- Payment History Modal -->
+  <div id="paymentHistoryModal" class="modal-bg">
+    <div class="modal">
+      <h3 class="font-bold mb-2 text-indigo-800">Payment History</h3>
+      <div id="payment-history-content"></div>
+      <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal">Close</button>
+    </div>
+  </div>
+  <!-- Help & Support Modal -->
+  <div id="helpSupportModal" class="modal-bg">
+    <div class="modal">
+      <h3 class="font-bold mb-2 text-indigo-800">Help & Support</h3>
+      <div class="mb-2">Email: <a href="mailto:support@supremeamer.com" class="text-blue-600 underline">support@supremeamer.com</a></div>
+      <div class="mb-2">AI Quick Response:<br><span class="italic text-gray-700">"How can we help? Describe your issue and our AI will provide a quick answer or escalate to a human!"</span></div>
+      <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal">Close</button>
+    </div>
+  </div>
 
-    <!-- Marketplace -->
-    <section class="market-content bg-white rounded-xl shadow-lg p-6 mb-8 scale-in">
-      <h2 class="text-xl font-bold mb-3 text-indigo-900">Marketplace</h2>
-      <div id="market-list" class="market-scroll max-h-80 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-    </section>
-  </main>
-
-  <!-- MODALS & SCRIPTS -->
-  <div id="task-modal" class="modal-bg"><div class="modal">
-    <h3 id="task-modal-title">Complete Task</h3>
-    <div id="task-modal-content"></div>
-    <button class="btn bg-purple-600 text-white mt-3 close-modal">Close</button>
-  </div></div>
   <script>
-    // --- User & Invite Logic ---
-    let currentUser = JSON.parse(localStorage.getItem('googleUser') || localStorage.getItem('facebookUser') || '{"name":"DemoUser","email":"demo@supremeamer.com","username":"DemoUser"}');
-    if (!currentUser.username) currentUser.username = (currentUser.name||"").replace(/\s/g,'').toLowerCase();
-    document.getElementById('welcome-user').textContent = `Welcome, ${currentUser.name || currentUser.username || 'User'}`;
-    // Invitation Code
-    const inviteCode = `INVITE-${currentUser.username}`;
-    document.getElementById('invite-code').textContent = inviteCode;
-    // Copy Invite Code
-    document.getElementById('copyInviteBtn').onclick = () => {
-      navigator.clipboard.writeText(inviteCode);
-      document.getElementById('copyInviteBtn').textContent = "Copied!";
-      setTimeout(()=>{document.getElementById('copyInviteBtn').textContent="Copy Invite Code"},1200);
-    };
-    // Simulated invitees list and balance
-    let invitees = JSON.parse(localStorage.getItem('invitees_'+currentUser.username)||'[]');
-    let accountBalance = invitees.length * 300;
-    document.getElementById('account-balance').textContent = `$SA ${accountBalance}`;
-    document.getElementById('showInviteesBtn').onclick = () => {
-      document.getElementById('invitee-list').innerHTML = '<b>Invited Friends:</b> ' +
-        (invitees.length ? invitees.map(u=>`<div class="text-green-700">${u}</div>`).join('') : '<div class="text-gray-500">None yet. Invite friends to earn!</div>');
-    };
+    // Appwrite config
+    const client = new Appwrite.Client();
+    client.setEndpoint('YOUR_APPWRITE_ENDPOINT').setProject('68370442000c3c15b9f3');
+    const account = new Appwrite.Account(client);
+    const databases = new Appwrite.Databases(client);
 
-    // --- Wallet Connect (Web3) ---
-    let walletConnected = false;
-    let walletAddress = '';
-    let ethBalance = '0';
-    let saBalance = accountBalance; // For demo, $SA balance is earned invite reward
-    let provider, signer;
+    // SupremeAmer Token
+    const SUPREMEAMER_TOKEN_ADDRESS = "YOUR_SUPREMEAMER_TOKEN_CONTRACT_ADDRESS";
+    const SUPREMEAMER_TOKEN_ABI = [ /* ... Your ERC20 ABI ... */ ];
 
-    async function connectWallet() {
-      if (window.ethereum) {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        signer = await provider.getSigner();
-        walletAddress = await signer.getAddress();
-        walletConnected = true;
-        ethBalance = ethers.formatEther(await provider.getBalance(walletAddress));
-        // Simulate token balance
-        saBalance = accountBalance;
-        document.getElementById('wallet-address').textContent = walletAddress;
-        document.getElementById('eth-balance').textContent = Number(ethBalance).toFixed(4) + " ETH";
-        document.getElementById('sa-balance').textContent = `$SA ${saBalance}`;
-        document.getElementById('wallet-details').classList.remove('hidden');
-        document.getElementById('connectWalletBtn').textContent = "Wallet Connected";
-        document.getElementById('connectWalletBtn').classList.add('bg-green-500','text-white');
-      } else {
-        alert('Web3 wallet not found. Please install Metamask or compatible wallet.');
-      }
-    }
-    document.getElementById('connectWalletBtn').onclick = connectWallet;
-
-    // Fund Button Logic
-    document.getElementById('fundBtn').onclick = () => {
-      if (!walletConnected) {
-        document.getElementById('fund-content').innerHTML = "Please connect your wallet first!";
-        document.getElementById('fund-modal').classList.add('open');
-        return;
-      }
-      if (Number(ethBalance) < 0.1) {
-        document.getElementById('fund-content').innerHTML = `ETH balance is low. Please top up this address:<br><b>${walletAddress}</b>`;
-      } else {
-        document.getElementById('fund-content').innerHTML = `ETH balance is sufficient. Ready to process funding transaction.<br>(Simulated for demo)`;
-      }
-      document.getElementById('fund-modal').classList.add('open');
-    };
-
-    // Withdraw Button Logic
-    document.getElementById('withdrawBtn').onclick = () => {
-      if (!walletConnected) {
-        document.getElementById('withdraw-content').innerHTML = "Please connect your wallet first!";
-        document.getElementById('withdraw-modal').classList.add('open');
-        return;
-      }
-      document.getElementById('withdraw-content').innerHTML = `
-        <div>
-          <div class="mb-2"><b>Wallet:</b> ${walletAddress}</div>
-          <div><b>$SA Balance:</b> ${saBalance}</div>
-          <input type="number" id="withdraw-amount" class="border rounded px-2 py-1 my-2" placeholder="Amount to withdraw (min $SA 50000)" min="50000" max="${saBalance}" />
-          <div class="text-sm text-gray-600 mb-2">10% withdrawal fee applies</div>
-          <button class="btn bg-green-700 text-white px-4 py-1 rounded" id="processWithdrawBtn">Withdraw</button>
-          <div id="withdraw-status" class="mt-2"></div>
-        </div>`;
-      document.getElementById('withdraw-modal').classList.add('open');
-      setTimeout(()=>{
-        document.getElementById('processWithdrawBtn').onclick = () => {
-          let amt = Number(document.getElementById('withdraw-amount').value);
-          if (amt < 50000) {
-            document.getElementById('withdraw-status').textContent = "Amount too low (min $SA 50,000)";
-            return;
-          }
-          if (amt > saBalance) {
-            document.getElementById('withdraw-status').textContent = "Insufficient $SA balance!";
-            return;
-          }
-          let fee = Math.round(amt * 0.10);
-          let net = amt - fee;
-          document.getElementById('withdraw-status').innerHTML =
-            `Processing withdrawal of $SA ${amt}...<br>Fee: $SA ${fee}<br>Net: $SA ${net} will be sent to ${walletAddress}<br>(Demo: Not a real transfer)`;
-        }
-      }, 100);
-    };
-
-    // Modal close logic
-    document.querySelectorAll('.close-modal').forEach(btn=>{
-      btn.onclick = () => btn.closest('.modal-bg').classList.remove('open');
+    // Tab navigation
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.onclick = function() {
+        document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+        this.classList.add("active");
+        document.querySelectorAll(".tab-content").forEach(tc=>tc.classList.remove("active"));
+        document.getElementById(this.dataset.tab).classList.add("active");
+      };
     });
 
-    // --- Pending Reward Logic ---
-    let pendingTasks = JSON.parse(localStorage.getItem('pendingTasks_'+currentUser.username)||'[]');
-    let pendingRewards = pendingTasks.length * 500;
-    document.getElementById('pending-balance').textContent = `$SA ${pendingRewards}`;
-    if (pendingTasks.length) {
-      document.getElementById('pending-notif').classList.remove('hidden');
-      document.getElementById('pending-notif').textContent = pendingTasks.length;
-    }
+    // Profile modal
+    document.getElementById("profileBtn").onclick = () =>
+      document.getElementById("profileModal").classList.add("open");
+    document.querySelectorAll(".close-modal").forEach(btn =>
+      btn.onclick = () => btn.closest(".modal-bg").classList.remove("open")
+    );
 
-    // --- Advert Upload & Marketplace ---
-    let adverts = JSON.parse(localStorage.getItem('adverts')||'[]');
-    document.getElementById('uploadAdvertForm').onsubmit = function(e){
-      e.preventDefault();
-      let title = document.getElementById('ad-title').value;
-      let category = document.getElementById('ad-category').value;
-      let clicks = Math.max(Number(document.getElementById('ad-clicks').value),50);
-      let url = document.getElementById('ad-url').value;
-      let poster = currentUser.username;
-      let ad = {id:Date.now(),title,category,clicks,goal:clicks,poster,url,completedClicks:0,participants:[],status:'active'};
-      adverts.push(ad);
-      localStorage.setItem('adverts',JSON.stringify(adverts));
-      document.getElementById('upload-status').innerHTML = `<span class="text-green-700">Advert uploaded successfully!</span>`;
-      setTimeout(()=>{document.getElementById('upload-status').innerHTML='';},1600);
-      this.reset();
-      renderMarket();
-    };
+    // Help/Support modal
+    document.getElementById("helpSupportBtn").onclick = () =>
+      document.getElementById("helpSupportModal").classList.add("open");
 
-    function renderMarket() {
-      let html = "";
-      let now = Date.now();
-      adverts = JSON.parse(localStorage.getItem('adverts')||'[]');
-      adverts.filter(ad=>ad.status==='active').forEach(ad=>{
-        let clicksLeft = ad.goal + 30 - ad.completedClicks;
-        html += `<div class="task-card relative border border-indigo-100 p-4 rounded-lg shadow scale-in">
-          <div class="absolute top-2 right-2 px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-xs">${ad.category}</div>
-          <div class="font-bold text-lg mb-1">${ad.title}</div>
-          <div class="text-sm mb-2">Goal: ${ad.goal} clicks | $0.10/click (min 50 clicks)</div>
-          <a href="${ad.url}" target="_blank" class="text-blue-500 underline">Visit Advert</a>
-          <div class="mt-2">
-            <button class="btn bg-purple-600 text-white px-3 py-1 rounded get-started-btn" data-adid="${ad.id}">Participate</button>
-          </div>
-          <div class="text-xs text-gray-600 mt-2">Clicks left: <b>${clicksLeft}</b></div>
-        </div>`;
-      });
-      document.getElementById('market-list').innerHTML = html || '<div class="text-gray-500">No adverts available. Upload one!</div>';
-      // Add task handler
-      document.querySelectorAll('.get-started-btn').forEach(btn=>{
-        btn.onclick = function(){
-          let adid = Number(this.dataset.adid);
-          showTaskModal(adid);
-        }
-      });
-    }
-    renderMarket();
+    // Get user info from Appwrite
+    let currentUser = null;
+    (async () => {
+      try {
+        currentUser = await account.get();
+        document.getElementById("user-email").textContent = currentUser.email;
+        document.getElementById("user-username").textContent =
+          currentUser.name || currentUser.email.split('@')[0];
+        document.getElementById("user-username-modal").textContent =
+          currentUser.name || currentUser.email.split('@')[0];
+        document.getElementById("user-email-modal").textContent = currentUser.email;
+        document.getElementById("user-id").textContent = currentUser.$id;
+        // Invitation Link
+        const inviteUrl = window.location.origin + "/register.html?invite=" + currentUser.$id;
+        document.getElementById("invitation-url").textContent = inviteUrl;
+        document.getElementById("invite-link").value = inviteUrl;
 
-    function showTaskModal(adid){
-      let ad = adverts.find(a=>a.id===adid);
-      if (!ad) return;
-      document.getElementById('task-modal-title').textContent = `Complete Task: ${ad.title}`;
-      document.getElementById('task-modal-content').innerHTML = `
-        <div class="mb-2">Upload a screenshot image as proof of completion:</div>
-        <input type="file" id="proofFile" accept="image/*" class="mb-2"/>
-        <button class="btn bg-purple-700 text-white px-4 py-1 rounded" id="submitProofBtn">Submit</button>
-        <div id="proof-status" class="mt-2"></div>
-      `;
-      document.getElementById('task-modal').classList.add('open');
-      document.getElementById('submitProofBtn').onclick = function(){
-        let file = document.getElementById('proofFile').files[0];
-        if (!file) { document.getElementById('proof-status').textContent = "Please upload a screenshot."; return;}
-        // Add to pending tasks for 5min verification
-        let task = {adid:adid,adtitle:ad.title,submitted:Date.now(),reward:500,username:currentUser.username,poster:ad.poster,verified:false};
-        pendingTasks.push(task);
-        localStorage.setItem('pendingTasks_'+currentUser.username,JSON.stringify(pendingTasks));
-        // Add participant to advert
-        ad.completedClicks += 1;
-        ad.participants.push(currentUser.username);
-        if (ad.completedClicks >= ad.goal + 30) ad.status='closed';
-        localStorage.setItem('adverts',JSON.stringify(adverts));
-        document.getElementById('proof-status').innerHTML = `<span class="text-yellow-600">Submitted! Pending verification. Reward $SA500 will be credited if verified.</span>`;
-        setTimeout(()=>{document.getElementById('task-modal').classList.remove('open');renderMarket();},1700);
-        // Start 5min verification simulation
-        setTimeout(()=>{verifyTask(task)},5*60*1000); // 5 minutes
-        // Update pending rewards
-        document.getElementById('pending-balance').textContent = `$SA ${pendingTasks.length*500}`;
-        document.getElementById('pending-notif').classList.remove('hidden');
-        document.getElementById('pending-notif').textContent = pendingTasks.length;
+        // Fetch account balance and update UI
+        // Example: fetch from transactions collection and sum user's total
+        const txs = await databases.listDocuments('683705ff00244f73e93f', '6838d452002b08ad3c9c', [
+          Appwrite.Query.equal('userId', currentUser.$id),
+        ]);
+        let balance = txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+        document.getElementById("account-balance").textContent = `$SA ${balance}`;
+
+        // Payment history modal
+        document.getElementById("paymentHistoryBtn").onclick = async () => {
+          const txs = await databases.listDocuments('683705ff00244f73e93f', '6838d452002b08ad3c9c', [
+            Appwrite.Query.equal('userId', currentUser.$id)
+          ]);
+          document.getElementById("payment-history-content").innerHTML =
+            "<ul>" + txs.documents.map(
+              tx => `<li>${tx.date}: <span class="text-green-700">${tx.type}</span> <b>${tx.amount}</b></li>`
+            ).join("") + "</ul>";
+          document.getElementById("paymentHistoryModal").classList.add("open");
+        };
+
+        // Invitee list
+        document.getElementById("inviteTab").onclick = async () => {
+          const invited = await databases.listDocuments('683705ff00244f73e93f', '6838d38200133d8c3de0', [
+            Appwrite.Query.equal('invitedBy', currentUser.$id)
+          ]);
+          document.getElementById("invitee-list").innerHTML = invited.documents.length
+            ? invited.documents.map(u =>
+                `<div class="text-green-700">${u.name || u.email}</div>`
+              ).join('')
+            : "<div class='text-gray-500'>No invitees yet.</div>";
+        };
+
+        // Market list (adverts)
+        const renderMarket = async () => {
+          const ads = await databases.listDocuments('683705ff00244f73e93f', '6838d38200133d8c3de0');
+          document.getElementById("market-list").innerHTML = ads.documents.length
+            ? ads.documents.map(ad => `
+              <div class="border border-indigo-100 p-4 rounded-lg shadow my-2">
+                <div class="font-bold text-lg mb-1">${ad.title}</div>
+                <div class="text-xs mb-2">${ad.category} &bull; Goal: ${ad.goal} clicks</div>
+                <a href="${ad.url}" target="_blank" class="text-blue-500 underline">Visit Advert</a>
+              </div>
+            `).join('')
+            : "<div class='text-gray-500'>No adverts available. Upload one!</div>";
+        };
+        renderMarket();
+
+        // Upload Advert modal
+        document.getElementById("uploadAdvertBtn").onclick = () =>
+          document.getElementById("uploadAdvertModal").classList.add("open");
+        document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
+          e.preventDefault();
+          await databases.createDocument('683705ff00244f73e93f', '6838d38200133d8c3de0', 'unique()', {
+            title: document.getElementById('ad-title').value,
+            category: document.getElementById('ad-category').value,
+            goal: parseInt(document.getElementById('ad-clicks').value),
+            url: document.getElementById('ad-url').value,
+            poster: currentUser.$id
+          });
+          document.getElementById("uploadAdvertModal").classList.remove("open");
+          renderMarket();
+          this.reset();
+        };
+
+        // Copy invite link
+        document.getElementById("copyInviteBtn").onclick = () => {
+          navigator.clipboard.writeText(document.getElementById("invite-link").value);
+          document.getElementById("copyInviteBtn").textContent = "Copied!";
+          setTimeout(()=>{document.getElementById("copyInviteBtn").textContent="Copy Invite Link"},1200);
+        };
+
+        // Wallet tab connect logic (basic, with real contract integration)
+        document.getElementById("connectWalletBtn").onclick = async function() {
+          if(window.ethereum) {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            await window.ethereum.request({ method: "eth_requestAccounts" });
+            const signer = await provider.getSigner();
+            const address = await signer.getAddress();
+            document.getElementById("wallet-address").textContent = address;
+            const ethBalance = ethers.formatEther(await provider.getBalance(address));
+            document.getElementById("eth-balance").textContent = Number(ethBalance).toFixed(4) + " ETH";
+            // SupremeAmer token balance
+            const saToken = new ethers.Contract(SUPREMEAMER_TOKEN_ADDRESS, SUPREMEAMER_TOKEN_ABI, provider);
+            const saBal = await saToken.balanceOf(address);
+            const saDec = await saToken.decimals();
+            document.getElementById("sa-balance").textContent = "$SA " + ethers.formatUnits(saBal, saDec);
+            document.getElementById("wallet-details").classList.remove("hidden");
+            document.getElementById("connectWalletBtn").textContent = "Wallet Connected";
+          } else {
+            alert("Please install MetaMask or a compatible wallet.");
+          }
+        };
+
+      } catch (e) {
+        window.location.href = "TelegramLogin.html";
       }
-    }
-
-    function verifyTask(task){
-      // Mark as verified, credit reward
-      let idx = pendingTasks.findIndex(t=>t.adid===task.adid && t.username===task.username && !t.verified);
-      if (idx>-1) {
-        pendingTasks[idx].verified = true;
-        pendingTasks.splice(idx,1);
-        localStorage.setItem('pendingTasks_'+currentUser.username,JSON.stringify(pendingTasks));
-        // Credit reward
-        saBalance += 500;
-        document.getElementById('sa-balance').textContent = `$SA ${saBalance}`;
-        document.getElementById('account-balance').textContent = `$SA ${saBalance}`;
-        // Update pending
-        document.getElementById('pending-balance').textContent = `$SA ${pendingTasks.length*500}`;
-        if (pendingTasks.length) {
-          document.getElementById('pending-notif').classList.remove('hidden');
-          document.getElementById('pending-notif').textContent = pendingTasks.length;
-        } else {
-          document.getElementById('pending-notif').classList.add('hidden');
-        }
-        // Notify user
-        alert('Your advert task has been verified! $SA500 credited.');
-      }
-    }
-
-    // Profile menu
-    document.querySelector('.profile-dropdown-btn').onclick = function(e) {
-      e.stopPropagation();
-      let menu = document.querySelector('.profile-dropdown');
-      menu.classList.toggle('hidden');
-    };
-    window.onclick = function(e) {
-      if (!e.target.matches('.profile-dropdown-btn')) {
-        document.querySelector('.profile-dropdown').classList.add('hidden');
-      }
-    };
-    // Logout
-    document.querySelector('.logout').onclick = function(e) {
-      e.preventDefault();
-      localStorage.clear();
-      alert('Logged out!');
-      window.location.href = 'TelegramLogin.html';
-    };
-
-    // Modal overlay click
-    document.querySelectorAll('.modal-bg').forEach(bg=>{
-      bg.onclick = function(e){ if(e.target===bg) bg.classList.remove('open'); }
-    });
+    })();
   </script>
 </body>
 </html>
