@@ -2,141 +2,343 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registration Form</title>
-  <form>
-  <label>
-    Username:
-    <input type="text" id="username" />
-    <div id="usernameError" style="color: red;"></div>
-  </label>
-  <br />
-  <label>
-    Email:
-    <input type="email" id="email" />
-    <div id="emailError" style="color: red;"></div>
-  </label>
-  <br />
-  <label>
-    Password:
-    <input type="password" id="password" />
-    <div id="passwordError" style="color: red;"></div>
-  </label>
-  <br />
-  <label>
-    Confirm Password:
-    <input type="password" id="confirmPassword" />
-    <div id="confirmPasswordError" style="color: red;"></div>
-  </label>
-  <br />
-  <button id="submit">Sign Up</button>
-  </form>
-  
-    <style>
-      form {
-  max-width: 400px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-label {
-  display: block;
-  margin-bottom: 10px;
-}
-
-input[type="text"], input[type="email"], input[type="password"] {
-  width: 100%;
-  height: 40px;
-  margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button[type="submit"] {
-  width: 100%;
-  height: 40px;
-  background-color: #4CAF50;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button[type="submit"]:hover {
-  background-color: #3e8e41;
-}
-
-button[type="submit"]:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.error {
-  color: red;
-  font-size: 12px;
-  margin-bottom: 10px;
-}
-      
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Ethereum Registration</title>
+  <link href="https://fonts.googleapis.com/css?family=Quicksand:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Quicksand', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.18),0 1.5px 7px rgba(0,0,0,0.09);
+      padding: 36px 32px 24px 32px;
+      width: 370px; max-width:96vw;
+      animation: popIn 1s cubic-bezier(.21,1.02,.73,1.01);
+      position: relative;
+      overflow: hidden;
+    }
+    @keyframes popIn {0%{transform:translateY(50px) scale(0.98);opacity:0}100%{transform:none;opacity:1}}
+    .card:before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, #009ffd 0%, #2a2a72 70%);
+      opacity: 0.13;
+      border-radius: 50%;
+      z-index: 0;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #232526;
+      position: relative; z-index: 1;
+      letter-spacing: 1px;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .form-group {
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s;
+      opacity: 0; transform: translateX(40px);
+      animation: slideIn 0.6s forwards;
+    }
+    .form-group:nth-child(1){animation-delay:0.1s;}
+    .form-group:nth-child(2){animation-delay:0.2s;}
+    .form-group:nth-child(3){animation-delay:0.3s;}
+    .form-group:nth-child(4){animation-delay:0.4s;}
+    .form-group:nth-child(5){animation-delay:0.5s;}
+    .form-group:nth-child(6){animation-delay:0.6s;}
+    @keyframes slideIn {to{opacity:1;transform:none;}}
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: #2a2a72;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      font-size: 1.07em;
+      transition: color 0.3s;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid #e7e7e7;
+      border-radius: 7px;
+      font-size: 1em;
+      background: #f6faff;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      font-family: inherit;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: #009ffd;
+      box-shadow: 0 0 0 2px rgba(0,159,253,0.09);
+    }
+    .error-message {
+      color: #e74c3c;
+      font-size: 0.94em;
+      min-height: 18px;
+      margin: 2px 0 0 2px;
+      transition: opacity 0.2s;
+      font-weight: 700;
+    }
+    .pay-section {
+      text-align: center;
+      margin-top: 24px;
+      transition: opacity 0.5s;
+      opacity: 0; pointer-events: none;
+    }
+    .pay-section.active {
+      opacity: 1; pointer-events: all;
+      animation: fadeIn 1s;
+    }
+    @keyframes fadeIn {0%{opacity:0}100%{opacity:1}}
+    .pay-btn, .metamask-btn {
+      background: linear-gradient(90deg, #009ffd 0%, #2a2a72 100%);
+      color: #fff; border: none; outline: none;
+      border-radius: 8px;
+      padding: 13px 0;
+      width: 100%;
+      font-size: 1.18rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+      box-shadow: 0 3px 10px rgba(0,159,253,0.15);
+      margin: 8px 0;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .pay-btn:active, .metamask-btn:active {transform: scale(0.97);}
+    .pay-btn:disabled {background: #ddd; color: #aaa; cursor: not-allowed;}
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #009ffd;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      animation: spin 1s linear infinite;
+      margin: 15px auto; display: none;
+    }
+    @keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+    .success-message {
+      color: #27ae60;
+      font-weight: 700;
+      margin-top: 16px;
+      text-align: center;
+      animation: fadeIn 1s;
+      font-size: 1.09em;
+    }
+    .invite {
+      background: #eaf6fa;
+      color: #009ffd;
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 0.98em;
+      margin-bottom: 18px;
+      text-align:center;
+      font-weight: 700;
+    }
   </style>
-
+</head>
+<body>
+  <div class="card">
+    <h2>Register & Pay with Ethereum</h2>
+    <div class="invite" id="inviteBox" style="display:none"></div>
+    <form id="registrationForm" autocomplete="off" novalidate>
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" required>
+        <div class="error-message" id="nameError"></div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required>
+        <div class="error-message" id="emailError"></div>
+      </div>
+      <div class="form-group">
+        <label for="age">Age</label>
+        <input type="number" id="age" min="1" max="120" required>
+        <div class="error-message" id="ageError"></div>
+      </div>
+      <div class="form-group">
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" required>
+        <div class="error-message" id="dobError"></div>
+      </div>
+      <div class="form-group">
+        <label for="region">Region</label>
+        <select id="region" required>
+          <option value="">Select region</option>
+          <option>North America</option>
+          <option>South America</option>
+          <option>Europe</option>
+          <option>Asia</option>
+          <option>Africa</option>
+          <option>Oceania</option>
+          <option>Other</option>
+        </select>
+        <div class="error-message" id="regionError"></div>
+      </div>
+      <div class="form-group" id="inviteField" style="display:none">
+        <label for="invitation">Invitation Code</label>
+        <input type="text" id="invitation">
+        <div class="error-message" id="invitationError"></div>
+      </div>
+      <button type="submit" class="pay-btn" id="submitBtn">Continue ($3 Registration Fee)</button>
+    </form>
+    <div class="pay-section" id="paySection">
+      <button class="metamask-btn" id="payWithMetaMask">
+        <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" alt="MetaMask" style="width:23px;vertical-align:middle;margin-right:7px;">
+        Pay $3 in ETH via MetaMask
+      </button>
+      <div class="loader" id="loader"></div>
+      <div class="success-message" id="successMsg"></div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
   <script>
-    let username = document.getElementById('username');
-let email = document.getElementById('email');
-let password = document.getElementById('password');
-let confirmPassword = document.getElementById('confirmPassword');
-let submitButton = document.getElementById('submit');
+    // ----------- CONFIGURATION -----------
+    // Replace with your details:
+    const RECEIVER_ADDRESS = "YOUR_ETH_ADDRESS_HERE"; // <-- Put your ETH address here
+    const appwriteEndpoint = "https://fra.cloud.appwrite.io/v1"; // e.g., "https://cloud.appwrite.io/v1"
+    const appwriteProject = "68370442000c3c15b9f3";
+    const appwriteDatabase = "683705ff00244f73e93f";
+    const appwriteCollection = "683706240012232516b0";
+    // -------- END CONFIGURATION ----------
 
-submitButton.addEventListener('click', (e) => {
-  e.preventDefault();
-  let errors = validateForm();
-  if (Object.keys(errors).length === 0) {
-    // Handle form submission here
-    console.log('Form submitted:', username.value, email.value, password.value, confirmPassword.value);
-    submitButton.disabled = true;
-    submitButton.innerHTML = 'Loading...';
-    setTimeout(() => {
-      window.location.href = 'home.html';
-    }, 30000);
-  } else {
-    displayErrors(errors);
-  }
-});
+    // Handle invitation code from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const invitationCode = urlParams.get('invite');
+    if (invitationCode) {
+      document.getElementById('inviteBox').innerText = "You are registering with invitation code: " + invitationCode;
+      document.getElementById('inviteBox').style.display = 'block';
+      document.getElementById('inviteField').style.display = '';
+      document.getElementById('invitation').value = invitationCode;
+    }
 
-function validateForm() {
-  let errors = {};
-  if (!username.value) {
-    errors.username = 'Username is required';
-  }
-  if (!email.value) {
-    errors.email = 'Email is required';
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email.value)) {
-    errors.email = 'Invalid email address';
-  }
-  if (!password.value) {
-    errors.password = 'Password is required';
-  } else if (password.value.length < 8) {
-    errors.password = 'Password must be at least 8 characters';
-  }
-  if (!confirmPassword.value) {
-    errors.confirmPassword = 'Confirm password is required';
-  } else if (password.value !== confirmPassword.value) {
-    errors.confirmPassword = 'Passwords do not match';
-  }
-  return errors;
-}
+    // Appwrite client setup
+    const client = new window.Appwrite.Client();
+    client.setEndpoint(appwriteEndpoint).setProject(appwriteProject);
+    const db = new window.Appwrite.Databases(client);
 
-function displayErrors(errors) {
-  for (let id in errors) {
-    let errorElement = document.getElementById(`${id}Error`);
-    errorElement.innerHTML = errors[id];
-  }
-}
+    // Fetch ETH price in USD
+    async function getEthPrice() {
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+        const data = await res.json();
+        return data.ethereum.usd;
+      } catch {
+        return null;
+      }
+    }
+
+    // Animate and show pay section
+    function showPaySection() {
+      document.getElementById('paySection').classList.add('active');
+      document.getElementById('paySection').scrollIntoView({behavior: "smooth"});
+    }
+
+    // Form Validation
+    function validateForm() {
+      let valid = true;
+      ['name','email','age','dob','region','invitation'].forEach(id=>{
+        document.getElementById(id+'Error')?.innerText = '';
+      });
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const age = parseInt(document.getElementById('age').value);
+      const dob = document.getElementById('dob').value;
+      const region = document.getElementById('region').value;
+      if (!name) {document.getElementById('nameError').innerText = "Name is required";valid=false;}
+      if (!email || !/^[\w.\-]+@[\w.\-]+\.[a-zA-Z]{2,}$/.test(email)) {
+        document.getElementById('emailError').innerText = "Valid email required"; valid=false;
+      }
+      if (!age || age < 1 || age > 120) {
+        document.getElementById('ageError').innerText = "Enter a valid age"; valid=false;
+      }
+      if (!dob) {document.getElementById('dobError').innerText = "Date of Birth required";valid=false;}
+      if (!region) {document.getElementById('regionError').innerText = "Select a region";valid=false;}
+      // Invitation code required if field visible
+      if (!document.getElementById('inviteField').style.display || document.getElementById('inviteField').style.display!=="none") {
+        const inv = document.getElementById('invitation').value.trim();
+        if (!inv) {document.getElementById('invitationError').innerText = "Invitation code required";valid=false;}
+      }
+      return valid;
+    }
+
+    // Handle Registration Form Submit
+    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (!validateForm()) return;
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').innerText = "Checking ETH price...";
+      let ethPrice = await getEthPrice();
+      let ethAmount = ethPrice ? (3 / ethPrice).toFixed(6) : "0.001";
+      document.getElementById('payWithMetaMask').innerHTML = `
+        <img src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" alt="MetaMask" style="width:23px;vertical-align:middle;margin-right:7px;">
+        Pay $3 (${ethAmount} ETH) via MetaMask
+      `;
+      showPaySection();
+      document.getElementById('submitBtn').innerText = "Continue ($3 Registration Fee)";
+    });
+
+    // Payment via MetaMask
+    document.getElementById('payWithMetaMask').addEventListener('click', async function() {
+      let ethPrice = await getEthPrice();
+      let ethAmount = ethPrice ? (3 / ethPrice).toFixed(6) : "0.001";
+      const loader = document.getElementById('loader');
+      const successMsg = document.getElementById('successMsg');
+      loader.style.display = 'block';
+      successMsg.innerText = '';
+      try {
+        if (!window.ethereum) {
+          alert('MetaMask is not installed! Please install MetaMask extension and refresh.');
+          loader.style.display = 'none';
+          return;
+        }
+        await window.ethereum.request({method: 'eth_requestAccounts'});
+        const accounts = await window.ethereum.request({method: 'eth_accounts'});
+        if (!accounts || !accounts.length) throw new Error("Wallet not found");
+        // Convert ETH to Wei
+        const valueInWei = (BigInt(Math.floor(Number(ethAmount)*1e6)) * BigInt(1e12)).toString(16);
+        // Send transaction
+        await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            from: accounts[0],
+            to: RECEIVER_ADDRESS,
+            value: '0x' + valueInWei,
+          }]
+        });
+        // Register in Appwrite
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const age = parseInt(document.getElementById('age').value);
+        const dob = document.getElementById('dob').value;
+        const region = document.getElementById('region').value;
+        const invitation = document.getElementById('invitation')?.value?.trim() || null;
+        try {
+          await db.createDocument(appwriteDatabase, appwriteCollection, window.Appwrite.ID.unique(), {
+            name, email, age, dob, region, invitation, ethWallet: accounts[0]
+          });
+        } catch (err) {
+          // Optionally handle Appwrite errors here
+        }
+        loader.style.display = 'none';
+        successMsg.innerHTML = "✅ Payment successful!<br>Redirecting...";
+        setTimeout(() => window.location.href="TelegramLogin.html", 2000);
+      } catch (err) {
+        loader.style.display = 'none';
+        successMsg.innerHTML = "<span style='color:#e74c3c;'>❌ Payment cancelled or failed.</span>";
+      }
+    });
   </script>
 </body>
 </html>
