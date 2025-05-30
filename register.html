@@ -6,7 +6,7 @@
   <title>Ethereum Registration</title>
   <link href="https://fonts.googleapis.com/css?family=Quicksand:400,700&display=swap" rel="stylesheet">
   <style>
-    body {
+ body {
       min-height: 100vh;
       background: linear-gradient(135deg, #232526 0%, #414345 100%);
       display: flex; align-items: center; justify-content: center;
@@ -163,6 +163,11 @@
         <div class="error-message" id="emailError"></div>
       </div>
       <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required>
+        <div class="error-message" id="passwordError"></div>
+      </div>
+      <div class="form-group">
         <label for="age">Age</label>
         <input type="number" id="age" min="1" max="120" required>
         <div class="error-message" id="ageError"></div>
@@ -205,12 +210,11 @@
   <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
   <script>
     // ----------- CONFIGURATION -----------
-    // Replace with your details:
     const RECEIVER_ADDRESS = "YOUR_ETH_ADDRESS_HERE"; // <-- Put your ETH address here
-    const appwriteEndpoint = "https://fra.cloud.appwrite.io/v1"; // e.g., "https://cloud.appwrite.io/v1"
+    const appwriteEndpoint = "https://fra.cloud.appwrite.io/v1";
     const appwriteProject = "68370442000c3c15b9f3";
     const appwriteDatabase = "683705ff00244f73e93f";
-    const appwriteCollection = "683706240012232516b0";
+    const appwriteCollection = "683706240012232516b0"; // should match "users" collection in home.html
     // -------- END CONFIGURATION ----------
 
     // Handle invitation code from URL
@@ -227,6 +231,7 @@
     const client = new window.Appwrite.Client();
     client.setEndpoint(appwriteEndpoint).setProject(appwriteProject);
     const db = new window.Appwrite.Databases(client);
+    const account = new window.Appwrite.Account(client);
 
     // Fetch ETH price in USD
     async function getEthPrice() {
@@ -239,7 +244,6 @@
       }
     }
 
-    // Animate and show pay section
     function showPaySection() {
       document.getElementById('paySection').classList.add('active');
       document.getElementById('paySection').scrollIntoView({behavior: "smooth"});
@@ -248,11 +252,12 @@
     // Form Validation
     function validateForm() {
       let valid = true;
-      ['name','email','age','dob','region','invitation'].forEach(id=>{
+      ['name','email','age','dob','region','invitation','password'].forEach(id=>{
         document.getElementById(id+'Error')?.innerText = '';
       });
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
       const age = parseInt(document.getElementById('age').value);
       const dob = document.getElementById('dob').value;
       const region = document.getElementById('region').value;
@@ -260,12 +265,14 @@
       if (!email || !/^[\w.\-]+@[\w.\-]+\.[a-zA-Z]{2,}$/.test(email)) {
         document.getElementById('emailError').innerText = "Valid email required"; valid=false;
       }
+      if (!password || password.length < 6) {
+        document.getElementById('passwordError').innerText = "Password (min 6 chars) required";valid=false;
+      }
       if (!age || age < 1 || age > 120) {
         document.getElementById('ageError').innerText = "Enter a valid age"; valid=false;
       }
       if (!dob) {document.getElementById('dobError').innerText = "Date of Birth required";valid=false;}
       if (!region) {document.getElementById('regionError').innerText = "Select a region";valid=false;}
-      // Invitation code required if field visible
       if (!document.getElementById('inviteField').style.display || document.getElementById('inviteField').style.display!=="none") {
         const inv = document.getElementById('invitation').value.trim();
         if (!inv) {document.getElementById('invitationError').innerText = "Invitation code required";valid=false;}
@@ -289,7 +296,7 @@
       document.getElementById('submitBtn').innerText = "Continue ($3 Registration Fee)";
     });
 
-    // Payment via MetaMask
+    // Payment via MetaMask and Account Registration
     document.getElementById('payWithMetaMask').addEventListener('click', async function() {
       let ethPrice = await getEthPrice();
       let ethAmount = ethPrice ? (3 / ethPrice).toFixed(6) : "0.001";
@@ -297,6 +304,16 @@
       const successMsg = document.getElementById('successMsg');
       loader.style.display = 'block';
       successMsg.innerText = '';
+
+      // Gather form details
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const age = parseInt(document.getElementById('age').value);
+      const dob = document.getElementById('dob').value;
+      const region = document.getElementById('region').value;
+      const invitation = document.getElementById('invitation')?.value?.trim() || null;
+
       try {
         if (!window.ethereum) {
           alert('MetaMask is not installed! Please install MetaMask extension and refresh.');
@@ -317,26 +334,35 @@
             value: '0x' + valueInWei,
           }]
         });
-        // Register in Appwrite
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const age = parseInt(document.getElementById('age').value);
-        const dob = document.getElementById('dob').value;
-        const region = document.getElementById('region').value;
-        const invitation = document.getElementById('invitation')?.value?.trim() || null;
+        // 1. Register user in Appwrite Auth
+        try {
+          await account.create(window.Appwrite.ID.unique(), email, password, name);
+        } catch (err) {
+          // If already exists, show error and redirect to login
+          if (err.code === 409) {
+            loader.style.display = 'none';
+            successMsg.innerHTML = "<span style='color:#e74c3c;'>Email already registered. Please <a href='TelegramLogin.html'>login here</a>.</span>";
+            return;
+          } else {
+            throw err;
+          }
+        }
+
+        // 2. Store user info in Appwrite Database
         try {
           await db.createDocument(appwriteDatabase, appwriteCollection, window.Appwrite.ID.unique(), {
-            name, email, age, dob, region, invitation, ethWallet: accounts[0]
+            name, email, age, dob, region, invitation, ethWallet: accounts[0], invitedBy: invitation || ""
           });
         } catch (err) {
-          // Optionally handle Appwrite errors here
+          // Optionally handle Appwrite DB errors here
         }
         loader.style.display = 'none';
-        successMsg.innerHTML = "✅ Payment successful!<br>Redirecting...";
-        setTimeout(() => window.location.href="TelegramLogin.html", 2000);
+        successMsg.innerHTML = "✅ Registration & Payment successful!<br>Redirecting to login...";
+        // Optionally auto-login the user, or redirect to login page
+        setTimeout(() => window.location.href="TelegramLogin.html?email="+encodeURIComponent(email), 2000);
       } catch (err) {
         loader.style.display = 'none';
-        successMsg.innerHTML = "<span style='color:#e74c3c;'>❌ Payment cancelled or failed.</span>";
+        successMsg.innerHTML = "<span style='color:#e74c3c;'>❌ Payment cancelled or failed. " + (err.message||"") + "</span>";
       }
     });
   </script>
