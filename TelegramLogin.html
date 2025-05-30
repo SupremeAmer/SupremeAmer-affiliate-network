@@ -69,9 +69,8 @@
           FB.login(function(response) {
             if (response.authResponse) {
               FB.api('/me', {fields: 'name,email'}, function(response) {
-                document.getElementById("profile").innerText =
-                  window.location.href = 'home.html';
                 // Optionally, send response.email and response.name to your backend here
+                window.location.href = 'home.html';
               });
             } else {
               document.getElementById("profile").innerText = "User cancelled Facebook login or did not authorize.";
@@ -146,8 +145,6 @@
       }
     }
 
-   
-
     // Login
     loginForm.onsubmit = async function(e) {
       e.preventDefault();
@@ -163,9 +160,6 @@
       } catch (error) {
         document.getElementById('error').innerText = error.message;
       }
-    };
-
-      );
     };
   </script>
 </body>
