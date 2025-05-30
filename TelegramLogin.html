@@ -70,7 +70,7 @@
             if (response.authResponse) {
               FB.api('/me', {fields: 'name,email'}, function(response) {
                 document.getElementById("profile").innerText =
-                  "Good to see you, " + response.name + ". I see your email address is " + response.email + ".";
+                  window.location.href = 'home.html';
                 // Optionally, send response.email and response.name to your backend here
               });
             } else {
@@ -146,24 +146,7 @@
       }
     }
 
-    // Registration
-    registerForm.onsubmit = async function(e) {
-      e.preventDefault();
-      const username = document.getElementById('reg-username').value;
-      const email = document.getElementById('reg-email').value;
-      const password = document.getElementById('reg-password').value;
-      try {
-        await account.create('unique()', email, password, username);
-        await account.createEmailSession(email, password);
-        // Log with Appwrite Function
-        await recordUserActivityFunction('register', 'User registered from TelegramLogin.html');
-        // (Optional: also log directly to DB)
-        // await recordUserActivity('register', 'User registered from TelegramLogin.html');
-        window.location.href = 'home.html';
-      } catch (error) {
-        document.getElementById('error').innerText = error.message;
-      }
-    };
+   
 
     // Login
     loginForm.onsubmit = async function(e) {
@@ -182,13 +165,6 @@
       }
     };
 
-    // GitHub Login Handler
-    document.getElementById('github-login-btn').onclick = function(e) {
-      e.preventDefault();
-      account.createOAuth2Session(
-        'github',
-        window.location.origin + '/home.html',  // Success redirect (change as needed)
-        window.location.href                    // Failure redirect (back to login page)
       );
     };
   </script>
