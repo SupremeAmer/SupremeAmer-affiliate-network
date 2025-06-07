@@ -257,30 +257,30 @@
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
   <script>
     // SupremeAmer Affiliate Network FULL JavaScript
-// CONFIGURATION
+// ==== CONFIGURATION ====
 const tokenAbi = [
   "function balanceOf(address owner) view returns (uint256)",
   "function decimals() view returns (uint8)",
   "function transfer(address to, uint256 amount) returns (bool)"
 ];
-const tokenAddress = "0xYourTokenAddressHere"; // <-- replace with your ERC20 token address!
-const fundRecipientAddress = "0xYourAdminOrTreasuryAddress"; // <-- replace with your fund/cashout address!
+const tokenAddress = "0xYourTokenAddressHere"; // <-- update with your token address!
+const fundRecipientAddress = "0xYourAdminOrTreasuryAddress"; // <-- update with your admin/treasury address!
 const dbId = '683705ff00244f73e93f';
 const usersColl = 'users', txColl = 'transaction_collection', advertsColl = 'adverts', partsColl = 'participations';
 
-// APPWRITE SETUP
+// ==== APPWRITE SETUP ====
 const client = new Appwrite.Client();
 client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370442000c3c15b9f3');
 const account = new Appwrite.Account(client);
 const databases = new Appwrite.Databases(client);
 const storage = new Appwrite.Storage(client);
 
-// STATE
+// ==== STATE ====
 let provider = null, signer = null, currentAddress = null, currentUser = null, userDocId = null, userDoc = null;
 let marketAdverts = [];
 let pendingParticipation = null;
 
-// TAB NAV
+// ==== TAB NAV ====
 document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => {
   btn.addEventListener('click', function() {
     document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
@@ -292,7 +292,7 @@ document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => {
   });
 });
 
-// MODALS & NOTIFICATIONS
+// ==== MODALS & NOTIFICATIONS ====
 function closeModal(modalId) { document.getElementById(modalId).classList.remove("open"); }
 function openModal(modalId) { document.getElementById(modalId).classList.add("open"); }
 document.querySelectorAll(".close-modal").forEach(btn =>
@@ -308,20 +308,20 @@ function showNotification(msg, color="green") {
   setTimeout(() => notice.remove(), 4000);
 }
 
-// LOGOUT
+// ==== LOGOUT ====
 document.getElementById("logoutBtn").onclick = async () => {
   await account.deleteSession('current');
   window.location.reload();
 };
 
-// UTILITY
+// ==== UTILITY ====
 function generateQr(data, el) {
   const qr = new QRious({ value: data, size: 160 });
   el.src = qr.toDataURL();
 }
 function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
 
-// WALLET LOGIC
+// ==== CONTRACT WALLET LOGIC ====
 async function connectWallet() {
   if (!window.ethereum) {
     alert("Install MetaMask.");
@@ -371,7 +371,7 @@ if (window.ethereum) {
   window.ethereum.on('chainChanged', () => { if (currentAddress) connectWallet(); });
 }
 
-// FUND WALLET
+// ==== FUND WALLET ====
 document.getElementById("fundBtn").onclick = () => openModal("fundModal");
 document.getElementById("payWithEthBtn").onclick = async () => {
   if (!signer || !currentAddress) { alert("Connect your wallet first!"); return; }
@@ -432,7 +432,7 @@ document.getElementById("payWithSaBtn").onclick = async () => {
   }
 };
 
-// CASHOUT REQUEST
+// ==== CASHOUT REQUEST ====
 document.getElementById("cashoutBtn").onclick = () => openModal("cashoutModal");
 document.getElementById("requestCashoutBtn").onclick = async () => {
   if (!signer || !currentAddress) { alert("Connect your wallet!"); return; }
@@ -451,12 +451,13 @@ document.getElementById("requestCashoutBtn").onclick = async () => {
   closeModal("cashoutModal");
 };
 
-// PROFILE/REFERRAL/INVITE UI
+// ==== PROFILE/REFERRAL/INVITE UI ====
 function setupReferralLinks() {
   const baseInvite = currentUser.$id;
   const inviteUrl = window.location.origin + "/register.html?invite=" + baseInvite;
   document.getElementById("invitation-url").textContent = inviteUrl;
   document.getElementById("invite-link").value = inviteUrl;
+
   document.getElementById("copyProfileInviteBtn").onclick = () => {
     navigator.clipboard.writeText(inviteUrl);
     document.getElementById("copyProfileInviteBtn").textContent = "Copied!";
@@ -486,7 +487,7 @@ function setupReferralLinks() {
   document.getElementById("facebookShare").href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteUrl)}`;
 }
 
-// REFERRAL BONUS AND MULTI-LEVEL
+// ==== REFERRAL BONUS AND MULTI-LEVEL ====
 async function creditReferralCommission(userId) {
   let user = await databases.getDocument(dbId, usersColl, userId);
   let inviterId = user.invitedBy;
@@ -507,7 +508,7 @@ async function creditReferralCommission(userId) {
   }
 }
 
-// WELCOME BONUS
+// ==== WELCOME BONUS ====
 async function showWelcomeCardIfNeeded() {
   if (!userDoc.welcomeBonus) {
     document.getElementById("welcomeCard").classList.remove("hidden");
@@ -531,7 +532,7 @@ async function showWelcomeCardIfNeeded() {
   }
 }
 
-// LOAD BALANCE, PAYMENT HISTORY
+// ==== LOAD BALANCE, PAYMENT HISTORY ====
 async function loadBalance() {
   const txs = await databases.listDocuments(dbId, txColl, [
     Appwrite.Query.equal('userId', currentUser.$id)
@@ -550,7 +551,7 @@ document.getElementById("paymentHistoryBtn").onclick = async () => {
   openModal("paymentHistoryModal");
 };
 
-// LEADERBOARD & REFERRAL ANALYTICS
+// ==== LEADERBOARD & REFERRAL ANALYTICS ====
 async function renderLeaderboard() {
   let allUsers = await databases.listDocuments(dbId, usersColl, []);
   let leaderboard = allUsers.documents
@@ -576,7 +577,7 @@ async function renderReferralAnalytics() {
   `;
 }
 
-// MARKET
+// ==== MARKET ====
 async function renderMarket() {
   let docs = await databases.listDocuments(dbId, advertsColl, [
     Appwrite.Query.equal('active', true)
@@ -623,7 +624,7 @@ async function renderMarket() {
 document.getElementById("marketSearch").oninput = renderMarket;
 document.getElementById("marketSort").onchange = renderMarket;
 
-// PARTICIPATION LIMIT
+// ==== PARTICIPATION LIMIT ====
 async function canParticipate(advertId, userId) {
   let participations = await databases.listDocuments(dbId, partsColl, [
     Appwrite.Query.equal('userId', userId),
@@ -632,7 +633,7 @@ async function canParticipate(advertId, userId) {
   return participations.documents.length === 0;
 }
 
-// PROOF SUBMIT
+// ==== PROOF SUBMIT ====
 document.getElementById("submitProofBtn").onclick = async function() {
   const fileInput = document.getElementById('proofFile');
   if (!fileInput.files[0]) return alert("Please select a screenshot!");
@@ -675,7 +676,7 @@ document.getElementById("submitProofBtn").onclick = async function() {
   await renderMarket();
 };
 
-// UPLOAD ADVERT
+// ==== UPLOAD ADVERT ====
 document.getElementById("uploadAdvertBtn").onclick = () => openModal("uploadAdvertModal");
 document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
   e.preventDefault();
@@ -726,7 +727,7 @@ document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
   }
 };
 
-// ADMIN PANEL/PROOF REVIEW
+// ==== ADMIN PANEL/PROOF REVIEW ====
 async function renderProofsForReview() {
   let proofs = await databases.listDocuments(dbId, partsColl, [
     Appwrite.Query.equal('status', 'pending')
@@ -757,12 +758,12 @@ window.rejectProof = async (proofId, userId) => {
   renderProofsForReview();
 };
 
-// REAL-TIME LISTENERS
+// ==== REAL-TIME LISTENERS ====
 client.subscribe(`databases.${dbId}.collections.${advertsColl}.documents`, response => { renderMarket(); });
 client.subscribe(`databases.${dbId}.collections.${txColl}.documents`, response => { loadBalance(); });
 client.subscribe(`databases.${dbId}.collections.${usersColl}.documents`, response => { renderLeaderboard(); renderReferralAnalytics(); });
 
-// ON LOAD & LOGIN HANDLING
+// ==== ON LOAD ====
 window.addEventListener("DOMContentLoaded", async () => {
   try {
     currentUser = await account.get();
@@ -793,7 +794,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       renderProofsForReview();
     }
   } catch (e) {
-    // Show login UI instead of redirect
+    // ==== LOGIN UI ====
     document.body.innerHTML = `
       <div class="flex items-center justify-center min-h-screen bg-gray-100">
         <div class="bg-white shadow-lg rounded px-10 py-12 text-center">
