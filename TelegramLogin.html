@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>supremeamer Auth</title>
+  <title>SupremeAmer Auth</title>
   <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -16,6 +16,7 @@
       <input type="text" id="reg-username" class="w-full border p-2 rounded" placeholder="Username" required />
       <input type="email" id="reg-email" class="w-full border p-2 rounded" placeholder="Email" required />
       <input type="password" id="reg-password" class="w-full border p-2 rounded" placeholder="Password" required />
+      <input type="text" id="reg-invitedby" class="w-full border p-2 rounded bg-gray-100" placeholder="Invited By (referrer)" readonly style="display:none"/>
       <button type="submit" class="w-full bg-green-600 text-white p-2 rounded">Register</button>
     </form>
     <form id="login-form" class="space-y-4">
@@ -39,7 +40,6 @@
     <div id="error" class="mt-4 text-red-600"></div>
   </div>
 
-  <!-- Facebook SDK Loader -->
   <div id="fb-root"></div>
   <script>
     (function(d, s, id){
@@ -51,16 +51,13 @@
     }(document, 'script', 'facebook-jssdk'));
   </script>
   <script>
-    // Facebook SDK initialization
     window.fbAsyncInit = function() {
       FB.init({
-        appId      : '3535690456739980', // Your Facebook App ID
+        appId      : '3535690456739980',
         xfbml      : true,
-        version    : 'v22.0' // Facebook Graph API version
+        version    : 'v22.0'
       });
     };
-
-    // Facebook login handler (click only)
     document.addEventListener('DOMContentLoaded', function() {
       const fbLoginBtn = document.getElementById('fb-login-btn');
       if (fbLoginBtn) {
@@ -69,7 +66,6 @@
           FB.login(function(response) {
             if (response.authResponse) {
               FB.api('/me', {fields: 'name,email'}, function(response) {
-                // Optionally, send response.email and response.name to your backend here
                 window.location.href = 'home.html';
               });
             } else {
@@ -81,16 +77,15 @@
     });
   </script>
   <script>
-    // Initialize Appwrite
+    // Appwrite setup
     const client = new Appwrite.Client();
-    client
-      .setEndpoint('https://fra.cloud.appwrite.io/v1')
-      .setProject('68370442000c3c15b9f3');
-
+    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370442000c3c15b9f3');
     const account = new Appwrite.Account(client);
     const databases = new Appwrite.Databases(client);
+    const dbId = '683705ff00244f73e93f';
+    const usersColl = 'users';
 
-    // Toggle forms
+    // Toggle between Login/Register
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     document.getElementById('show-login').onclick = () => {
@@ -102,48 +97,43 @@
       loginForm.classList.add('hidden');
     };
 
-    // Helper: Record user activity in Appwrite Database (optional)
-    async function recordUserActivity(type, data = '') {
-      try {
-        const user = await account.get();
-        await databases.createDocument(
-          '683705ff00244f73e93f', // Your Database ID
-          '683706240012232516b0', // Your Collection ID
-          'unique()',             // Document ID
-          {
-            userId: user.$id,
-            username: user.name,
-            email: user.email,
-            activityType: type,
-            activityData: data,
-            timestamp: new Date().toISOString()
-          }
-        );
-      } catch (err) {
-        // Optionally log errors, but don't block user flow on activity record failure
-        console.error('Activity log error:', err);
-      }
+    // Pre-fill invitedBy
+    const urlParams = new URLSearchParams(window.location.search);
+    const invitedBy = urlParams.get('invite');
+    if (invitedBy) {
+      const invitedByInput = document.getElementById('reg-invitedby');
+      invitedByInput.value = invitedBy;
+      invitedByInput.style.display = '';
+      invitedByInput.readOnly = true;
     }
 
-    // Helper: Record user activity using Appwrite Function (recommended for central logic)
-    async function recordUserActivityFunction(type, data = '') {
+    // Registration
+    registerForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('reg-username').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
       try {
-        const user = await account.get();
-        await fetch('https://cloud.appwrite.io/v1/functions/68370ba7000729b594e6/executions', { 
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.$id,
-            username: user.name,
-            email: user.email,
-            activityType: type,
-            activityData: data
-          })
+        // 1. Create Appwrite account
+        const resp = await account.create('unique()', email, password, username);
+        // 2. (Optionally) Log in session immediately
+        await account.createEmailSession(email, password);
+        // 3. Create user profile in DB
+        const doc = await databases.createDocument(
+          dbId, usersColl, 'unique()', {
+            email: email,
+            name: username,
+            invitedBy: invitedBy || "",
+            walletAddress: "",
+            welcomeBonus: false
         });
+        // 4. Optionally prompt to connect wallet (add your logic if needed)
+        // Redirect to home
+        window.location.href = 'home.html';
       } catch (err) {
-        console.error('Function activity log error:', err);
+        document.getElementById('error').innerText = err.message;
       }
-    }
+    };
 
     // Login
     loginForm.onsubmit = async function(e) {
@@ -152,10 +142,6 @@
       const password = document.getElementById('login-password').value;
       try {
         await account.createEmailSession(email, password);
-        // Log with Appwrite Function
-        await recordUserActivityFunction('login', 'User logged in from TelegramLogin.html');
-        // (Optional: also log directly to DB)
-        // await recordUserActivity('login', 'User logged in from TelegramLogin.html');
         window.location.href = 'home.html';
       } catch (error) {
         document.getElementById('error').innerText = error.message;
