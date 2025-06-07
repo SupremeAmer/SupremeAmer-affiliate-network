@@ -20,14 +20,12 @@
     .footer-nav { position:fixed; bottom:0; left:0; width:100vw; z-index:100; background:#fff; box-shadow: 0 -2px 16px #0001;}
     .welcome-card { animation: bounceIn 0.9s; }
     @keyframes bounceIn { 0%{transform:scale(0.7);opacity:0;} 80%{transform:scale(1.1);} 100%{transform:scale(1);opacity:1;} }
-    /* Improve focus style for accessibility */
     .tab-btn:focus, .tab-btn:active { outline: 2px solid #7c43bd; outline-offset: 2px; }
     .disabled { opacity: 0.6; pointer-events: none; }
   </style>
 </head>
 <body class="min-h-screen pb-20 bg-gradient-to-b from-indigo-50 to-white">
 
-  <!-- Header -->
   <header class="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-indigo-900 to-purple-700 shadow text-white">
     <div class="flex items-center gap-2">
       <img src="logo.png" alt="Logo" class="w-10 h-10 rounded-full" />
@@ -44,7 +42,6 @@
         <button id="logoutBtn" class="text-red-600 px-3 py-1 rounded-lg bg-white hover:bg-red-600 hover:text-white transition" aria-label="Logout">Logout</button>
       </div>
     </div>
-    <!-- Profile Modal -->
     <div id="profileModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
       <div class="modal">
         <h3 class="font-bold mb-2 text-indigo-800">Your Profile</h3>
@@ -66,7 +63,6 @@
     </div>
   </header>
 
-  <!-- Welcome Card -->
   <div id="welcomeCard" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
     <div class="welcome-card bg-white p-8 rounded-xl shadow-xl text-center relative max-w-xs mx-auto animate-bounce">
       <img src="logo.png" class="mx-auto mb-4 w-20" alt="Logo" />
@@ -77,12 +73,10 @@
     </div>
   </div>
 
-  <!-- Pending rewards notice -->
   <div id="pendingRewardsNotice" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-yellow-50 border border-yellow-300 text-yellow-900 px-6 py-3 rounded-xl shadow-lg hidden">
     <span>Pending reward: <b id="pendingRewardAmt">$SA0</b>. Will be credited after verification.</span>
   </div>
 
-  <!-- Screenshot proof modal -->
   <div id="screenshotModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
     <div class="modal text-center">
       <h3 class="font-bold mb-2 text-indigo-800">Upload Screenshot Proof</h3>
@@ -104,7 +98,6 @@
       </div>
       <div id="dashboard-content"></div>
     </section>
-
     <section id="marketTab" class="tab-content bg-white rounded-xl shadow p-7 my-3" aria-labelledby="market-tab-btn">
       <h2 class="text-xl font-bold mb-3 text-indigo-900">Marketplace</h2>
       <div class="flex flex-col md:flex-row md:items-center gap-3 mb-3">
@@ -117,7 +110,6 @@
       </div>
       <div id="market-list" class="mb-5"></div>
       <button id="uploadAdvertBtn" class="bg-indigo-600 text-white px-6 py-2 rounded mb-2">Upload Advert</button>
-      <!-- Upload Modal -->
       <div id="uploadAdvertModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
         <div class="modal">
           <h3 class="font-bold mb-2 text-indigo-800">Upload Advert</h3>
@@ -134,6 +126,7 @@
             <input type="number" id="ad-clicks" class="border rounded px-3 py-2" min="50" max="10000" placeholder="Clicks (min 50, max 10000)" required />
             <input type="url" id="ad-url" class="border rounded px-3 py-2" placeholder="Advert URL" required autocomplete="off" />
             <input type="file" id="ad-image" accept="image/*" class="border rounded px-3 py-2" />
+            <textarea id="ad-instructions" class="border rounded px-3 py-2" placeholder="Participation Instructions (e.g., post a comment, like, etc.)" required></textarea>
             <div id="ad-cost" class="text-sm text-indigo-700 my-2"></div>
             <div id="ad-preview" class="my-2 hidden">
               <span class="font-bold">Preview:</span>
@@ -146,7 +139,6 @@
         </div>
       </div>
     </section>
-
     <section id="inviteTab" class="tab-content bg-white rounded-xl shadow p-7 my-3" aria-labelledby="invite-tab-btn">
       <h2 class="text-xl font-bold mb-3 text-indigo-900">Invite Friends</h2>
       <div class="mb-3">Share your unique invitation link to earn rewards!</div>
@@ -169,8 +161,15 @@
         <h3 class="font-semibold mb-2 text-indigo-800">Your Invited Friends</h3>
         <div id="invitee-list"></div>
       </div>
+      <div class="my-5">
+        <h3 class="font-semibold mb-2 text-indigo-800">Referral Leaderboard</h3>
+        <div id="referral-leaderboard"></div>
+      </div>
+      <div class="my-5">
+        <h3 class="font-semibold mb-2 text-indigo-800">Your Referral Stats</h3>
+        <div id="referral-analytics"></div>
+      </div>
     </section>
-
     <section id="walletTab" class="tab-content bg-white rounded-xl shadow p-7 my-3" aria-labelledby="wallet-tab-btn">
       <h2 class="text-xl font-bold mb-3 text-indigo-900">Wallet</h2>
       <div class="mb-2">
@@ -188,7 +187,6 @@
     </section>
   </main>
 
-  <!-- Footer Navigation -->
   <nav class="footer-nav flex justify-around py-3 border-t bg-white" aria-label="Footer Navigation">
     <button class="tab-btn flex-1 py-2 rounded mx-1 active" id="home-tab-btn" data-tab="homeTab" aria-controls="homeTab" aria-selected="true">Home</button>
     <button class="tab-btn flex-1 py-2 rounded mx-1" id="market-tab-btn" data-tab="marketTab" aria-controls="marketTab">Market</button>
@@ -197,7 +195,6 @@
     <button class="tab-btn flex-1 py-2 rounded mx-1" id="helpSupportBtn">Help & Support</button>
   </nav>
 
-  <!-- Payment History Modal -->
   <div id="paymentHistoryModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
     <div class="modal">
       <h3 class="font-bold mb-2 text-indigo-800">Payment History</h3>
@@ -205,7 +202,6 @@
       <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" aria-label="Close Payment History">Close</button>
     </div>
   </div>
-  <!-- Help & Support Modal -->
   <div id="helpSupportModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
     <div class="modal">
       <h3 class="font-bold mb-2 text-indigo-800">Help & Support</h3>
@@ -214,440 +210,616 @@
       <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" aria-label="Close Help & Support">Close</button>
     </div>
   </div>
-
-  <!-- QR code library (for referral QR) -->
+  <div id="adminReviewPanel" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1" style="display:none;">
+    <div class="modal">
+      <h3 class="font-bold mb-2 text-indigo-800">Proof Review Panel</h3>
+      <div id="admin-review-list"></div>
+      <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" onclick="closeModal('adminReviewPanel')">Close</button>
+    </div>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
-
   <script>
-    // Appwrite Setup
-    const client = new Appwrite.Client();
-    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370442000c3c15b9f3');
-    const account = new Appwrite.Account(client);
-    const databases = new Appwrite.Databases(client);
-    const storage = new Appwrite.Storage(client);
-
-    // Tab Navigation
-    document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-        this.classList.add("active");
-        document.querySelectorAll(".tab-content").forEach(tc=>tc.classList.remove("active"));
-        if(this.dataset.tab) document.getElementById(this.dataset.tab).classList.add("active");
-        document.querySelectorAll(".tab-btn").forEach(b=>b.setAttribute('aria-selected', 'false'));
-        this.setAttribute('aria-selected', 'true');
-      });
-    });
-
-    // Modals open/close
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove("open");
-    }
-    function openModal(modalId) {
-      document.getElementById(modalId).classList.add("open");
-      document.getElementById(modalId).focus && document.getElementById(modalId).focus();
-    }
-
-    document.getElementById("profileBtn").onclick = () => openModal("profileModal");
-    document.querySelectorAll(".close-modal").forEach(btn =>
-      btn.onclick = () => btn.closest(".modal-bg").classList.remove("open")
-    );
-    document.getElementById("helpSupportBtn").onclick = () => openModal("helpSupportModal");
-
-    // Logout
-    document.getElementById("logoutBtn").onclick = async () => {
-      await account.deleteSession('current');
-      window.location.reload();
-    };
-
-    // Advert Cost Calculation & Preview
-    const adClicksInput = document.getElementById('ad-clicks');
-    adClicksInput.oninput = function() {
-      const clicks = parseInt(this.value) || 0;
-      document.getElementById('ad-cost').textContent = 'Total Cost: $' + (clicks * 0.10).toFixed(2);
-    };
-
-    document.getElementById('previewAdBtn').onclick = () => {
-      const title = document.getElementById('ad-title').value;
-      const cat = document.getElementById('ad-category').value;
-      const clicks = document.getElementById('ad-clicks').value;
-      const url = document.getElementById('ad-url').value;
-      const fileInput = document.getElementById('ad-image');
-      let imgHtml = "";
-      if (fileInput.files && fileInput.files[0]) {
-        const urlObj = URL.createObjectURL(fileInput.files[0]);
-        imgHtml = `<img src="${urlObj}" class="w-36 mb-2 rounded"/>`;
-      }
-      document.getElementById('ad-preview').classList.remove("hidden");
-      document.getElementById('ad-preview-content').innerHTML =
-        `${imgHtml}<div><b>${title}</b></div><div>${cat}</div><div>Goal: ${clicks} clicks</div><div><a href="${url}" target="_blank" class="text-blue-500 underline">Visit Advert</a></div>`;
-    };
-
-    // Main Logic
-    let currentUser = null;
-    let userDocId = null;
-    let marketAdverts = [];
-    let pendingParticipation = null;
-
-    // Utility: Generate QR code as DataURL
-    function generateQr(data, el) {
-      const qr = new QRious({ value: data, size: 160 });
-      el.src = qr.toDataURL();
-    }
-
-    (async () => {
-      // Authentication
-      try {
-        currentUser = await account.get();
-      } catch (error) {
-        const email = prompt("Enter your email to log in:");
-        const password = prompt("Enter your password:");
-        if (email && password) {
-          try {
-            await account.createEmailSession(email, password);
-            currentUser = await account.get();
-          } catch {
-            alert('Login failed. Please try again.');
-            window.location.href = "TelegramLogin.html";
-            return;
-          }
-        } else {
-          window.location.href = "TelegramLogin.html";
-          return;
-        }
-      }
-
-      // User Profile & Referral
-      let profileInviteUrl, inviteUrl;
-      const baseInvite = currentUser.name ? encodeURIComponent(currentUser.name) : currentUser.$id;
-      inviteUrl = window.location.origin + "/register.html?invite=" + baseInvite;
-      profileInviteUrl = inviteUrl;
-      document.getElementById("user-email").textContent = currentUser.email;
-      document.getElementById("user-username").textContent =
-        currentUser.name || currentUser.email.split('@')[0];
-      document.getElementById("user-username-modal").textContent =
-        currentUser.name || currentUser.email.split('@')[0];
-      document.getElementById("user-email-modal").textContent = currentUser.email;
-      document.getElementById("user-id").textContent = currentUser.$id;
-      document.getElementById("invitation-url").textContent = profileInviteUrl;
-      document.getElementById("invite-link").value = inviteUrl;
-
-      // Referral copy/QR in profile
-      document.getElementById("copyProfileInviteBtn").onclick = () => {
-        navigator.clipboard.writeText(profileInviteUrl);
-        document.getElementById("copyProfileInviteBtn").textContent = "Copied!";
-        setTimeout(()=>{document.getElementById("copyProfileInviteBtn").textContent="Copy"},1200);
-      };
-      document.getElementById("showQrBtn").onclick = () => {
-        generateQr(profileInviteUrl, document.getElementById("inviteQr"));
-        document.getElementById("inviteQrWrap").classList.toggle("hidden");
-      };
-
-      // Referral copy/QR/share in Invite tab
-      document.getElementById("copyInviteBtn").onclick = () => {
-        navigator.clipboard.writeText(inviteUrl);
-        document.getElementById("copyInviteBtn").textContent = "Copied!";
-        setTimeout(()=>{document.getElementById("copyInviteBtn").textContent="Copy Invite Link"},1200);
-      };
-      document.getElementById("inviteQrBtn").onclick = () => {
-        generateQr(inviteUrl, document.getElementById("inviteQrImg"));
-        document.getElementById("inviteQrContainer").classList.toggle("hidden");
-      };
-      document.getElementById("shareButtonsBtn").onclick = () => {
-        const c = document.getElementById("inviteShareBtns");
-        c.classList.toggle("hidden");
-      };
-      // Social share links
-      const shareMsg = encodeURIComponent("Join SupremeAmer and earn rewards! " + inviteUrl);
-      document.getElementById("whatsappShare").href = `https://wa.me/?text=${shareMsg}`;
-      document.getElementById("telegramShare").href = `https://t.me/share/url?url=${inviteUrl}&text=Join%20SupremeAmer%20and%20earn%20rewards!`;
-      document.getElementById("twitterShare").href = `https://twitter.com/intent/tweet?text=${shareMsg}`;
-      document.getElementById("facebookShare").href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteUrl)}`;
-
-      // Appwrite collection/DB setup
-      const usersColl = 'users', txColl = 'transaction_collection', advertsColl = 'adverts', partsColl = 'participations', dbId = '683705ff00244f73e93f';
-
-      // Get user doc (personalized referral link allowed)
-      let userDocs = await databases.listDocuments(dbId, usersColl, [
-        Appwrite.Query.equal('email', currentUser.email)
-      ]);
-      let userDoc;
-      if (userDocs.documents.length > 0) {
-        userDoc = userDocs.documents[0];
-        userDocId = userDoc.$id;
-      } else {
-        const urlParams = new URLSearchParams(window.location.search);
-        // Accept either userID or username as invite query
-        const invitedBy = urlParams.get('invite');
-        userDoc = await databases.createDocument(dbId, usersColl, 'unique()', {
-          email: currentUser.email,
-          name: currentUser.name,
-          invitedBy: invitedBy || "",
-          welcomeBonus: false
-        });
-        userDocId = userDoc.$id;
-      }
-
-      // Welcome Card & $SA500 Reward
-      if (!userDoc.welcomeBonus) {
-        document.getElementById("welcomeCard").classList.remove("hidden");
-        const dismissWelcome = async () => {
-          document.getElementById("welcomeCard").classList.add("hidden");
-          await databases.createDocument(dbId, txColl, 'unique()', {
-            userId: currentUser.$id,
-            type: "credit",
-            amount: 500,
-            date: new Date().toISOString(),
-            description: "Welcome Bonus",
-            status: "completed"
-          });
-          await databases.updateDocument(dbId, usersColl, userDocId, { welcomeBonus: true });
-          loadBalance();
-        };
-        document.getElementById("dismissWelcome").onclick = dismissWelcome;
-        document.getElementById("closeWelcome").onclick = dismissWelcome;
-        document.getElementById("welcomeCard").onclick = e => { if (e.target === document.getElementById("welcomeCard")) dismissWelcome(); };
-      }
-
-      // Account Balance
-      async function loadBalance() {
-        const txs = await databases.listDocuments(dbId, txColl, [
-          Appwrite.Query.equal('userId', currentUser.$id)
-        ]);
-        let balance = txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
-        document.getElementById("account-balance").textContent = `$SA ${balance}`;
-      }
-      await loadBalance();
-
-      // Payment history
-      document.getElementById("paymentHistoryBtn").onclick = async () => {
-        const txs = await databases.listDocuments(dbId, txColl, [
-          Appwrite.Query.equal('userId', currentUser.$id)
-        ]);
-        document.getElementById("payment-history-content").innerHTML =
-          "<ul class='list-disc ml-5'>" + txs.documents.map(
-            tx => `<li>${tx.date}: <span class="text-green-700">${tx.type}</span> <b>${tx.amount}</b> (${tx.description || ""})</li>`
-          ).join("") + "</ul>";
-        openModal("paymentHistoryModal");
-      };
-
-      // Invitee List (stats)
-      document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
-        const invited = await databases.listDocuments(dbId, usersColl, [
-          Appwrite.Query.equal('invitedBy', currentUser.$id)
-        ]);
-        document.getElementById("invitee-list").innerHTML = invited.documents.length
-          ? invited.documents.map(u => `<div class="text-green-700">${u.name || u.email} <span class="text-xs text-gray-500">(${u.$id})</span></div>`).join('')
-          : "<div class='text-gray-500'>No invitees yet.</div>";
-      };
-
-      // Market Adverts (search/sort/filter, show stats)
-      async function renderMarket() {
-        let docs = await databases.listDocuments(dbId, advertsColl, [
-          Appwrite.Query.equal('active', true)
-        ]);
-        marketAdverts = docs.documents;
-        // Sorting
-        const sort = document.getElementById("marketSort").value;
-        if (sort === "goal") marketAdverts.sort((a,b)=>b.goal-a.goal);
-        if (sort === "clicks") marketAdverts.sort((a,b)=>b.clicks-a.clicks);
-        if (sort === "newest") marketAdverts.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-        // Filtering
-        const search = document.getElementById("marketSearch").value.toLowerCase().trim();
-        let adsToShow = marketAdverts;
-        if (search) {
-          adsToShow = marketAdverts.filter(ad =>
-            (ad.title && ad.title.toLowerCase().includes(search)) ||
-            (ad.category && ad.category.toLowerCase().includes(search))
-          );
-        }
-        document.getElementById("market-list").innerHTML = adsToShow.length
-          ? adsToShow.map(ad => `
-            <div class="border border-indigo-100 p-4 rounded-lg shadow my-2 flex flex-col md:flex-row md:items-center justify-between transition-all duration-200">
-              <div class="flex-1">
-                ${(ad.imageUrl ? `<img src="${ad.imageUrl}" class="w-28 mb-2 rounded" alt="ad"/>` : "")}
-                <div class="font-bold text-lg mb-1">${ad.title}</div>
-                <div class="text-xs mb-2">${ad.category} &bull; Goal: ${ad.goal} clicks &bull; Clicks: ${ad.clicks || 0}/${ad.maxClicks}</div>
-                <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline">Visit Advert</a>
-              </div>
-              <button class="bg-green-500 text-white px-3 py-1 rounded participate-btn mt-2 md:mt-0" data-adid="${ad.$id}">Participate</button>
-            </div>
-          `).join('')
-          : "<div class='text-gray-500'>No adverts available. Upload one!</div>";
-
-        document.querySelectorAll('.participate-btn').forEach(btn => {
-          btn.onclick = function() {
-            pendingParticipation = btn.getAttribute('data-adid');
-            openModal("screenshotModal");
-          };
-        });
-      }
-      // Market search/sort events
-      document.getElementById("marketSearch").oninput = renderMarket;
-      document.getElementById("marketSort").onchange = renderMarket;
-      await renderMarket();
-
-      // Screenshot proof logic
-      document.getElementById("submitProofBtn").onclick = async function() {
-        const fileInput = document.getElementById('proofFile');
-        if (!fileInput.files[0]) return alert("Please select a screenshot!");
-        let file = fileInput.files[0];
-        let up = await storage.createFile(dbId, 'adproofs', 'unique()', file);
-        let proofUrl = storage.getFileView(dbId, 'adproofs', up.$id).href;
-        let ad = marketAdverts.find(a => a.$id === pendingParticipation);
-        let reward = Math.floor(Math.random()*701) + 300; // 300-1000
-        await databases.createDocument(dbId, partsColl, 'unique()', {
-          advertId: ad.$id,
-          userId: currentUser.$id,
-          posterId: ad.poster,
-          screenshotUrl: proofUrl,
-          status: "pending",
-          joinedAt: new Date().toISOString(),
-          rewardAmount: reward
-        });
-        await databases.updateDocument(dbId, advertsColl, ad.$id, {
-          clicks: (ad.clicks || 0) + 1
-        });
-        if ((ad.clicks || 0) + 1 >= Math.round(ad.goal * 1.55)) {
-          await databases.updateDocument(dbId, advertsColl, ad.$id, {active: false});
-        }
-        closeModal("screenshotModal");
-        document.getElementById("pendingRewardsNotice").classList.remove("hidden");
-        document.getElementById("pendingRewardAmt").textContent = "$SA" + reward;
-        setTimeout(() => document.getElementById("pendingRewardsNotice").classList.add("hidden"), 5000);
-        setTimeout(async () => {
-          await databases.createDocument(dbId, txColl, 'unique()', {
-            userId: currentUser.$id,
-            type: "credit",
-            amount: reward,
-            date: new Date().toISOString(),
-            description: "Advert reward",
-            status: "completed"
-          });
-          await databases.updateDocument(dbId, partsColl, up.$id, {status: "rewarded"});
-          loadBalance();
-        }, 3 * 3600 * 1000); // 3 hours
-        await renderMarket();
-      };
-
-      // Upload Advert
-      document.getElementById("uploadAdvertBtn").onclick = () => openModal("uploadAdvertModal");
-      document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
-        e.preventDefault();
-        const title = document.getElementById('ad-title').value.trim();
-        const category = document.getElementById('ad-category').value;
-        const clicks = parseInt(document.getElementById('ad-clicks').value);
-        const cost = clicks * 0.10;
-        const url = document.getElementById('ad-url').value.trim();
-        const imageInput = document.getElementById('ad-image');
-        // Input validation
-        if (title.length < 3) return alert("Title is too short.");
-        if (!/^https?:\/\//.test(url)) return alert("URL must start with http:// or https://");
-        if (clicks < 50 || clicks > 10000) return alert("Clicks must be between 50 and 10000.");
-        // Simulate wallet deduction (stub)
-        if(window.ethereum) {
-          try {
-            document.getElementById("uploadAdvertBtn").disabled = true;
-            let imageUrl = "";
-            if (imageInput.files && imageInput.files[0]) {
-              const upImg = await storage.createFile(dbId, 'adimages', 'unique()', imageInput.files[0]);
-              imageUrl = storage.getFileView(dbId, 'adimages', upImg.$id).href;
-            }
-            // TODO: Real payment logic - send cost in ETH to your wallet
-            await databases.createDocument(dbId, advertsColl, 'unique()', {
-              title,
-              category,
-              goal: clicks,
-              url,
-              imageUrl,
-              poster: currentUser.$id,
-              active: true,
-              clicks: 0,
-              maxClicks: Math.round(clicks * 1.55),
-              createdAt: new Date().toISOString()
-            });
-            await databases.createDocument(dbId, txColl, 'unique()', {
-              userId: currentUser.$id,
-              type: "debit",
-              amount: -cost,
-              date: new Date().toISOString(),
-              description: "Advert upload payment",
-              status: "completed"
-            });
-            alert('Advert uploaded!');
-            closeModal("uploadAdvertModal");
-            this.reset();
-            await renderMarket();
-            loadBalance();
-          } catch (err) {
-            alert('Wallet transaction failed or rejected.');
-          } finally {
-            document.getElementById("uploadAdvertBtn").disabled = false;
-          }
-        } else {
-          alert("Please connect your wallet.");
-        }
-      };
-
-      // WALLET CONNECTION ---------------------
-      let provider, signer;
-      let currentAddress = null;
-
-      async function updateWalletDisplay(address, net) {
-        document.getElementById("wallet-address").textContent = address || "";
-        document.getElementById("wallet-network").textContent = net || "";
-        if (provider && address) {
-          const ethBalance = ethers.formatEther(await provider.getBalance(address));
-          document.getElementById("eth-balance").textContent = Number(ethBalance).toFixed(4) + " ETH";
-        }
-        // Show wallet provider
-        document.getElementById("wallet-provider").textContent =
-          window.ethereum && window.ethereum.isMetaMask ? "MetaMask" : "Unknown";
-        document.getElementById("wallet-details").classList.remove("hidden");
-      }
-
-      async function connectWallet() {
-        if(!window.ethereum) {
-          alert("Please install MetaMask or a compatible wallet.");
-          return;
-        }
-        document.getElementById("connectWalletBtn").classList.add("disabled");
-        try {
-          provider = new ethers.BrowserProvider(window.ethereum);
-          await window.ethereum.request({ method: "eth_requestAccounts" });
-          signer = await provider.getSigner();
-          currentAddress = await signer.getAddress();
-          const net = (await provider.getNetwork()).name;
-          document.getElementById("walletStatus").textContent = "Wallet Connected";
-          document.getElementById("connectWalletBtn").textContent = "Wallet Connected";
-          document.getElementById("disconnectWalletBtn").classList.remove("hidden");
-          await updateWalletDisplay(currentAddress, net);
-        } catch (e) {
-          alert("Wallet connection failed: " + (e && e.message ? e.message : e));
-        } finally {
-          document.getElementById("connectWalletBtn").classList.remove("disabled");
-        }
-      }
-      document.getElementById("connectWalletBtn").onclick = connectWallet;
-      document.getElementById("disconnectWalletBtn").onclick = () => {
-        provider = signer = null;
-        currentAddress = null;
-        document.getElementById("walletStatus").textContent = "Wallet Disconnected";
-        document.getElementById("wallet-details").classList.add("hidden");
-        document.getElementById("connectWalletBtn").textContent = "Connect Wallet";
-        document.getElementById("disconnectWalletBtn").classList.add("hidden");
-      };
-
-      // Listen for wallet changes
-      if (window.ethereum) {
-        window.ethereum.on('accountsChanged', () => {
-          if(currentAddress) connectWallet();
-        });
-        window.ethereum.on('chainChanged', () => {
-          if(currentAddress) connectWallet();
-        });
-      }
-
-    })();
+    const tokenAbi = [
+      "function balanceOf(address owner) view returns (uint256)",
+      "function decimals() view returns (uint8)"
+    ];
+    const tokenAddress = "0xYourTokenAddressHere";
   </script>
+  <script>
+// Appwrite Setup
+const client = new Appwrite.Client();
+client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370442000c3c15b9f3');
+const account = new Appwrite.Account(client);
+const databases = new Appwrite.Databases(client);
+const storage = new Appwrite.Storage(client);
+
+// Tab Navigation
+document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    this.classList.add("active");
+    document.querySelectorAll(".tab-content").forEach(tc=>tc.classList.remove("active"));
+    if(this.dataset.tab) document.getElementById(this.dataset.tab).classList.add("active");
+    document.querySelectorAll(".tab-btn").forEach(b=>b.setAttribute('aria-selected', 'false'));
+    this.setAttribute('aria-selected', 'true');
+  });
+});
+
+// Modals open/close
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove("open");
+}
+function openModal(modalId) {
+  document.getElementById(modalId).classList.add("open");
+  document.getElementById(modalId).focus && document.getElementById(modalId).focus();
+}
+document.getElementById("profileBtn").onclick = () => openModal("profileModal");
+document.querySelectorAll(".close-modal").forEach(btn =>
+  btn.onclick = () => btn.closest(".modal-bg").classList.remove("open")
+);
+document.getElementById("helpSupportBtn").onclick = () => openModal("helpSupportModal");
+
+// Logout
+document.getElementById("logoutBtn").onclick = async () => {
+  await account.deleteSession('current');
+  window.location.reload();
+};
+
+// Advert Cost Calculation & Preview
+const adClicksInput = document.getElementById('ad-clicks');
+adClicksInput.oninput = function() {
+  const clicks = parseInt(this.value) || 0;
+  document.getElementById('ad-cost').textContent = 'Total Cost: $' + (clicks * 0.10).toFixed(2);
+};
+document.getElementById('previewAdBtn').onclick = () => {
+  const title = document.getElementById('ad-title').value;
+  const cat = document.getElementById('ad-category').value;
+  const clicks = document.getElementById('ad-clicks').value;
+  const url = document.getElementById('ad-url').value;
+  const fileInput = document.getElementById('ad-image');
+  let imgHtml = "";
+  if (fileInput.files && fileInput.files[0]) {
+    const urlObj = URL.createObjectURL(fileInput.files[0]);
+    imgHtml = `<img src="${urlObj}" class="w-36 mb-2 rounded"/>`;
+  }
+  document.getElementById('ad-preview').classList.remove("hidden");
+  document.getElementById('ad-preview-content').innerHTML =
+    `${imgHtml}<div><b>${title}</b></div><div>${cat}</div><div>Goal: ${clicks} clicks</div><div><a href="${url}" target="_blank" class="text-blue-500 underline">Visit Advert</a></div>`;
+};
+
+// Utility: Generate QR code as DataURL
+function generateQr(data, el) {
+  const qr = new QRious({ value: data, size: 160 });
+  el.src = qr.toDataURL();
+}
+
+// ERC20 token helpers
+async function loadSaBalance(address) {
+  if (window.ethers && tokenAddress && tokenAbi && address) {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const contract = new ethers.Contract(tokenAddress, tokenAbi, provider);
+    const saBalance = await contract.balanceOf(address);
+    const decimals = await contract.decimals();
+    document.getElementById("sa-balance").textContent =
+      ethers.formatUnits(saBalance, decimals) + " $SA";
+  }
+}
+
+// Admin proof review
+async function renderProofsForReview(dbId, partsColl, txColl, databases) {
+  let proofs = await databases.listDocuments(dbId, partsColl, [
+    Appwrite.Query.equal('status', 'pending')
+  ]);
+  document.getElementById("admin-review-list").innerHTML = proofs.documents.map(proof =>
+    `<div class="p-2 my-2 border rounded flex items-center gap-3">
+      <img src="${proof.screenshotUrl}" width="100"/>
+      <div>User: ${proof.userId}<br>Ad: ${proof.advertId}</div>
+      <button class="bg-green-500 text-white px-3 py-1 rounded" onclick="approveProof('${proof.$id}', ${proof.rewardAmount}, '${proof.userId}')">Approve</button>
+      <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="rejectProof('${proof.$id}', '${proof.userId}')">Reject</button>
+    </div>`
+  ).join('');
+}
+window.approveProof = async (proofId, amount, userId) => {
+  await databases.updateDocument('683705ff00244f73e93f', "participations", proofId, { status: "rewarded" });
+  await databases.createDocument('683705ff00244f73e93f', "transaction_collection", 'unique()', {
+    userId,
+    type: "credit",
+    amount,
+    date: new Date().toISOString(),
+    description: "Advert reward (approved)",
+    status: "completed"
+  });
+  renderProofsForReview('683705ff00244f73e93f', "participations", "transaction_collection", databases);
+};
+window.rejectProof = async (proofId, userId) => {
+  await databases.updateDocument('683705ff00244f73e93f', "participations", proofId, { status: "rejected" });
+  renderProofsForReview('683705ff00244f73e93f', "participations", "transaction_collection", databases);
+};
+
+// Multi-Level Referral Commission
+async function creditReferralCommission(userId, dbId, usersColl, txColl, databases) {
+  let user = await databases.getDocument(dbId, usersColl, userId);
+  let inviterId = user.invitedBy;
+  let level = 1;
+  while (inviterId && level <= 3) {
+    let commission = level === 1 ? 100 : (level === 2 ? 50 : 25);
+    await databases.createDocument(dbId, txColl, 'unique()', {
+      userId: inviterId,
+      type: "credit",
+      amount: commission,
+      date: new Date().toISOString(),
+      description: `Level ${level} referral reward for user ${userId}`,
+      status: "completed"
+    });
+    let inviter = await databases.getDocument(dbId, usersColl, inviterId);
+    inviterId = inviter.invitedBy;
+    level++;
+  }
+}
+
+// Leaderboard & Analytics
+async function renderLeaderboard(usersColl, dbId, databases) {
+  let allUsers = await databases.listDocuments(dbId, usersColl, []);
+  let leaderboard = allUsers.documents
+    .map(u => ({
+      name: u.name || u.email,
+      count: allUsers.documents.filter(us => us.invitedBy === u.$id).length
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+  document.getElementById("referral-leaderboard").innerHTML =
+    leaderboard.map((u, i) => `<div>${i + 1}. ${u.name} - <b>${u.count}</b> referrals</div>`).join('');
+}
+async function renderReferralAnalytics(usersColl, txColl, dbId, databases, currentUser) {
+  let allUsers = await databases.listDocuments(dbId, usersColl, []);
+  let myReferrals = allUsers.documents.filter(u => u.invitedBy === currentUser.$id);
+  let txs = await databases.listDocuments(dbId, txColl, [
+    Appwrite.Query.equal('userId', currentUser.$id),
+    Appwrite.Query.search('description', 'referral reward')
+  ]);
+  document.getElementById("referral-analytics").innerHTML = `
+    <div>Total Invites: <b>${myReferrals.length}</b></div>
+    <div>Total Referral Commissions: <b>$SA${txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0)}</b></div>
+  `;
+}
+
+// --- Participation Limit ---
+async function canParticipate(advertId, userId) {
+  let participations = await databases.listDocuments('683705ff00244f73e93f', 'participations', [
+    Appwrite.Query.equal('userId', userId),
+    Appwrite.Query.equal('advertId', advertId)
+  ]);
+  return participations.documents.length === 0;
+}
+
+// --- Wallet Signature Verification (optional, for advanced security) ---
+async function verifyWallet(address) {
+  if (window.ethereum && signer) {
+    const message = `Verify ownership for SupremeAmer: ${address}`;
+    const signature = await signer.signMessage(message);
+    await databases.updateDocument('683705ff00244f73e93f', 'users', userDocId, {
+      walletAddress: address,
+      walletSignature: signature
+    });
+  }
+}
+
+// --- Notifications (simple in-app, extend as needed) ---
+function showNotification(msg, color="green") {
+  const notice = document.createElement("div");
+  notice.className = `fixed top-12 right-6 bg-${color}-600 text-white px-5 py-2 rounded shadow-lg z-50`;
+  notice.innerText = msg;
+  document.body.appendChild(notice);
+  setTimeout(() => notice.remove(), 4000);
+}
+
+// --- Admin Panel: Re-render after approve/reject, show only for admins ---
+async function adminPanelInit() {
+  if (currentUser && currentUser.email && currentUser.email.endsWith('@supremeamer.com')) {
+    document.getElementById("adminReviewPanel").style.display = "flex";
+    await renderProofsForReview('683705ff00244f73e93f', 'participations', 'transaction_collection', databases);
+  }
+}
+
+// --- Fund and Cashout Buttons (stub logic, extend for real on-chain payments) ---
+document.getElementById("fundBtn").onclick = async () => {
+  alert("To fund your account, send ETH or $SA token to the contract address and contact support for manual credit while auto smart contract integration is being built.");
+};
+document.getElementById("cashoutBtn").onclick = async () => {
+  alert("To cash out, submit a withdrawal request to support@supremeamer.com with your wallet address. Automated cashout is coming soon!");
+};
+
+document.querySelector('[data-tab="walletTab"]').onclick = async () => {
+  if (currentAddress) {
+    await updateWalletDisplay(currentAddress, (await provider.getNetwork()).name);
+  }
+};
+document.querySelector('[data-tab="homeTab"]').onclick = async () => {
+  await loadBalance();
+};
+
+window.addEventListener("DOMContentLoaded", adminPanelInit);
+
+// --- Main App Logic ---
+(async () => {
+
+  // Authentication
+  try {
+    currentUser = await account.get();
+  } catch (error) {
+    const email = prompt("Enter your email to log in:");
+    const password = prompt("Enter your password:");
+    if (email && password) {
+      try {
+        await account.createEmailSession(email, password);
+        currentUser = await account.get();
+      } catch {
+        alert('Login failed. Please try again.');
+        window.location.href = "TelegramLogin.html";
+        return;
+      }
+    } else {
+      window.location.href = "TelegramLogin.html";
+      return;
+    }
+  }
+
+  // User Profile & Referral
+  let profileInviteUrl, inviteUrl;
+  const baseInvite = currentUser.$id; // Use only ID for referral
+  inviteUrl = window.location.origin + "/register.html?invite=" + baseInvite;
+  profileInviteUrl = inviteUrl;
+  document.getElementById("user-email").textContent = currentUser.email;
+  document.getElementById("user-username").textContent =
+    currentUser.name || currentUser.email.split('@')[0];
+  document.getElementById("user-username-modal").textContent =
+    currentUser.name || currentUser.email.split('@')[0];
+  document.getElementById("user-email-modal").textContent = currentUser.email;
+  document.getElementById("user-id").textContent = currentUser.$id;
+  document.getElementById("invitation-url").textContent = profileInviteUrl;
+  document.getElementById("invite-link").value = inviteUrl;
+
+  // Referral copy/QR in profile
+  document.getElementById("copyProfileInviteBtn").onclick = () => {
+    navigator.clipboard.writeText(profileInviteUrl);
+    document.getElementById("copyProfileInviteBtn").textContent = "Copied!";
+    setTimeout(()=>{document.getElementById("copyProfileInviteBtn").textContent="Copy"},1200);
+  };
+  document.getElementById("showQrBtn").onclick = () => {
+    generateQr(profileInviteUrl, document.getElementById("inviteQr"));
+    document.getElementById("inviteQrWrap").classList.toggle("hidden");
+  };
+
+  // Referral copy/QR/share in Invite tab
+  document.getElementById("copyInviteBtn").onclick = () => {
+    navigator.clipboard.writeText(inviteUrl);
+    document.getElementById("copyInviteBtn").textContent = "Copied!";
+    setTimeout(()=>{document.getElementById("copyInviteBtn").textContent="Copy Invite Link"},1200);
+  };
+  document.getElementById("inviteQrBtn").onclick = () => {
+    generateQr(inviteUrl, document.getElementById("inviteQrImg"));
+    document.getElementById("inviteQrContainer").classList.toggle("hidden");
+  };
+  document.getElementById("shareButtonsBtn").onclick = () => {
+    const c = document.getElementById("inviteShareBtns");
+    c.classList.toggle("hidden");
+  };
+  // Social share links
+  const shareMsg = encodeURIComponent("Join SupremeAmer and earn rewards! " + inviteUrl);
+  document.getElementById("whatsappShare").href = `https://wa.me/?text=${shareMsg}`;
+  document.getElementById("telegramShare").href = `https://t.me/share/url?url=${inviteUrl}&text=Join%20SupremeAmer%20and%20earn%20rewards!`;
+  document.getElementById("twitterShare").href = `https://twitter.com/intent/tweet?text=${shareMsg}`;
+  document.getElementById("facebookShare").href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteUrl)}`;
+
+  // Appwrite collection/DB setup
+  const usersColl = 'users', txColl = 'transaction_collection', advertsColl = 'adverts', partsColl = 'participations', dbId = '683705ff00244f73e93f';
+
+  // Get user doc (personalized referral link allowed)
+  let userDocs = await databases.listDocuments(dbId, usersColl, [
+    Appwrite.Query.equal('email', currentUser.email)
+  ]);
+  let userDoc;
+  if (userDocs.documents.length > 0) {
+    userDoc = userDocs.documents[0];
+    userDocId = userDoc.$id;
+  } else {
+    const urlParams = new URLSearchParams(window.location.search);
+    const invitedBy = urlParams.get('invite');
+    // Prevent self-referral
+    if (invitedBy && invitedBy === currentUser.$id) {
+      alert('You cannot refer yourself!');
+      window.location.href = '/register.html';
+      return;
+    }
+    userDoc = await databases.createDocument(dbId, usersColl, 'unique()', {
+      email: currentUser.email,
+      name: currentUser.name,
+      invitedBy: invitedBy || "",
+      welcomeBonus: false
+    });
+    userDocId = userDoc.$id;
+  }
+
+  // Welcome Card & $SA500 Reward
+  if (!userDoc.welcomeBonus) {
+    document.getElementById("welcomeCard").classList.remove("hidden");
+    const dismissWelcome = async () => {
+      document.getElementById("welcomeCard").classList.add("hidden");
+      await databases.createDocument(dbId, txColl, 'unique()', {
+        userId: currentUser.$id,
+        type: "credit",
+        amount: 500,
+        date: new Date().toISOString(),
+        description: "Welcome Bonus",
+        status: "completed"
+      });
+      await databases.updateDocument(dbId, usersColl, userDocId, { welcomeBonus: true });
+      // Multi-level commission for first signup
+      await creditReferralCommission(currentUser.$id, dbId, usersColl, txColl, databases);
+      loadBalance();
+    };
+    document.getElementById("dismissWelcome").onclick = dismissWelcome;
+    document.getElementById("closeWelcome").onclick = dismissWelcome;
+    document.getElementById("welcomeCard").onclick = e => { if (e.target === document.getElementById("welcomeCard")) dismissWelcome(); };
+  }
+
+  // Account Balance
+  async function loadBalance() {
+    const txs = await databases.listDocuments(dbId, txColl, [
+      Appwrite.Query.equal('userId', currentUser.$id)
+    ]);
+    let balance = txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+    document.getElementById("account-balance").textContent = `$SA ${balance}`;
+  }
+  await loadBalance();
+
+  // Payment history
+  document.getElementById("paymentHistoryBtn").onclick = async () => {
+    const txs = await databases.listDocuments(dbId, txColl, [
+      Appwrite.Query.equal('userId', currentUser.$id)
+    ]);
+    document.getElementById("payment-history-content").innerHTML =
+      "<ul class='list-disc ml-5'>" + txs.documents.map(
+        tx => `<li>${tx.date}: <span class="text-green-700">${tx.type}</span> <b>${tx.amount}</b> (${tx.description || ""})</li>`
+      ).join("") + "</ul>";
+    openModal("paymentHistoryModal");
+  };
+
+  // Invitee List (stats)
+  document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
+    const invited = await databases.listDocuments(dbId, usersColl, [
+      Appwrite.Query.equal('invitedBy', currentUser.$id)
+    ]);
+    document.getElementById("invitee-list").innerHTML = invited.documents.length
+      ? invited.documents.map(u => `<div class="text-green-700">${u.name || u.email} <span class="text-xs text-gray-500">(${u.$id})</span></div>`).join('')
+      : "<div class='text-gray-500'>No invitees yet.</div>";
+    await renderLeaderboard(usersColl, dbId, databases);
+    await renderReferralAnalytics(usersColl, txColl, dbId, databases, currentUser);
+  };
+
+  // Market Adverts (search/sort/filter, show stats)
+  async function renderMarket() {
+    let docs = await databases.listDocuments(dbId, advertsColl, [
+      Appwrite.Query.equal('active', true)
+    ]);
+    marketAdverts = docs.documents;
+    // Sorting
+    const sort = document.getElementById("marketSort").value;
+    if (sort === "goal") marketAdverts.sort((a,b)=>b.goal-a.goal);
+    if (sort === "clicks") marketAdverts.sort((a,b)=>b.clicks-a.clicks);
+    if (sort === "newest") marketAdverts.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+    // Filtering
+    const search = document.getElementById("marketSearch").value.toLowerCase().trim();
+    let adsToShow = marketAdverts;
+    if (search) {
+      adsToShow = marketAdverts.filter(ad =>
+        (ad.title && ad.title.toLowerCase().includes(search)) ||
+        (ad.category && ad.category.toLowerCase().includes(search))
+      );
+    }
+    document.getElementById("market-list").innerHTML = adsToShow.length
+      ? adsToShow.map(ad => `
+        <div class="border border-indigo-100 p-4 rounded-lg shadow my-2 flex flex-col md:flex-row md:items-center justify-between transition-all duration-200">
+          <div class="flex-1">
+            ${(ad.imageUrl ? `<img src="${ad.imageUrl}" class="w-28 mb-2 rounded" alt="ad"/>` : "")}
+            <div class="font-bold text-lg mb-1">${ad.title}</div>
+            <div class="text-xs mb-2">${ad.category} &bull; Goal: ${ad.goal} clicks &bull; Clicks: ${ad.clicks || 0}/${ad.maxClicks}</div>
+            <div class="mb-1 text-sm text-indigo-800"><b>Instructions:</b> ${ad.instructions || ""}</div>
+            <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline">Visit Advert</a>
+          </div>
+          <button class="bg-green-500 text-white px-3 py-1 rounded participate-btn mt-2 md:mt-0" data-adid="${ad.$id}">Participate</button>
+        </div>
+      `).join('')
+      : "<div class='text-gray-500'>No adverts available. Upload one!</div>";
+
+    document.querySelectorAll('.participate-btn').forEach(btn => {
+      btn.onclick = async function() {
+        pendingParticipation = btn.getAttribute('data-adid');
+        // Participation limit check
+        const can = await canParticipate(pendingParticipation, currentUser.$id);
+        if (!can) {
+          alert("You have already participated in this advert.");
+          return;
+        }
+        openModal("screenshotModal");
+      };
+    });
+  }
+  document.getElementById("marketSearch").oninput = renderMarket;
+  document.getElementById("marketSort").onchange = renderMarket;
+  await renderMarket();
+
+  // Screenshot proof logic
+  document.getElementById("submitProofBtn").onclick = async function() {
+    const fileInput = document.getElementById('proofFile');
+    if (!fileInput.files[0]) return alert("Please select a screenshot!");
+    let file = fileInput.files[0];
+    let up = await storage.createFile(dbId, 'adproofs', 'unique()', file);
+    let proofUrl = storage.getFileView(dbId, 'adproofs', up.$id).href;
+    let ad = marketAdverts.find(a => a.$id === pendingParticipation);
+    let reward = Math.floor(Math.random()*701) + 300; // 300-1000
+    await databases.createDocument(dbId, partsColl, 'unique()', {
+      advertId: ad.$id,
+      userId: currentUser.$id,
+      posterId: ad.poster,
+      screenshotUrl: proofUrl,
+      status: "pending",
+      joinedAt: new Date().toISOString(),
+      rewardAmount: reward
+    });
+    await databases.updateDocument(dbId, advertsColl, ad.$id, {
+      clicks: (ad.clicks || 0) + 1
+    });
+    if ((ad.clicks || 0) + 1 >= Math.round(ad.goal * 1.55)) {
+      await databases.updateDocument(dbId, advertsColl, ad.$id, {active: false});
+    }
+    closeModal("screenshotModal");
+    document.getElementById("pendingRewardsNotice").classList.remove("hidden");
+    document.getElementById("pendingRewardAmt").textContent = "$SA" + reward;
+    setTimeout(() => document.getElementById("pendingRewardsNotice").classList.add("hidden"), 5000);
+    setTimeout(async () => {
+      await databases.createDocument(dbId, txColl, 'unique()', {
+        userId: currentUser.$id,
+        type: "credit",
+        amount: reward,
+        date: new Date().toISOString(),
+        description: "Advert reward",
+        status: "completed"
+      });
+      // Optional: Also reward referrer for first participation
+      // await creditReferralCommission(currentUser.$id, dbId, usersColl, txColl, databases);
+      await databases.updateDocument(dbId, partsColl, up.$id, {status: "rewarded"});
+      loadBalance();
+    }, 3 * 3600 * 1000); // 3 hours
+    await renderMarket();
+  };
+
+  // Upload Advert
+  document.getElementById("uploadAdvertBtn").onclick = () => openModal("uploadAdvertModal");
+  document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
+    e.preventDefault();
+    const title = document.getElementById('ad-title').value.trim();
+    const category = document.getElementById('ad-category').value;
+    const clicks = parseInt(document.getElementById('ad-clicks').value);
+    const cost = clicks * 0.10;
+    const url = document.getElementById('ad-url').value.trim();
+    const instructions = document.getElementById('ad-instructions').value;
+    const imageInput = document.getElementById('ad-image');
+    // Input validation
+    if (title.length < 3) return alert("Title is too short.");
+    if (!/^https?:\/\//.test(url)) return alert("URL must start with http:// or https://");
+    if (clicks < 50 || clicks > 10000) return alert("Clicks must be between 50 and 10000.");
+    if (!instructions.trim()) return alert("Instructions are required.");
+    // Simulate wallet deduction (stub)
+    if(window.ethereum) {
+      try {
+        document.getElementById("uploadAdvertBtn").disabled = true;
+        let imageUrl = "";
+        if (imageInput.files && imageInput.files[0]) {
+          const upImg = await storage.createFile(dbId, 'adimages', 'unique()', imageInput.files[0]);
+          imageUrl = storage.getFileView(dbId, 'adimages', upImg.$id).href;
+        }
+        // TODO: Real payment logic - send cost in ETH to your wallet
+        await databases.createDocument(dbId, advertsColl, 'unique()', {
+          title,
+          category,
+          goal: clicks,
+          url,
+          imageUrl,
+          instructions,
+          poster: currentUser.$id,
+          active: true,
+          clicks: 0,
+          maxClicks: Math.round(clicks * 1.55),
+          createdAt: new Date().toISOString()
+        });
+        await databases.createDocument(dbId, txColl, 'unique()', {
+          userId: currentUser.$id,
+          type: "debit",
+          amount: -cost,
+          date: new Date().toISOString(),
+          description: "Advert upload payment",
+          status: "completed"
+        });
+        alert('Advert uploaded!');
+        closeModal("uploadAdvertModal");
+        this.reset();
+        await renderMarket();
+        loadBalance();
+      } catch (err) {
+        alert('Wallet transaction failed or rejected.');
+      } finally {
+        document.getElementById("uploadAdvertBtn").disabled = false;
+      }
+    } else {
+      alert("Please connect your wallet.");
+    }
+  };
+
+  // WALLET CONNECTION ---------------------
+  let provider, signer;
+  let currentAddress = null;
+
+  async function updateWalletDisplay(address, net) {
+    document.getElementById("wallet-address").textContent = address || "";
+    document.getElementById("wallet-network").textContent = net || "";
+    if (provider && address) {
+      const ethBalance = ethers.formatEther(await provider.getBalance(address));
+      document.getElementById("eth-balance").textContent = Number(ethBalance).toFixed(4) + " ETH";
+      await loadSaBalance(address);
+    }
+    document.getElementById("wallet-provider").textContent =
+      window.ethereum && window.ethereum.isMetaMask ? "MetaMask" : "Unknown";
+    document.getElementById("wallet-details").classList.remove("hidden");
+  }
+
+  async function connectWallet() {
+    if(!window.ethereum) {
+      alert("Please install MetaMask or a compatible wallet.");
+      return;
+    }
+    document.getElementById("connectWalletBtn").classList.add("disabled");
+    try {
+      provider = new ethers.BrowserProvider(window.ethereum);
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      signer = await provider.getSigner();
+      currentAddress = await signer.getAddress();
+      const net = (await provider.getNetwork()).name;
+      document.getElementById("walletStatus").textContent = "Wallet Connected";
+      document.getElementById("connectWalletBtn").textContent = "Wallet Connected";
+      document.getElementById("disconnectWalletBtn").classList.remove("hidden");
+      await updateWalletDisplay(currentAddress, net);
+    } catch (e) {
+      alert("Wallet connection failed: " + (e && e.message ? e.message : e));
+    } finally {
+      document.getElementById("connectWalletBtn").classList.remove("disabled");
+    }
+  }
+  document.getElementById("connectWalletBtn").onclick = connectWallet;
+  document.getElementById("disconnectWalletBtn").onclick = () => {
+    provider = signer = null;
+    currentAddress = null;
+    document.getElementById("walletStatus").textContent = "Wallet Disconnected";
+    document.getElementById("wallet-details").classList.add("hidden");
+    document.getElementById("connectWalletBtn").textContent = "Connect Wallet";
+    document.getElementById("disconnectWalletBtn").classList.add("hidden");
+  };
+  if (window.ethereum) {
+    window.ethereum.on('accountsChanged', () => {
+      if(currentAddress) connectWallet();
+    });
+    window.ethereum.on('chainChanged', () => {
+      if(currentAddress) connectWallet();
+    });
+  }
+
+  // Admin Panel Access (show if admin)
+  if (currentUser.email && currentUser.email.endsWith('@supremeamer.com')) {
+    document.getElementById("adminReviewPanel").style.display = "flex";
+    renderProofsForReview(dbId, partsColl, txColl, databases);
+  }
+
+})();
+})();  </script>
 </body>
 </html>
