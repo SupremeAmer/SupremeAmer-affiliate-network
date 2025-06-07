@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SupremeAmer Affiliate Network</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; background: #f8f8f8; }
+    .tab-btn.active { background: linear-gradient(90deg, #4b0082 60%, #7c43bd 100%); color: #fff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.4s; }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    .modal-bg { display:none; position:fixed; top:0;left:0;width:100vw;height:100vh;background:rgba(32,0,64,0.21);z-index:1200;align-items:center;justify-content:center;}
+    .modal-bg.open { display:flex; }
+    .modal { background: #fff; border-radius: 18px; padding: 32px 27px; max-width: 95vw; box-shadow: 0 8px 36px #7c43bd28;}
+    .footer-nav { position:fixed; bottom:0; left:0; width:100vw; z-index:100; background:#fff; box-shadow: 0 -2px 16px #0001;}
+    .welcome-card { animation: bounceIn 0.9s; }
+    @keyframes bounceIn { 0%{transform:scale(0.7);opacity:0;} 80%{transform:scale(1.1);} 100%{transform:scale(1);opacity:1;} }
+    /* Improve focus style for accessibility */
+    .tab-btn:focus, .tab-btn:active { outline: 2px solid #7c43bd; outline-offset: 2px; }
+    .disabled { opacity: 0.6; pointer-events: none; }
+  </style>
+</head>
+<body class="min-h-screen pb-20 bg-gradient-to-b from-indigo-50 to-white">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-indigo-900 to-purple-700 shadow text-white">
+    <div class="flex items-center gap-2">
+      <img src="logo.png" alt="Logo" class="w-10 h-10 rounded-full" />
+      <div>
+        <div class="text-2xl font-bold">SupremeAmer</div>
+        <div class="text-xs">The Affiliate Network for Smart Earners & Advertisers</div>
+      </div>
+    </div>
+    <div class="flex flex-col items-end">
+      <span id="user-email" class="text-xs opacity-80"></span>
+      <span id="user-username" class="text-lg font-semibold"></span>
+      <div class="flex items-center gap-2">
+        <button id="profileBtn" class="text-2xl rounded-full hover:bg-indigo-800 transition p-1" aria-label="Profile">&#x263A;</button>
+        <button id="logoutBtn" class="text-red-600 px-3 py-1 rounded-lg bg-white hover:bg-red-600 hover:text-white transition" aria-label="Logout">Logout</button>
+      </div>
+    </div>
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
+      <div class="modal">
+        <h3 class="font-bold mb-2 text-indigo-800">Your Profile</h3>
+        <div><b>ID:</b> <span id="user-id"></span></div>
+        <div><b>Username:</b> <span id="user-username-modal"></span></div>
+        <div><b>Email:</b> <span id="user-email-modal"></span></div>
+        <div class="mt-3"><b>Your Invitation Link:</b>
+          <div class="bg-gray-100 rounded px-3 py-1 mt-1 select-all" id="invitation-url"></div>
+          <div class="flex gap-2 mt-2">
+            <button id="copyProfileInviteBtn" class="bg-green-600 text-white px-3 py-1 rounded">Copy</button>
+            <button id="showQrBtn" class="bg-blue-600 text-white px-3 py-1 rounded">QR Code</button>
+          </div>
+          <div id="inviteQrWrap" class="mt-2 hidden">
+            <img id="inviteQr" alt="Invite QR" class="mx-auto"/>
+          </div>
+        </div>
+        <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" aria-label="Close Profile Modal">Close</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Welcome Card -->
+  <div id="welcomeCard" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+    <div class="welcome-card bg-white p-8 rounded-xl shadow-xl text-center relative max-w-xs mx-auto animate-bounce">
+      <img src="logo.png" class="mx-auto mb-4 w-20" alt="Logo" />
+      <h2 class="text-xl font-bold mb-2 text-indigo-900">Welcome to SupremeAmer!</h2>
+      <p class="mb-4">Congrats! You just earned a <b class="text-green-700">$SA500</b> bonus for joining.</p>
+      <button id="dismissWelcome" class="bg-purple-600 text-white px-6 py-2 rounded transition hover:bg-indigo-700" aria-label="Dismiss Welcome">Let's Go!</button>
+      <span class="absolute top-1 right-2 text-2xl cursor-pointer" id="closeWelcome" title="Close">&times;</span>
+    </div>
+  </div>
+
+  <!-- Pending rewards notice -->
+  <div id="pendingRewardsNotice" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-yellow-50 border border-yellow-300 text-yellow-900 px-6 py-3 rounded-xl shadow-lg hidden">
+    <span>Pending reward: <b id="pendingRewardAmt">$SA0</b>. Will be credited after verification.</span>
+  </div>
+
+  <!-- Screenshot proof modal -->
+  <div id="screenshotModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
+    <div class="modal text-center">
+      <h3 class="font-bold mb-2 text-indigo-800">Upload Screenshot Proof</h3>
+      <input type="file" id="proofFile" accept="image/*" class="mb-3 block mx-auto" />
+      <button id="submitProofBtn" class="bg-green-600 text-white px-5 py-2 rounded">Submit Proof</button>
+      <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" aria-label="Cancel">Cancel</button>
+    </div>
+  </div>
+
+  <main class="pt-3 pb-24 max-w-3xl mx-auto">
+    <section id="homeTab" class="tab-content active bg-white rounded-xl shadow p-7 my-3" aria-labelledby="home-tab-btn">
+      <h2 class="text-xl font-bold mb-3 text-indigo-900">Dashboard Overview</h2>
+      <div class="text-gray-800 font-semibold mb-1">Account Balance</div>
+      <div class="text-3xl text-indigo-800 font-bold mb-2" id="account-balance">$SA 0</div>
+      <div class="flex gap-4 mb-4">
+        <button class="bg-blue-600 text-white px-5 py-2 rounded" id="fundBtn">Fund</button>
+        <button class="bg-green-600 text-white px-5 py-2 rounded" id="cashoutBtn">Cashout</button>
+        <button class="bg-orange-600 text-white px-5 py-2 rounded" id="paymentHistoryBtn">Payment History</button>
+      </div>
+      <div id="dashboard-content"></div>
+    </section>
+
+    <section id="marketTab" class="tab-content bg-white rounded-xl shadow p-7 my-3" aria-labelledby="market-tab-btn">
+      <h2 class="text-xl font-bold mb-3 text-indigo-900">Marketplace</h2>
+      <div class="flex flex-col md:flex-row md:items-center gap-3 mb-3">
+        <input id="marketSearch" type="text" placeholder="Search by keyword or category..." class="border rounded px-3 py-1 w-full md:w-1/3" />
+        <select id="marketSort" class="border rounded px-3 py-1">
+          <option value="newest">Newest</option>
+          <option value="goal">Goal (Highest)</option>
+          <option value="clicks">Most Clicks</option>
+        </select>
+      </div>
+      <div id="market-list" class="mb-5"></div>
+      <button id="uploadAdvertBtn" class="bg-indigo-600 text-white px-6 py-2 rounded mb-2">Upload Advert</button>
+      <!-- Upload Modal -->
+      <div id="uploadAdvertModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
+        <div class="modal">
+          <h3 class="font-bold mb-2 text-indigo-800">Upload Advert</h3>
+          <form id="uploadAdvertForm" class="flex flex-col gap-3">
+            <input type="text" id="ad-title" class="border rounded px-3 py-2" placeholder="Advert Title (max 60 chars)" required maxlength="60" autocomplete="off" />
+            <select id="ad-category" class="border rounded px-3 py-2" required>
+              <option value="">Select Category</option>
+              <option value="Social Media">Social Media</option>
+              <option value="Referral">Referral</option>
+              <option value="Video/Content">Video/Content</option>
+              <option value="Crypto">Crypto</option>
+              <option value="Others">Others</option>
+            </select>
+            <input type="number" id="ad-clicks" class="border rounded px-3 py-2" min="50" max="10000" placeholder="Clicks (min 50, max 10000)" required />
+            <input type="url" id="ad-url" class="border rounded px-3 py-2" placeholder="Advert URL" required autocomplete="off" />
+            <input type="file" id="ad-image" accept="image/*" class="border rounded px-3 py-2" />
+            <div id="ad-cost" class="text-sm text-indigo-700 my-2"></div>
+            <div id="ad-preview" class="my-2 hidden">
+              <span class="font-bold">Preview:</span>
+              <div id="ad-preview-content" class="border p-2 rounded bg-gray-50"></div>
+            </div>
+            <button type="button" id="previewAdBtn" class="bg-gray-300 text-indigo-900 px-5 py-2 rounded">Preview</button>
+            <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded">Submit Advert</button>
+          </form>
+          <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" aria-label="Cancel Upload Advert">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="inviteTab" class="tab-content bg-white rounded-xl shadow p-7 my-3" aria-labelledby="invite-tab-btn">
+      <h2 class="text-xl font-bold mb-3 text-indigo-900">Invite Friends</h2>
+      <div class="mb-3">Share your unique invitation link to earn rewards!</div>
+      <input type="text" readonly class="w-full border rounded px-3 py-2 mb-3 bg-gray-100" id="invite-link" />
+      <div class="flex gap-2 mb-4">
+        <button class="bg-green-600 text-white px-5 py-2 rounded" id="copyInviteBtn">Copy Invite Link</button>
+        <button class="bg-blue-600 text-white px-5 py-2 rounded" id="inviteQrBtn">QR Code</button>
+        <button class="bg-gray-600 text-white px-5 py-2 rounded" id="shareButtonsBtn">Share</button>
+      </div>
+      <div id="inviteQrContainer" class="mb-4 hidden">
+        <img id="inviteQrImg" alt="QR Code" class="mx-auto" />
+      </div>
+      <div id="inviteShareBtns" class="flex gap-2 mb-4 hidden">
+        <a id="whatsappShare" class="bg-green-500 text-white px-3 py-1 rounded" target="_blank">WhatsApp</a>
+        <a id="telegramShare" class="bg-blue-400 text-white px-3 py-1 rounded" target="_blank">Telegram</a>
+        <a id="twitterShare" class="bg-gray-700 text-white px-3 py-1 rounded" target="_blank">X/Twitter</a>
+        <a id="facebookShare" class="bg-blue-700 text-white px-3 py-1 rounded" target="_blank">Facebook</a>
+      </div>
+      <div class="my-5">
+        <h3 class="font-semibold mb-2 text-indigo-800">Your Invited Friends</h3>
+        <div id="invitee-list"></div>
+      </div>
+    </section>
+
+    <section id="walletTab" class="tab-content bg-white rounded-xl shadow p-7 my-3" aria-labelledby="wallet-tab-btn">
+      <h2 class="text-xl font-bold mb-3 text-indigo-900">Wallet</h2>
+      <div class="mb-2">
+        <span id="walletStatus" class="font-semibold"></span>
+        <button id="disconnectWalletBtn" class="bg-red-600 text-white px-3 py-1 rounded ml-3 hidden">Disconnect</button>
+      </div>
+      <button id="connectWalletBtn" class="bg-yellow-400 hover:bg-yellow-500 transition text-black px-4 py-2 rounded">Connect Wallet</button>
+      <div id="wallet-details" class="hidden mt-3 border border-indigo-200 rounded p-3 bg-indigo-50 text-indigo-900">
+        <div><b>Provider:</b> <span id="wallet-provider"></span></div>
+        <div><b>Wallet Address:</b> <span id="wallet-address"></span></div>
+        <div><b>ETH Balance:</b> <span id="eth-balance"></span></div>
+        <div><b>$SA Balance:</b> <span id="sa-balance"></span></div>
+        <div><b>Network:</b> <span id="wallet-network"></span></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer Navigation -->
+  <nav class="footer-nav flex justify-around py-3 border-t bg-white" aria-label="Footer Navigation">
+    <button class="tab-btn flex-1 py-2 rounded mx-1 active" id="home-tab-btn" data-tab="homeTab" aria-controls="homeTab" aria-selected="true">Home</button>
+    <button class="tab-btn flex-1 py-2 rounded mx-1" id="market-tab-btn" data-tab="marketTab" aria-controls="marketTab">Market</button>
+    <button class="tab-btn flex-1 py-2 rounded mx-1" id="invite-tab-btn" data-tab="inviteTab" aria-controls="inviteTab">Invite</button>
+    <button class="tab-btn flex-1 py-2 rounded mx-1" id="wallet-tab-btn" data-tab="walletTab" aria-controls="walletTab">Wallet</button>
+    <button class="tab-btn flex-1 py-2 rounded mx-1" id="helpSupportBtn">Help & Support</button>
+  </nav>
+
+  <!-- Payment History Modal -->
+  <div id="paymentHistoryModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
+    <div class="modal">
+      <h3 class="font-bold mb-2 text-indigo-800">Payment History</h3>
+      <div id="payment-history-content"></div>
+      <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" aria-label="Close Payment History">Close</button>
+    </div>
+  </div>
+  <!-- Help & Support Modal -->
+  <div id="helpSupportModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
+    <div class="modal">
+      <h3 class="font-bold mb-2 text-indigo-800">Help & Support</h3>
+      <div class="mb-2">Email: <a href="mailto:support@supremeamer.com" class="text-blue-600 underline">support@supremeamer.com</a></div>
+      <div class="mb-2">AI Quick Response:<br><span class="italic text-gray-700">"How can we help? Describe your issue and our AI will provide a quick answer or escalate to a human!"</span></div>
+      <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" aria-label="Close Help & Support">Close</button>
+    </div>
+  </div>
+
+  <!-- QR code library (for referral QR) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+  <script>
+    // Appwrite Setup
+    const client = new Appwrite.Client();
+    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370442000c3c15b9f3');
+    const account = new Appwrite.Account(client);
+    const databases = new Appwrite.Databases(client);
+    const storage = new Appwrite.Storage(client);
+
+    // Tab Navigation
+    document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+        this.classList.add("active");
+        document.querySelectorAll(".tab-content").forEach(tc=>tc.classList.remove("active"));
+        if(this.dataset.tab) document.getElementById(this.dataset.tab).classList.add("active");
+        document.querySelectorAll(".tab-btn").forEach(b=>b.setAttribute('aria-selected', 'false'));
+        this.setAttribute('aria-selected', 'true');
+      });
+    });
+
+    // Modals open/close
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove("open");
+    }
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add("open");
+      document.getElementById(modalId).focus && document.getElementById(modalId).focus();
+    }
+
+    document.getElementById("profileBtn").onclick = () => openModal("profileModal");
+    document.querySelectorAll(".close-modal").forEach(btn =>
+      btn.onclick = () => btn.closest(".modal-bg").classList.remove("open")
+    );
+    document.getElementById("helpSupportBtn").onclick = () => openModal("helpSupportModal");
+
+    // Logout
+    document.getElementById("logoutBtn").onclick = async () => {
+      await account.deleteSession('current');
+      window.location.reload();
+    };
+
+    // Advert Cost Calculation & Preview
+    const adClicksInput = document.getElementById('ad-clicks');
+    adClicksInput.oninput = function() {
+      const clicks = parseInt(this.value) || 0;
+      document.getElementById('ad-cost').textContent = 'Total Cost: $' + (clicks * 0.10).toFixed(2);
+    };
+
+    document.getElementById('previewAdBtn').onclick = () => {
+      const title = document.getElementById('ad-title').value;
+      const cat = document.getElementById('ad-category').value;
+      const clicks = document.getElementById('ad-clicks').value;
+      const url = document.getElementById('ad-url').value;
+      const fileInput = document.getElementById('ad-image');
+      let imgHtml = "";
+      if (fileInput.files && fileInput.files[0]) {
+        const urlObj = URL.createObjectURL(fileInput.files[0]);
+        imgHtml = `<img src="${urlObj}" class="w-36 mb-2 rounded"/>`;
+      }
+      document.getElementById('ad-preview').classList.remove("hidden");
+      document.getElementById('ad-preview-content').innerHTML =
+        `${imgHtml}<div><b>${title}</b></div><div>${cat}</div><div>Goal: ${clicks} clicks</div><div><a href="${url}" target="_blank" class="text-blue-500 underline">Visit Advert</a></div>`;
+    };
+
+    // Main Logic
+    let currentUser = null;
+    let userDocId = null;
+    let marketAdverts = [];
+    let pendingParticipation = null;
+
+    // Utility: Generate QR code as DataURL
+    function generateQr(data, el) {
+      const qr = new QRious({ value: data, size: 160 });
+      el.src = qr.toDataURL();
+    }
+
+    (async () => {
+      // Authentication
+      try {
+        currentUser = await account.get();
+      } catch (error) {
+        const email = prompt("Enter your email to log in:");
+        const password = prompt("Enter your password:");
+        if (email && password) {
+          try {
+            await account.createEmailSession(email, password);
+            currentUser = await account.get();
+          } catch {
+            alert('Login failed. Please try again.');
+            window.location.href = "TelegramLogin.html";
+            return;
+          }
+        } else {
+          window.location.href = "TelegramLogin.html";
+          return;
+        }
+      }
+
+      // User Profile & Referral
+      let profileInviteUrl, inviteUrl;
+      const baseInvite = currentUser.name ? encodeURIComponent(currentUser.name) : currentUser.$id;
+      inviteUrl = window.location.origin + "/register.html?invite=" + baseInvite;
+      profileInviteUrl = inviteUrl;
+      document.getElementById("user-email").textContent = currentUser.email;
+      document.getElementById("user-username").textContent =
+        currentUser.name || currentUser.email.split('@')[0];
+      document.getElementById("user-username-modal").textContent =
+        currentUser.name || currentUser.email.split('@')[0];
+      document.getElementById("user-email-modal").textContent = currentUser.email;
+      document.getElementById("user-id").textContent = currentUser.$id;
+      document.getElementById("invitation-url").textContent = profileInviteUrl;
+      document.getElementById("invite-link").value = inviteUrl;
+
+      // Referral copy/QR in profile
+      document.getElementById("copyProfileInviteBtn").onclick = () => {
+        navigator.clipboard.writeText(profileInviteUrl);
+        document.getElementById("copyProfileInviteBtn").textContent = "Copied!";
+        setTimeout(()=>{document.getElementById("copyProfileInviteBtn").textContent="Copy"},1200);
+      };
+      document.getElementById("showQrBtn").onclick = () => {
+        generateQr(profileInviteUrl, document.getElementById("inviteQr"));
+        document.getElementById("inviteQrWrap").classList.toggle("hidden");
+      };
+
+      // Referral copy/QR/share in Invite tab
+      document.getElementById("copyInviteBtn").onclick = () => {
+        navigator.clipboard.writeText(inviteUrl);
+        document.getElementById("copyInviteBtn").textContent = "Copied!";
+        setTimeout(()=>{document.getElementById("copyInviteBtn").textContent="Copy Invite Link"},1200);
+      };
+      document.getElementById("inviteQrBtn").onclick = () => {
+        generateQr(inviteUrl, document.getElementById("inviteQrImg"));
+        document.getElementById("inviteQrContainer").classList.toggle("hidden");
+      };
+      document.getElementById("shareButtonsBtn").onclick = () => {
+        const c = document.getElementById("inviteShareBtns");
+        c.classList.toggle("hidden");
+      };
+      // Social share links
+      const shareMsg = encodeURIComponent("Join SupremeAmer and earn rewards! " + inviteUrl);
+      document.getElementById("whatsappShare").href = `https://wa.me/?text=${shareMsg}`;
+      document.getElementById("telegramShare").href = `https://t.me/share/url?url=${inviteUrl}&text=Join%20SupremeAmer%20and%20earn%20rewards!`;
+      document.getElementById("twitterShare").href = `https://twitter.com/intent/tweet?text=${shareMsg}`;
+      document.getElementById("facebookShare").href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteUrl)}`;
+
+      // Appwrite collection/DB setup
+      const usersColl = 'users', txColl = 'transaction_collection', advertsColl = 'adverts', partsColl = 'participations', dbId = '683705ff00244f73e93f';
+
+      // Get user doc (personalized referral link allowed)
+      let userDocs = await databases.listDocuments(dbId, usersColl, [
+        Appwrite.Query.equal('email', currentUser.email)
+      ]);
+      let userDoc;
+      if (userDocs.documents.length > 0) {
+        userDoc = userDocs.documents[0];
+        userDocId = userDoc.$id;
+      } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        // Accept either userID or username as invite query
+        const invitedBy = urlParams.get('invite');
+        userDoc = await databases.createDocument(dbId, usersColl, 'unique()', {
+          email: currentUser.email,
+          name: currentUser.name,
+          invitedBy: invitedBy || "",
+          welcomeBonus: false
+        });
+        userDocId = userDoc.$id;
+      }
+
+      // Welcome Card & $SA500 Reward
+      if (!userDoc.welcomeBonus) {
+        document.getElementById("welcomeCard").classList.remove("hidden");
+        const dismissWelcome = async () => {
+          document.getElementById("welcomeCard").classList.add("hidden");
+          await databases.createDocument(dbId, txColl, 'unique()', {
+            userId: currentUser.$id,
+            type: "credit",
+            amount: 500,
+            date: new Date().toISOString(),
+            description: "Welcome Bonus",
+            status: "completed"
+          });
+          await databases.updateDocument(dbId, usersColl, userDocId, { welcomeBonus: true });
+          loadBalance();
+        };
+        document.getElementById("dismissWelcome").onclick = dismissWelcome;
+        document.getElementById("closeWelcome").onclick = dismissWelcome;
+        document.getElementById("welcomeCard").onclick = e => { if (e.target === document.getElementById("welcomeCard")) dismissWelcome(); };
+      }
+
+      // Account Balance
+      async function loadBalance() {
+        const txs = await databases.listDocuments(dbId, txColl, [
+          Appwrite.Query.equal('userId', currentUser.$id)
+        ]);
+        let balance = txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+        document.getElementById("account-balance").textContent = `$SA ${balance}`;
+      }
+      await loadBalance();
+
+      // Payment history
+      document.getElementById("paymentHistoryBtn").onclick = async () => {
+        const txs = await databases.listDocuments(dbId, txColl, [
+          Appwrite.Query.equal('userId', currentUser.$id)
+        ]);
+        document.getElementById("payment-history-content").innerHTML =
+          "<ul class='list-disc ml-5'>" + txs.documents.map(
+            tx => `<li>${tx.date}: <span class="text-green-700">${tx.type}</span> <b>${tx.amount}</b> (${tx.description || ""})</li>`
+          ).join("") + "</ul>";
+        openModal("paymentHistoryModal");
+      };
+
+      // Invitee List (stats)
+      document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
+        const invited = await databases.listDocuments(dbId, usersColl, [
+          Appwrite.Query.equal('invitedBy', currentUser.$id)
+        ]);
+        document.getElementById("invitee-list").innerHTML = invited.documents.length
+          ? invited.documents.map(u => `<div class="text-green-700">${u.name || u.email} <span class="text-xs text-gray-500">(${u.$id})</span></div>`).join('')
+          : "<div class='text-gray-500'>No invitees yet.</div>";
+      };
+
+      // Market Adverts (search/sort/filter, show stats)
+      async function renderMarket() {
+        let docs = await databases.listDocuments(dbId, advertsColl, [
+          Appwrite.Query.equal('active', true)
+        ]);
+        marketAdverts = docs.documents;
+        // Sorting
+        const sort = document.getElementById("marketSort").value;
+        if (sort === "goal") marketAdverts.sort((a,b)=>b.goal-a.goal);
+        if (sort === "clicks") marketAdverts.sort((a,b)=>b.clicks-a.clicks);
+        if (sort === "newest") marketAdverts.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+        // Filtering
+        const search = document.getElementById("marketSearch").value.toLowerCase().trim();
+        let adsToShow = marketAdverts;
+        if (search) {
+          adsToShow = marketAdverts.filter(ad =>
+            (ad.title && ad.title.toLowerCase().includes(search)) ||
+            (ad.category && ad.category.toLowerCase().includes(search))
+          );
+        }
+        document.getElementById("market-list").innerHTML = adsToShow.length
+          ? adsToShow.map(ad => `
+            <div class="border border-indigo-100 p-4 rounded-lg shadow my-2 flex flex-col md:flex-row md:items-center justify-between transition-all duration-200">
+              <div class="flex-1">
+                ${(ad.imageUrl ? `<img src="${ad.imageUrl}" class="w-28 mb-2 rounded" alt="ad"/>` : "")}
+                <div class="font-bold text-lg mb-1">${ad.title}</div>
+                <div class="text-xs mb-2">${ad.category} &bull; Goal: ${ad.goal} clicks &bull; Clicks: ${ad.clicks || 0}/${ad.maxClicks}</div>
+                <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline">Visit Advert</a>
+              </div>
+              <button class="bg-green-500 text-white px-3 py-1 rounded participate-btn mt-2 md:mt-0" data-adid="${ad.$id}">Participate</button>
+            </div>
+          `).join('')
+          : "<div class='text-gray-500'>No adverts available. Upload one!</div>";
+
+        document.querySelectorAll('.participate-btn').forEach(btn => {
+          btn.onclick = function() {
+            pendingParticipation = btn.getAttribute('data-adid');
+            openModal("screenshotModal");
+          };
+        });
+      }
+      // Market search/sort events
+      document.getElementById("marketSearch").oninput = renderMarket;
+      document.getElementById("marketSort").onchange = renderMarket;
+      await renderMarket();
+
+      // Screenshot proof logic
+      document.getElementById("submitProofBtn").onclick = async function() {
+        const fileInput = document.getElementById('proofFile');
+        if (!fileInput.files[0]) return alert("Please select a screenshot!");
+        let file = fileInput.files[0];
+        let up = await storage.createFile(dbId, 'adproofs', 'unique()', file);
+        let proofUrl = storage.getFileView(dbId, 'adproofs', up.$id).href;
+        let ad = marketAdverts.find(a => a.$id === pendingParticipation);
+        let reward = Math.floor(Math.random()*701) + 300; // 300-1000
+        await databases.createDocument(dbId, partsColl, 'unique()', {
+          advertId: ad.$id,
+          userId: currentUser.$id,
+          posterId: ad.poster,
+          screenshotUrl: proofUrl,
+          status: "pending",
+          joinedAt: new Date().toISOString(),
+          rewardAmount: reward
+        });
+        await databases.updateDocument(dbId, advertsColl, ad.$id, {
+          clicks: (ad.clicks || 0) + 1
+        });
+        if ((ad.clicks || 0) + 1 >= Math.round(ad.goal * 1.55)) {
+          await databases.updateDocument(dbId, advertsColl, ad.$id, {active: false});
+        }
+        closeModal("screenshotModal");
+        document.getElementById("pendingRewardsNotice").classList.remove("hidden");
+        document.getElementById("pendingRewardAmt").textContent = "$SA" + reward;
+        setTimeout(() => document.getElementById("pendingRewardsNotice").classList.add("hidden"), 5000);
+        setTimeout(async () => {
+          await databases.createDocument(dbId, txColl, 'unique()', {
+            userId: currentUser.$id,
+            type: "credit",
+            amount: reward,
+            date: new Date().toISOString(),
+            description: "Advert reward",
+            status: "completed"
+          });
+          await databases.updateDocument(dbId, partsColl, up.$id, {status: "rewarded"});
+          loadBalance();
+        }, 3 * 3600 * 1000); // 3 hours
+        await renderMarket();
+      };
+
+      // Upload Advert
+      document.getElementById("uploadAdvertBtn").onclick = () => openModal("uploadAdvertModal");
+      document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
+        e.preventDefault();
+        const title = document.getElementById('ad-title').value.trim();
+        const category = document.getElementById('ad-category').value;
+        const clicks = parseInt(document.getElementById('ad-clicks').value);
+        const cost = clicks * 0.10;
+        const url = document.getElementById('ad-url').value.trim();
+        const imageInput = document.getElementById('ad-image');
+        // Input validation
+        if (title.length < 3) return alert("Title is too short.");
+        if (!/^https?:\/\//.test(url)) return alert("URL must start with http:// or https://");
+        if (clicks < 50 || clicks > 10000) return alert("Clicks must be between 50 and 10000.");
+        // Simulate wallet deduction (stub)
+        if(window.ethereum) {
+          try {
+            document.getElementById("uploadAdvertBtn").disabled = true;
+            let imageUrl = "";
+            if (imageInput.files && imageInput.files[0]) {
+              const upImg = await storage.createFile(dbId, 'adimages', 'unique()', imageInput.files[0]);
+              imageUrl = storage.getFileView(dbId, 'adimages', upImg.$id).href;
+            }
+            // TODO: Real payment logic - send cost in ETH to your wallet
+            await databases.createDocument(dbId, advertsColl, 'unique()', {
+              title,
+              category,
+              goal: clicks,
+              url,
+              imageUrl,
+              poster: currentUser.$id,
+              active: true,
+              clicks: 0,
+              maxClicks: Math.round(clicks * 1.55),
+              createdAt: new Date().toISOString()
+            });
+            await databases.createDocument(dbId, txColl, 'unique()', {
+              userId: currentUser.$id,
+              type: "debit",
+              amount: -cost,
+              date: new Date().toISOString(),
+              description: "Advert upload payment",
+              status: "completed"
+            });
+            alert('Advert uploaded!');
+            closeModal("uploadAdvertModal");
+            this.reset();
+            await renderMarket();
+            loadBalance();
+          } catch (err) {
+            alert('Wallet transaction failed or rejected.');
+          } finally {
+            document.getElementById("uploadAdvertBtn").disabled = false;
+          }
+        } else {
+          alert("Please connect your wallet.");
+        }
+      };
+
+      // WALLET CONNECTION ---------------------
+      let provider, signer;
+      let currentAddress = null;
+
+      async function updateWalletDisplay(address, net) {
+        document.getElementById("wallet-address").textContent = address || "";
+        document.getElementById("wallet-network").textContent = net || "";
+        if (provider && address) {
+          const ethBalance = ethers.formatEther(await provider.getBalance(address));
+          document.getElementById("eth-balance").textContent = Number(ethBalance).toFixed(4) + " ETH";
+        }
+        // Show wallet provider
+        document.getElementById("wallet-provider").textContent =
+          window.ethereum && window.ethereum.isMetaMask ? "MetaMask" : "Unknown";
+        document.getElementById("wallet-details").classList.remove("hidden");
+      }
+
+      async function connectWallet() {
+        if(!window.ethereum) {
+          alert("Please install MetaMask or a compatible wallet.");
+          return;
+        }
+        document.getElementById("connectWalletBtn").classList.add("disabled");
+        try {
+          provider = new ethers.BrowserProvider(window.ethereum);
+          await window.ethereum.request({ method: "eth_requestAccounts" });
+          signer = await provider.getSigner();
+          currentAddress = await signer.getAddress();
+          const net = (await provider.getNetwork()).name;
+          document.getElementById("walletStatus").textContent = "Wallet Connected";
+          document.getElementById("connectWalletBtn").textContent = "Wallet Connected";
+          document.getElementById("disconnectWalletBtn").classList.remove("hidden");
+          await updateWalletDisplay(currentAddress, net);
+        } catch (e) {
+          alert("Wallet connection failed: " + (e && e.message ? e.message : e));
+        } finally {
+          document.getElementById("connectWalletBtn").classList.remove("disabled");
+        }
+      }
+      document.getElementById("connectWalletBtn").onclick = connectWallet;
+      document.getElementById("disconnectWalletBtn").onclick = () => {
+        provider = signer = null;
+        currentAddress = null;
+        document.getElementById("walletStatus").textContent = "Wallet Disconnected";
+        document.getElementById("wallet-details").classList.add("hidden");
+        document.getElementById("connectWalletBtn").textContent = "Connect Wallet";
+        document.getElementById("disconnectWalletBtn").classList.add("hidden");
+      };
+
+      // Listen for wallet changes
+      if (window.ethereum) {
+        window.ethereum.on('accountsChanged', () => {
+          if(currentAddress) connectWallet();
+        });
+        window.ethereum.on('chainChanged', () => {
+          if(currentAddress) connectWallet();
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>
