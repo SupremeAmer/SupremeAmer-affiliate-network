@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SupremeAmer Affiliate Network</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', Arial, sans-serif; background: #f8f8f8; }
@@ -22,20 +20,30 @@
     @keyframes bounceIn { 0%{transform:scale(0.7);opacity:0;} 80%{transform:scale(1.1);} 100%{transform:scale(1);opacity:1;} }
     .tab-btn:focus, .tab-btn:active { outline: 2px solid #7c43bd; outline-offset: 2px; }
     .disabled { opacity: 0.6; pointer-events: none; }
+    .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .transition { transition: all 0.2s; }
+    .btn-main { background: linear-gradient(90deg, #4b0082 60%, #7c43bd 100%); color: #fff; }
+    .btn-main:hover { background: linear-gradient(90deg, #7c43bd 60%, #4b0082 100%); }
+    .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(5px);}
+    .shadow-deep { box-shadow: 0 8px 36px #7c43bd28,0 0px 0 #000;}
+    .animate-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="min-h-screen pb-20 bg-gradient-to-b from-indigo-50 to-white">
 
   <header class="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-indigo-900 to-purple-700 shadow text-white">
     <div class="flex items-center gap-2">
-      <img src="logo.png" alt="Logo" class="w-10 h-10 rounded-full" />
+      <img src="logo.png" alt="Logo" class="w-12 h-12 rounded-full border-2 border-white" />
       <div>
-        <div class="text-2xl font-bold">SupremeAmer</div>
-        <div class="text-xs">The Affiliate Network for Smart Earners & Advertisers</div>
+        <div class="text-2xl font-bold tracking-wide">SupremeAmer</div>
+        <div class="text-xs opacity-90">Affiliate Network for Smart Earners & Advertisers</div>
       </div>
     </div>
     <div class="flex flex-col items-end">
-      <span id="user-email" class="text-xs opacity-80"></span>
+      <span id="user-email" class="text-xs opacity-80 truncate max-w-xs"></span>
       <span id="user-username" class="text-lg font-semibold"></span>
       <div class="flex items-center gap-2">
         <button id="profileBtn" class="text-2xl rounded-full hover:bg-indigo-800 transition p-1" aria-label="Profile">&#x263A;</button>
@@ -43,9 +51,9 @@
       </div>
     </div>
     <div id="profileModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
-      <div class="modal">
-        <h3 class="font-bold mb-2 text-indigo-800">Your Profile</h3>
-        <div><b>ID:</b> <span id="user-id"></span></div>
+      <div class="modal max-w-md">
+        <h3 class="font-bold mb-2 text-indigo-800 text-lg">Your Profile</h3>
+        <div><b>ID:</b> <span id="user-id" class="truncate"></span></div>
         <div><b>Username:</b> <span id="user-username-modal"></span></div>
         <div><b>Email:</b> <span id="user-email-modal"></span></div>
         <div class="mt-3"><b>Your Invitation Link:</b>
@@ -111,7 +119,7 @@
       <div id="market-list" class="mb-5"></div>
       <button id="uploadAdvertBtn" class="bg-indigo-600 text-white px-6 py-2 rounded mb-2">Upload Advert</button>
       <div id="uploadAdvertModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
-        <div class="modal">
+        <div class="modal max-w-lg">
           <h3 class="font-bold mb-2 text-indigo-800">Upload Advert</h3>
           <form id="uploadAdvertForm" class="flex flex-col gap-3">
             <input type="text" id="ad-title" class="border rounded px-3 py-2" placeholder="Advert Title (max 60 chars)" required maxlength="60" autocomplete="off" />
@@ -217,23 +225,59 @@
       <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" onclick="closeModal('adminReviewPanel')">Close</button>
     </div>
   </div>
+  <div id="fundModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
+    <div class="modal text-center">
+      <h3 class="font-bold mb-2 text-indigo-800">Fund Your Account</h3>
+      <div>
+        <label class="block text-left mb-1 font-medium">Amount (ETH):</label>
+        <input type="number" id="fundAmount" min="0.001" step="0.001" class="border rounded px-3 py-2 w-full mb-2" placeholder="Min 0.001" />
+      </div>
+      <button id="payWithEthBtn" class="bg-yellow-500 text-black px-5 py-2 rounded my-1 w-full">Pay with ETH</button>
+      <button id="payWithSaBtn" class="bg-indigo-600 text-white px-5 py-2 rounded my-1 w-full">$SA Token</button>
+      <div class="text-xs text-gray-500 mt-3">Funds are credited after transaction confirmation. $SA tokens credited instantly.</div>
+      <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" aria-label="Cancel Fund">Cancel</button>
+    </div>
+  </div>
+  <div id="cashoutModal" class="modal-bg" aria-modal="true" role="dialog" tabindex="-1">
+    <div class="modal text-center">
+      <h3 class="font-bold mb-2 text-indigo-800">Cashout Request</h3>
+      <div>
+        <label class="block text-left mb-1 font-medium">Amount (ETH):</label>
+        <input type="number" id="cashoutAmount" min="0.001" step="0.001" class="border rounded px-3 py-2 w-full mb-2" placeholder="Min 0.001" />
+      </div>
+      <button id="requestCashoutBtn" class="bg-green-600 text-white px-5 py-2 rounded my-1 w-full">Request Cashout</button>
+      <div class="text-xs text-gray-600 mt-3">Admin will review and send your funds to your connected wallet. You will be notified by email.</div>
+      <button class="mt-4 bg-purple-600 text-white py-2 px-5 rounded close-modal" aria-label="Cancel Cashout">Cancel</button>
+    </div>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
   <script>
-    const tokenAbi = [
-      "function balanceOf(address owner) view returns (uint256)",
-      "function decimals() view returns (uint8)"
-    ];
-    const tokenAddress = "0xYourTokenAddressHere";
-  </script>
-  <script>
-// Appwrite Setup
+    // SupremeAmer Affiliate Network FULL JavaScript
+
+// ==== CONFIGURATION ====
+const tokenAbi = [
+  "function balanceOf(address owner) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function transfer(address to, uint256 amount) returns (bool)"
+];
+const tokenAddress = "0xYourTokenAddressHere";
+const fundRecipientAddress = "0xYourAdminOrTreasuryAddress";
+const dbId = '683705ff00244f73e93f';
+const usersColl = 'users', txColl = 'transaction_collection', advertsColl = 'adverts', partsColl = 'participations';
+
+// ==== APPWRITE SETUP ====
 const client = new Appwrite.Client();
 client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('68370442000c3c15b9f3');
 const account = new Appwrite.Account(client);
 const databases = new Appwrite.Databases(client);
 const storage = new Appwrite.Storage(client);
 
-// Tab Navigation
+// ==== STATE ====
+let provider = null, signer = null, currentAddress = null, currentUser = null, userDocId = null, userDoc = null;
+let marketAdverts = [];
+let pendingParticipation = null;
+
+// ==== TAB NAV ====
 document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => {
   btn.addEventListener('click', function() {
     document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
@@ -245,58 +289,64 @@ document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => {
   });
 });
 
-// Modals open/close
-function closeModal(modalId) {
-  document.getElementById(modalId).classList.remove("open");
-}
-function openModal(modalId) {
-  document.getElementById(modalId).classList.add("open");
-  document.getElementById(modalId).focus && document.getElementById(modalId).focus();
-}
-document.getElementById("profileBtn").onclick = () => openModal("profileModal");
+// ==== MODALS & NOTIFICATIONS ====
+function closeModal(modalId) { document.getElementById(modalId).classList.remove("open"); }
+function openModal(modalId) { document.getElementById(modalId).classList.add("open"); }
 document.querySelectorAll(".close-modal").forEach(btn =>
   btn.onclick = () => btn.closest(".modal-bg").classList.remove("open")
 );
+document.getElementById("profileBtn").onclick = () => openModal("profileModal");
 document.getElementById("helpSupportBtn").onclick = () => openModal("helpSupportModal");
+function showNotification(msg, color="green") {
+  const notice = document.createElement("div");
+  notice.className = `fixed top-12 right-6 bg-${color}-600 text-white px-5 py-2 rounded shadow-lg z-50`;
+  notice.innerText = msg;
+  document.body.appendChild(notice);
+  setTimeout(() => notice.remove(), 4000);
+}
 
-// Logout
+// ==== LOGOUT ====
 document.getElementById("logoutBtn").onclick = async () => {
   await account.deleteSession('current');
   window.location.reload();
 };
 
-// Advert Cost Calculation & Preview
-const adClicksInput = document.getElementById('ad-clicks');
-adClicksInput.oninput = function() {
-  const clicks = parseInt(this.value) || 0;
-  document.getElementById('ad-cost').textContent = 'Total Cost: $' + (clicks * 0.10).toFixed(2);
-};
-document.getElementById('previewAdBtn').onclick = () => {
-  const title = document.getElementById('ad-title').value;
-  const cat = document.getElementById('ad-category').value;
-  const clicks = document.getElementById('ad-clicks').value;
-  const url = document.getElementById('ad-url').value;
-  const fileInput = document.getElementById('ad-image');
-  let imgHtml = "";
-  if (fileInput.files && fileInput.files[0]) {
-    const urlObj = URL.createObjectURL(fileInput.files[0]);
-    imgHtml = `<img src="${urlObj}" class="w-36 mb-2 rounded"/>`;
-  }
-  document.getElementById('ad-preview').classList.remove("hidden");
-  document.getElementById('ad-preview-content').innerHTML =
-    `${imgHtml}<div><b>${title}</b></div><div>${cat}</div><div>Goal: ${clicks} clicks</div><div><a href="${url}" target="_blank" class="text-blue-500 underline">Visit Advert</a></div>`;
-};
-
-// Utility: Generate QR code as DataURL
+// ==== UTILITY ====
 function generateQr(data, el) {
   const qr = new QRious({ value: data, size: 160 });
   el.src = qr.toDataURL();
 }
+function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
 
-// ERC20 token helpers
+// ==== CONTRACT WALLET LOGIC ====
+async function connectWallet() {
+  if (!window.ethereum) {
+    alert("Install MetaMask.");
+    return;
+  }
+  provider = new ethers.BrowserProvider(window.ethereum);
+  await window.ethereum.request({ method: "eth_requestAccounts" });
+  signer = await provider.getSigner();
+  currentAddress = await signer.getAddress();
+  const net = (await provider.getNetwork()).name;
+  document.getElementById("walletStatus").textContent = "Wallet Connected";
+  document.getElementById("connectWalletBtn").textContent = "Wallet Connected";
+  document.getElementById("disconnectWalletBtn").classList.remove("hidden");
+  updateWalletDisplay(currentAddress, net);
+}
+async function updateWalletDisplay(address, net) {
+  document.getElementById("wallet-address").textContent = address || "";
+  document.getElementById("wallet-network").textContent = net || "";
+  if (provider && address) {
+    const ethBalance = ethers.formatEther(await provider.getBalance(address));
+    document.getElementById("eth-balance").textContent = Number(ethBalance).toFixed(4) + " ETH";
+    await loadSaBalance(address);
+  }
+  document.getElementById("wallet-provider").textContent = window.ethereum && window.ethereum.isMetaMask ? "MetaMask" : "Unknown";
+  document.getElementById("wallet-details").classList.remove("hidden");
+}
 async function loadSaBalance(address) {
-  if (window.ethers && tokenAddress && tokenAbi && address) {
-    const provider = new ethers.BrowserProvider(window.ethereum);
+  if (window.ethers && tokenAddress && tokenAbi && address && provider) {
     const contract = new ethers.Contract(tokenAddress, tokenAbi, provider);
     const saBalance = await contract.balanceOf(address);
     const decimals = await contract.decimals();
@@ -304,40 +354,138 @@ async function loadSaBalance(address) {
       ethers.formatUnits(saBalance, decimals) + " $SA";
   }
 }
-
-// Admin proof review
-async function renderProofsForReview(dbId, partsColl, txColl, databases) {
-  let proofs = await databases.listDocuments(dbId, partsColl, [
-    Appwrite.Query.equal('status', 'pending')
-  ]);
-  document.getElementById("admin-review-list").innerHTML = proofs.documents.map(proof =>
-    `<div class="p-2 my-2 border rounded flex items-center gap-3">
-      <img src="${proof.screenshotUrl}" width="100"/>
-      <div>User: ${proof.userId}<br>Ad: ${proof.advertId}</div>
-      <button class="bg-green-500 text-white px-3 py-1 rounded" onclick="approveProof('${proof.$id}', ${proof.rewardAmount}, '${proof.userId}')">Approve</button>
-      <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="rejectProof('${proof.$id}', '${proof.userId}')">Reject</button>
-    </div>`
-  ).join('');
+document.getElementById("connectWalletBtn").onclick = connectWallet;
+document.getElementById("disconnectWalletBtn").onclick = () => {
+  provider = signer = null;
+  currentAddress = null;
+  document.getElementById("walletStatus").textContent = "Wallet Disconnected";
+  document.getElementById("wallet-details").classList.add("hidden");
+  document.getElementById("connectWalletBtn").textContent = "Connect Wallet";
+  document.getElementById("disconnectWalletBtn").classList.add("hidden");
+};
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', () => { if (currentAddress) connectWallet(); });
+  window.ethereum.on('chainChanged', () => { if (currentAddress) connectWallet(); });
 }
-window.approveProof = async (proofId, amount, userId) => {
-  await databases.updateDocument('683705ff00244f73e93f', "participations", proofId, { status: "rewarded" });
-  await databases.createDocument('683705ff00244f73e93f', "transaction_collection", 'unique()', {
-    userId,
-    type: "credit",
-    amount,
-    date: new Date().toISOString(),
-    description: "Advert reward (approved)",
-    status: "completed"
-  });
-  renderProofsForReview('683705ff00244f73e93f', "participations", "transaction_collection", databases);
+
+// ==== FUND WALLET ====
+document.getElementById("fundBtn").onclick = () => openModal("fundModal");
+document.getElementById("payWithEthBtn").onclick = async () => {
+  if (!signer || !currentAddress) { alert("Connect your wallet first!"); return; }
+  const amt = parseFloat(document.getElementById("fundAmount").value);
+  if (isNaN(amt) || amt < 0.001) { alert("Enter a valid amount (min 0.001 ETH)."); return; }
+  try {
+    document.getElementById("payWithEthBtn").disabled = true;
+    showNotification("Awaiting wallet signature...", "yellow");
+    const tx = await signer.sendTransaction({
+      to: fundRecipientAddress,
+      value: ethers.parseEther(amt.toString())
+    });
+    showNotification("Waiting for confirmation...", "yellow");
+    await tx.wait();
+    showNotification("Funded! Await admin credit.", "green");
+    await databases.createDocument(dbId, txColl, 'unique()', {
+      userId: currentUser.$id,
+      type: "fund",
+      amount: amt,
+      date: new Date().toISOString(),
+      description: "ETH Fund (on-chain)",
+      status: "pending",
+      txHash: tx.hash
+    });
+    closeModal("fundModal");
+  } catch (e) {
+    alert("Transaction failed: " + (e && e.message ? e.message : e));
+  } finally {
+    document.getElementById("payWithEthBtn").disabled = false;
+  }
 };
-window.rejectProof = async (proofId, userId) => {
-  await databases.updateDocument('683705ff00244f73e93f', "participations", proofId, { status: "rejected" });
-  renderProofsForReview('683705ff00244f73e93f', "participations", "transaction_collection", databases);
+document.getElementById("payWithSaBtn").onclick = async () => {
+  if (!signer || !currentAddress) { alert("Connect your wallet!"); return; }
+  const amt = parseFloat(document.getElementById("fundAmount").value);
+  if (isNaN(amt) || amt <= 0) { alert("Amount required."); return; }
+  try {
+    document.getElementById("payWithSaBtn").disabled = true;
+    const contract = new ethers.Contract(tokenAddress, tokenAbi, signer);
+    const decimals = await contract.decimals();
+    const tx = await contract.transfer(fundRecipientAddress, ethers.parseUnits(amt.toString(), decimals));
+    showNotification("Waiting for $SA confirmation...", "yellow");
+    await tx.wait();
+    showNotification("$SA sent! Await admin credit.", "green");
+    await databases.createDocument(dbId, txColl, 'unique()', {
+      userId: currentUser.$id,
+      type: "fund-sa",
+      amount: amt,
+      date: new Date().toISOString(),
+      description: "$SA Fund (on-chain)",
+      status: "pending",
+      txHash: tx.hash
+    });
+    closeModal("fundModal");
+  } catch (e) {
+    alert("Transaction failed: " + (e && e.message ? e.message : e));
+  } finally {
+    document.getElementById("payWithSaBtn").disabled = false;
+  }
 };
 
-// Multi-Level Referral Commission
-async function creditReferralCommission(userId, dbId, usersColl, txColl, databases) {
+// ==== CASHOUT REQUEST ====
+document.getElementById("cashoutBtn").onclick = () => openModal("cashoutModal");
+document.getElementById("requestCashoutBtn").onclick = async () => {
+  if (!signer || !currentAddress) { alert("Connect your wallet!"); return; }
+  const amt = parseFloat(document.getElementById("cashoutAmount").value);
+  if (isNaN(amt) || amt < 0.001) { alert("Enter a valid amount (min 0.001 ETH)."); return; }
+  await databases.createDocument(dbId, txColl, 'unique()', {
+    userId: currentUser.$id,
+    type: "cashout-request",
+    amount: -amt,
+    date: new Date().toISOString(),
+    description: "Cashout request to wallet: " + currentAddress,
+    status: "pending",
+    wallet: currentAddress
+  });
+  showNotification("Cashout request sent. Await admin transfer.", "green");
+  closeModal("cashoutModal");
+};
+
+// ==== PROFILE/REFERRAL/INVITE UI ====
+function setupReferralLinks() {
+  const baseInvite = currentUser.$id;
+  const inviteUrl = window.location.origin + "/register.html?invite=" + baseInvite;
+  document.getElementById("invitation-url").textContent = inviteUrl;
+  document.getElementById("invite-link").value = inviteUrl;
+
+  document.getElementById("copyProfileInviteBtn").onclick = () => {
+    navigator.clipboard.writeText(inviteUrl);
+    document.getElementById("copyProfileInviteBtn").textContent = "Copied!";
+    setTimeout(()=>{document.getElementById("copyProfileInviteBtn").textContent="Copy"},1200);
+  };
+  document.getElementById("showQrBtn").onclick = () => {
+    generateQr(inviteUrl, document.getElementById("inviteQr"));
+    document.getElementById("inviteQrWrap").classList.toggle("hidden");
+  };
+  document.getElementById("copyInviteBtn").onclick = () => {
+    navigator.clipboard.writeText(inviteUrl);
+    document.getElementById("copyInviteBtn").textContent = "Copied!";
+    setTimeout(()=>{document.getElementById("copyInviteBtn").textContent="Copy Invite Link"},1200);
+  };
+  document.getElementById("inviteQrBtn").onclick = () => {
+    generateQr(inviteUrl, document.getElementById("inviteQrImg"));
+    document.getElementById("inviteQrContainer").classList.toggle("hidden");
+  };
+  document.getElementById("shareButtonsBtn").onclick = () => {
+    const c = document.getElementById("inviteShareBtns");
+    c.classList.toggle("hidden");
+  };
+  const shareMsg = encodeURIComponent("Join SupremeAmer and earn rewards! " + inviteUrl);
+  document.getElementById("whatsappShare").href = `https://wa.me/?text=${shareMsg}`;
+  document.getElementById("telegramShare").href = `https://t.me/share/url?url=${inviteUrl}&text=Join%20SupremeAmer%20and%20earn%20rewards!`;
+  document.getElementById("twitterShare").href = `https://twitter.com/intent/tweet?text=${shareMsg}`;
+  document.getElementById("facebookShare").href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteUrl)}`;
+}
+
+// ==== REFERRAL BONUS AND MULTI-LEVEL ====
+async function creditReferralCommission(userId) {
   let user = await databases.getDocument(dbId, usersColl, userId);
   let inviterId = user.invitedBy;
   let level = 1;
@@ -357,194 +505,8 @@ async function creditReferralCommission(userId, dbId, usersColl, txColl, databas
   }
 }
 
-// Leaderboard & Analytics
-async function renderLeaderboard(usersColl, dbId, databases) {
-  let allUsers = await databases.listDocuments(dbId, usersColl, []);
-  let leaderboard = allUsers.documents
-    .map(u => ({
-      name: u.name || u.email,
-      count: allUsers.documents.filter(us => us.invitedBy === u.$id).length
-    }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10);
-  document.getElementById("referral-leaderboard").innerHTML =
-    leaderboard.map((u, i) => `<div>${i + 1}. ${u.name} - <b>${u.count}</b> referrals</div>`).join('');
-}
-async function renderReferralAnalytics(usersColl, txColl, dbId, databases, currentUser) {
-  let allUsers = await databases.listDocuments(dbId, usersColl, []);
-  let myReferrals = allUsers.documents.filter(u => u.invitedBy === currentUser.$id);
-  let txs = await databases.listDocuments(dbId, txColl, [
-    Appwrite.Query.equal('userId', currentUser.$id),
-    Appwrite.Query.search('description', 'referral reward')
-  ]);
-  document.getElementById("referral-analytics").innerHTML = `
-    <div>Total Invites: <b>${myReferrals.length}</b></div>
-    <div>Total Referral Commissions: <b>$SA${txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0)}</b></div>
-  `;
-}
-
-// --- Participation Limit ---
-async function canParticipate(advertId, userId) {
-  let participations = await databases.listDocuments('683705ff00244f73e93f', 'participations', [
-    Appwrite.Query.equal('userId', userId),
-    Appwrite.Query.equal('advertId', advertId)
-  ]);
-  return participations.documents.length === 0;
-}
-
-// --- Wallet Signature Verification (optional, for advanced security) ---
-async function verifyWallet(address) {
-  if (window.ethereum && signer) {
-    const message = `Verify ownership for SupremeAmer: ${address}`;
-    const signature = await signer.signMessage(message);
-    await databases.updateDocument('683705ff00244f73e93f', 'users', userDocId, {
-      walletAddress: address,
-      walletSignature: signature
-    });
-  }
-}
-
-// --- Notifications (simple in-app, extend as needed) ---
-function showNotification(msg, color="green") {
-  const notice = document.createElement("div");
-  notice.className = `fixed top-12 right-6 bg-${color}-600 text-white px-5 py-2 rounded shadow-lg z-50`;
-  notice.innerText = msg;
-  document.body.appendChild(notice);
-  setTimeout(() => notice.remove(), 4000);
-}
-
-// --- Admin Panel: Re-render after approve/reject, show only for admins ---
-async function adminPanelInit() {
-  if (currentUser && currentUser.email && currentUser.email.endsWith('@supremeamer.com')) {
-    document.getElementById("adminReviewPanel").style.display = "flex";
-    await renderProofsForReview('683705ff00244f73e93f', 'participations', 'transaction_collection', databases);
-  }
-}
-
-// --- Fund and Cashout Buttons (stub logic, extend for real on-chain payments) ---
-document.getElementById("fundBtn").onclick = async () => {
-  alert("To fund your account, send ETH or $SA token to the contract address and contact support for manual credit while auto smart contract integration is being built.");
-};
-document.getElementById("cashoutBtn").onclick = async () => {
-  alert("To cash out, submit a withdrawal request to support@supremeamer.com with your wallet address. Automated cashout is coming soon!");
-};
-
-document.querySelector('[data-tab="walletTab"]').onclick = async () => {
-  if (currentAddress) {
-    await updateWalletDisplay(currentAddress, (await provider.getNetwork()).name);
-  }
-};
-document.querySelector('[data-tab="homeTab"]').onclick = async () => {
-  await loadBalance();
-};
-
-window.addEventListener("DOMContentLoaded", adminPanelInit);
-
-// --let currentUser = null;
-let userDocId = null;
-let marketAdverts = [];
-let pendingParticipation = null;
-let provider, signer, currentAddress;
-(async () => {
-
-  // Authentication
-  try {
-    currentUser = await account.get();
-  } catch (error) {
-    const email = prompt("Enter your email to log in:");
-    const password = prompt("Enter your password:");
-    if (email && password) {
-      try {
-        await account.createEmailSession(email, password);
-        currentUser = await account.get();
-      } catch {
-        alert('Login failed. Please try again.');
-        window.location.href = "TelegramLogin.html";
-        return;
-      }
-    } else {
-      window.location.href = "TelegramLogin.html";
-      return;
-    }
-  }
-
-  // User Profile & Referral
-  let profileInviteUrl, inviteUrl;
-  const baseInvite = currentUser.$id; // Use only ID for referral
-  inviteUrl = window.location.origin + "/register.html?invite=" + baseInvite;
-  profileInviteUrl = inviteUrl;
-  document.getElementById("user-email").textContent = currentUser.email;
-  document.getElementById("user-username").textContent =
-    currentUser.name || currentUser.email.split('@')[0];
-  document.getElementById("user-username-modal").textContent =
-    currentUser.name || currentUser.email.split('@')[0];
-  document.getElementById("user-email-modal").textContent = currentUser.email;
-  document.getElementById("user-id").textContent = currentUser.$id;
-  document.getElementById("invitation-url").textContent = profileInviteUrl;
-  document.getElementById("invite-link").value = inviteUrl;
-
-  // Referral copy/QR in profile
-  document.getElementById("copyProfileInviteBtn").onclick = () => {
-    navigator.clipboard.writeText(profileInviteUrl);
-    document.getElementById("copyProfileInviteBtn").textContent = "Copied!";
-    setTimeout(()=>{document.getElementById("copyProfileInviteBtn").textContent="Copy"},1200);
-  };
-  document.getElementById("showQrBtn").onclick = () => {
-    generateQr(profileInviteUrl, document.getElementById("inviteQr"));
-    document.getElementById("inviteQrWrap").classList.toggle("hidden");
-  };
-
-  // Referral copy/QR/share in Invite tab
-  document.getElementById("copyInviteBtn").onclick = () => {
-    navigator.clipboard.writeText(inviteUrl);
-    document.getElementById("copyInviteBtn").textContent = "Copied!";
-    setTimeout(()=>{document.getElementById("copyInviteBtn").textContent="Copy Invite Link"},1200);
-  };
-  document.getElementById("inviteQrBtn").onclick = () => {
-    generateQr(inviteUrl, document.getElementById("inviteQrImg"));
-    document.getElementById("inviteQrContainer").classList.toggle("hidden");
-  };
-  document.getElementById("shareButtonsBtn").onclick = () => {
-    const c = document.getElementById("inviteShareBtns");
-    c.classList.toggle("hidden");
-  };
-  // Social share links
-  const shareMsg = encodeURIComponent("Join SupremeAmer and earn rewards! " + inviteUrl);
-  document.getElementById("whatsappShare").href = `https://wa.me/?text=${shareMsg}`;
-  document.getElementById("telegramShare").href = `https://t.me/share/url?url=${inviteUrl}&text=Join%20SupremeAmer%20and%20earn%20rewards!`;
-  document.getElementById("twitterShare").href = `https://twitter.com/intent/tweet?text=${shareMsg}`;
-  document.getElementById("facebookShare").href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteUrl)}`;
-
-  // Appwrite collection/DB setup
-  const usersColl = 'users', txColl = 'transaction_collection', advertsColl = 'adverts', partsColl = 'participations', dbId = '683705ff00244f73e93f';
-
-  // Get user doc (personalized referral link allowed)
-  let userDocs = await databases.listDocuments(dbId, usersColl, [
-    Appwrite.Query.equal('email', currentUser.email)
-  ]);
-  let userDoc;
-  if (userDocs.documents.length > 0) {
-    userDoc = userDocs.documents[0];
-    userDocId = userDoc.$id;
-  } else {
-    const urlParams = new URLSearchParams(window.location.search);
-    const invitedBy = urlParams.get('invite');
-    // Prevent self-referral
-    if (invitedBy && invitedBy === currentUser.$id) {
-      alert('You cannot refer yourself!');
-      window.location.href = '/register.html';
-      return;
-    }
-    userDoc = await databases.createDocument(dbId, usersColl, 'unique()', {
-      email: currentUser.email,
-      name: currentUser.name,
-      invitedBy: invitedBy || "",
-      welcomeBonus: false
-    });
-    userDocId = userDoc.$id;
-  }
-
-  // Welcome Card & $SA500 Reward
+// ==== WELCOME BONUS ====
+async function showWelcomeCardIfNeeded() {
   if (!userDoc.welcomeBonus) {
     document.getElementById("welcomeCard").classList.remove("hidden");
     const dismissWelcome = async () => {
@@ -558,272 +520,280 @@ let provider, signer, currentAddress;
         status: "completed"
       });
       await databases.updateDocument(dbId, usersColl, userDocId, { welcomeBonus: true });
-      // Multi-level commission for first signup
-      await creditReferralCommission(currentUser.$id, dbId, usersColl, txColl, databases);
-      loadBalance();
+      await creditReferralCommission(currentUser.$id);
+      await loadBalance();
     };
     document.getElementById("dismissWelcome").onclick = dismissWelcome;
     document.getElementById("closeWelcome").onclick = dismissWelcome;
     document.getElementById("welcomeCard").onclick = e => { if (e.target === document.getElementById("welcomeCard")) dismissWelcome(); };
   }
+}
 
-  // Account Balance
-  async function loadBalance() {
-    const txs = await databases.listDocuments(dbId, txColl, [
-      Appwrite.Query.equal('userId', currentUser.$id)
-    ]);
-    let balance = txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
-    document.getElementById("account-balance").textContent = `$SA ${balance}`;
+// ==== LOAD BALANCE, PAYMENT HISTORY ====
+async function loadBalance() {
+  const txs = await databases.listDocuments(dbId, txColl, [
+    Appwrite.Query.equal('userId', currentUser.$id)
+  ]);
+  let balance = txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+  document.getElementById("account-balance").textContent = `$SA ${balance}`;
+}
+document.getElementById("paymentHistoryBtn").onclick = async () => {
+  const txs = await databases.listDocuments(dbId, txColl, [
+    Appwrite.Query.equal('userId', currentUser.$id)
+  ]);
+  document.getElementById("payment-history-content").innerHTML =
+    "<ul class='list-disc ml-5'>" + txs.documents.map(
+      tx => `<li>${tx.date}: <span class="text-green-700">${tx.type}</span> <b>${tx.amount}</b> (${tx.description || ""})</li>`
+    ).join("") + "</ul>";
+  openModal("paymentHistoryModal");
+};
+
+// ==== LEADERBOARD & REFERRAL ANALYTICS ====
+async function renderLeaderboard() {
+  let allUsers = await databases.listDocuments(dbId, usersColl, []);
+  let leaderboard = allUsers.documents
+    .map(u => ({
+      name: u.name || u.email,
+      count: allUsers.documents.filter(us => us.invitedBy === u.$id).length
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+  document.getElementById("referral-leaderboard").innerHTML =
+    leaderboard.map((u, i) => `<div>${i + 1}. ${u.name} - <b>${u.count}</b> referrals</div>`).join('');
+}
+async function renderReferralAnalytics() {
+  let allUsers = await databases.listDocuments(dbId, usersColl, []);
+  let myReferrals = allUsers.documents.filter(u => u.invitedBy === currentUser.$id);
+  let txs = await databases.listDocuments(dbId, txColl, [
+    Appwrite.Query.equal('userId', currentUser.$id),
+    Appwrite.Query.search('description', 'referral reward')
+  ]);
+  document.getElementById("referral-analytics").innerHTML = `
+    <div>Total Invites: <b>${myReferrals.length}</b></div>
+    <div>Total Referral Commissions: <b>$SA${txs.documents.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0)}</b></div>
+  `;
+}
+
+// ==== MARKET ====
+async function renderMarket() {
+  let docs = await databases.listDocuments(dbId, advertsColl, [
+    Appwrite.Query.equal('active', true)
+  ]);
+  marketAdverts = docs.documents;
+  const sort = document.getElementById("marketSort").value;
+  if (sort === "goal") marketAdverts.sort((a,b)=>b.goal-a.goal);
+  if (sort === "clicks") marketAdverts.sort((a,b)=>b.clicks-a.clicks);
+  if (sort === "newest") marketAdverts.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const search = document.getElementById("marketSearch").value.toLowerCase().trim();
+  let adsToShow = marketAdverts;
+  if (search) {
+    adsToShow = marketAdverts.filter(ad =>
+      (ad.title && ad.title.toLowerCase().includes(search)) ||
+      (ad.category && ad.category.toLowerCase().includes(search))
+    );
   }
-  await loadBalance();
-
-  // Payment history
-  document.getElementById("paymentHistoryBtn").onclick = async () => {
-    const txs = await databases.listDocuments(dbId, txColl, [
-      Appwrite.Query.equal('userId', currentUser.$id)
-    ]);
-    document.getElementById("payment-history-content").innerHTML =
-      "<ul class='list-disc ml-5'>" + txs.documents.map(
-        tx => `<li>${tx.date}: <span class="text-green-700">${tx.type}</span> <b>${tx.amount}</b> (${tx.description || ""})</li>`
-      ).join("") + "</ul>";
-    openModal("paymentHistoryModal");
-  };
-
-  // Invitee List (stats)
-  document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
-    const invited = await databases.listDocuments(dbId, usersColl, [
-      Appwrite.Query.equal('invitedBy', currentUser.$id)
-    ]);
-    document.getElementById("invitee-list").innerHTML = invited.documents.length
-      ? invited.documents.map(u => `<div class="text-green-700">${u.name || u.email} <span class="text-xs text-gray-500">(${u.$id})</span></div>`).join('')
-      : "<div class='text-gray-500'>No invitees yet.</div>";
-    await renderLeaderboard(usersColl, dbId, databases);
-    await renderReferralAnalytics(usersColl, txColl, dbId, databases, currentUser);
-  };
-
-  // Market Adverts (search/sort/filter, show stats)
-  async function renderMarket() {
-    let docs = await databases.listDocuments(dbId, advertsColl, [
-      Appwrite.Query.equal('active', true)
-    ]);
-    marketAdverts = docs.documents;
-    // Sorting
-    const sort = document.getElementById("marketSort").value;
-    if (sort === "goal") marketAdverts.sort((a,b)=>b.goal-a.goal);
-    if (sort === "clicks") marketAdverts.sort((a,b)=>b.clicks-a.clicks);
-    if (sort === "newest") marketAdverts.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-    // Filtering
-    const search = document.getElementById("marketSearch").value.toLowerCase().trim();
-    let adsToShow = marketAdverts;
-    if (search) {
-      adsToShow = marketAdverts.filter(ad =>
-        (ad.title && ad.title.toLowerCase().includes(search)) ||
-        (ad.category && ad.category.toLowerCase().includes(search))
-      );
-    }
-    document.getElementById("market-list").innerHTML = adsToShow.length
-      ? adsToShow.map(ad => `
-        <div class="border border-indigo-100 p-4 rounded-lg shadow my-2 flex flex-col md:flex-row md:items-center justify-between transition-all duration-200">
-          <div class="flex-1">
-            ${(ad.imageUrl ? `<img src="${ad.imageUrl}" class="w-28 mb-2 rounded" alt="ad"/>` : "")}
-            <div class="font-bold text-lg mb-1">${ad.title}</div>
-            <div class="text-xs mb-2">${ad.category} &bull; Goal: ${ad.goal} clicks &bull; Clicks: ${ad.clicks || 0}/${ad.maxClicks}</div>
-            <div class="mb-1 text-sm text-indigo-800"><b>Instructions:</b> ${ad.instructions || ""}</div>
-            <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline">Visit Advert</a>
-          </div>
-          <button class="bg-green-500 text-white px-3 py-1 rounded participate-btn mt-2 md:mt-0" data-adid="${ad.$id}">Participate</button>
+  document.getElementById("market-list").innerHTML = adsToShow.length
+    ? adsToShow.map(ad => `
+      <div class="border border-indigo-100 p-4 rounded-lg shadow my-2 flex flex-col md:flex-row md:items-center justify-between transition-all duration-200">
+        <div class="flex-1">
+          ${(ad.imageUrl ? `<img src="${ad.imageUrl}" class="w-28 mb-2 rounded" alt="ad"/>` : "")}
+          <div class="font-bold text-lg mb-1">${ad.title}</div>
+          <div class="text-xs mb-2">${ad.category} &bull; Goal: ${ad.goal} clicks &bull; Clicks: ${ad.clicks || 0}/${ad.maxClicks}</div>
+          <div class="mb-1 text-sm text-indigo-800"><b>Instructions:</b> ${ad.instructions || ""}</div>
+          <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="text-blue-500 underline">Visit Advert</a>
         </div>
-      `).join('')
-      : "<div class='text-gray-500'>No adverts available. Upload one!</div>";
+        <button class="bg-green-500 text-white px-3 py-1 rounded participate-btn mt-2 md:mt-0" data-adid="${ad.$id}">Participate</button>
+      </div>
+    `).join('')
+    : "<div class='text-gray-500'>No adverts available. Upload one!</div>";
+  document.querySelectorAll('.participate-btn').forEach(btn => {
+    btn.onclick = async function() {
+      pendingParticipation = btn.getAttribute('data-adid');
+      const can = await canParticipate(pendingParticipation, currentUser.$id);
+      if (!can) {
+        alert("You have already participated in this advert.");
+        return;
+      }
+      openModal("screenshotModal");
+    };
+  });
+}
+document.getElementById("marketSearch").oninput = renderMarket;
+document.getElementById("marketSort").onchange = renderMarket;
 
-    document.querySelectorAll('.participate-btn').forEach(btn => {
-      btn.onclick = async function() {
-        pendingParticipation = btn.getAttribute('data-adid');
-        // Participation limit check
-        const can = await canParticipate(pendingParticipation, currentUser.$id);
-        if (!can) {
-          alert("You have already participated in this advert.");
-          return;
-        }
-        openModal("screenshotModal");
-      };
-    });
+// ==== PARTICIPATION LIMIT ====
+async function canParticipate(advertId, userId) {
+  let participations = await databases.listDocuments(dbId, partsColl, [
+    Appwrite.Query.equal('userId', userId),
+    Appwrite.Query.equal('advertId', advertId)
+  ]);
+  return participations.documents.length === 0;
+}
+
+// ==== PROOF SUBMIT ====
+document.getElementById("submitProofBtn").onclick = async function() {
+  const fileInput = document.getElementById('proofFile');
+  if (!fileInput.files[0]) return alert("Please select a screenshot!");
+  let file = fileInput.files[0];
+  let up = await storage.createFile(dbId, 'adproofs', 'unique()', file);
+  let proofUrl = storage.getFileView(dbId, 'adproofs', up.$id).href;
+  let ad = marketAdverts.find(a => a.$id === pendingParticipation);
+  let reward = Math.floor(Math.random()*701) + 300; // 300-1000
+  await databases.createDocument(dbId, partsColl, 'unique()', {
+    advertId: ad.$id,
+    userId: currentUser.$id,
+    posterId: ad.poster,
+    screenshotUrl: proofUrl,
+    status: "pending",
+    joinedAt: new Date().toISOString(),
+    rewardAmount: reward
+  });
+  await databases.updateDocument(dbId, advertsColl, ad.$id, {
+    clicks: (ad.clicks || 0) + 1
+  });
+  if ((ad.clicks || 0) + 1 >= Math.round(ad.goal * 1.55)) {
+    await databases.updateDocument(dbId, advertsColl, ad.$id, {active: false});
   }
-  document.getElementById("marketSearch").oninput = renderMarket;
-  document.getElementById("marketSort").onchange = renderMarket;
-  await renderMarket();
-
-  // Screenshot proof logic
-  document.getElementById("submitProofBtn").onclick = async function() {
-    const fileInput = document.getElementById('proofFile');
-    if (!fileInput.files[0]) return alert("Please select a screenshot!");
-    let file = fileInput.files[0];
-    let up = await storage.createFile(dbId, 'adproofs', 'unique()', file);
-    let proofUrl = storage.getFileView(dbId, 'adproofs', up.$id).href;
-    let ad = marketAdverts.find(a => a.$id === pendingParticipation);
-    let reward = Math.floor(Math.random()*701) + 300; // 300-1000
-    await databases.createDocument(dbId, partsColl, 'unique()', {
-      advertId: ad.$id,
+  closeModal("screenshotModal");
+  document.getElementById("pendingRewardsNotice").classList.remove("hidden");
+  document.getElementById("pendingRewardAmt").textContent = "$SA" + reward;
+  setTimeout(() => document.getElementById("pendingRewardsNotice").classList.add("hidden"), 5000);
+  setTimeout(async () => {
+    await databases.createDocument(dbId, txColl, 'unique()', {
       userId: currentUser.$id,
-      posterId: ad.poster,
-      screenshotUrl: proofUrl,
-      status: "pending",
-      joinedAt: new Date().toISOString(),
-      rewardAmount: reward
+      type: "credit",
+      amount: reward,
+      date: new Date().toISOString(),
+      description: "Advert reward",
+      status: "completed"
     });
-    await databases.updateDocument(dbId, advertsColl, ad.$id, {
-      clicks: (ad.clicks || 0) + 1
-    });
-    if ((ad.clicks || 0) + 1 >= Math.round(ad.goal * 1.55)) {
-      await databases.updateDocument(dbId, advertsColl, ad.$id, {active: false});
-    }
-    closeModal("screenshotModal");
-    document.getElementById("pendingRewardsNotice").classList.remove("hidden");
-    document.getElementById("pendingRewardAmt").textContent = "$SA" + reward;
-    setTimeout(() => document.getElementById("pendingRewardsNotice").classList.add("hidden"), 5000);
-    setTimeout(async () => {
+    await databases.updateDocument(dbId, partsColl, up.$id, {status: "rewarded"});
+    loadBalance();
+  }, 3 * 3600 * 1000); // 3 hours
+  await renderMarket();
+};
+
+// ==== UPLOAD ADVERT ====
+document.getElementById("uploadAdvertBtn").onclick = () => openModal("uploadAdvertModal");
+document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
+  e.preventDefault();
+  const title = document.getElementById('ad-title').value.trim();
+  const category = document.getElementById('ad-category').value;
+  const clicks = parseInt(document.getElementById('ad-clicks').value);
+  const cost = clicks * 0.10;
+  const url = document.getElementById('ad-url').value.trim();
+  const instructions = document.getElementById('ad-instructions').value;
+  const imageInput = document.getElementById('ad-image');
+  if (title.length < 3) return alert("Title is too short.");
+  if (!/^https?:\/\//.test(url)) return alert("URL must start with http:// or https://");
+  if (clicks < 50 || clicks > 10000) return alert("Clicks must be between 50 and 10000.");
+  if (!instructions.trim()) return alert("Instructions are required.");
+  if(window.ethereum) {
+    try {
+      document.getElementById("uploadAdvertBtn").disabled = true;
+      let imageUrl = "";
+      if (imageInput.files && imageInput.files[0]) {
+        const upImg = await storage.createFile(dbId, 'adimages', 'unique()', imageInput.files[0]);
+        imageUrl = storage.getFileView(dbId, 'adimages', upImg.$id).href;
+      }
+      await databases.createDocument(dbId, advertsColl, 'unique()', {
+        title, category, goal: clicks, url, imageUrl, instructions,
+        poster: currentUser.$id, active: true, clicks: 0,
+        maxClicks: Math.round(clicks * 1.55), createdAt: new Date().toISOString()
+      });
       await databases.createDocument(dbId, txColl, 'unique()', {
         userId: currentUser.$id,
-        type: "credit",
-        amount: reward,
+        type: "debit",
+        amount: -cost,
         date: new Date().toISOString(),
-        description: "Advert reward",
+        description: "Advert upload payment",
         status: "completed"
       });
-      // Optional: Also reward referrer for first participation
-      // await creditReferralCommission(currentUser.$id, dbId, usersColl, txColl, databases);
-      await databases.updateDocument(dbId, partsColl, up.$id, {status: "rewarded"});
+      alert('Advert uploaded!');
+      closeModal("uploadAdvertModal");
+      this.reset();
+      await renderMarket();
       loadBalance();
-    }, 3 * 3600 * 1000); // 3 hours
-    await renderMarket();
-  };
-
-  // Upload Advert
-  document.getElementById("uploadAdvertBtn").onclick = () => openModal("uploadAdvertModal");
-  document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
-    e.preventDefault();
-    const title = document.getElementById('ad-title').value.trim();
-    const category = document.getElementById('ad-category').value;
-    const clicks = parseInt(document.getElementById('ad-clicks').value);
-    const cost = clicks * 0.10;
-    const url = document.getElementById('ad-url').value.trim();
-    const instructions = document.getElementById('ad-instructions').value;
-    const imageInput = document.getElementById('ad-image');
-    // Input validation
-    if (title.length < 3) return alert("Title is too short.");
-    if (!/^https?:\/\//.test(url)) return alert("URL must start with http:// or https://");
-    if (clicks < 50 || clicks > 10000) return alert("Clicks must be between 50 and 10000.");
-    if (!instructions.trim()) return alert("Instructions are required.");
-    // Simulate wallet deduction (stub)
-    if(window.ethereum) {
-      try {
-        document.getElementById("uploadAdvertBtn").disabled = true;
-        let imageUrl = "";
-        if (imageInput.files && imageInput.files[0]) {
-          const upImg = await storage.createFile(dbId, 'adimages', 'unique()', imageInput.files[0]);
-          imageUrl = storage.getFileView(dbId, 'adimages', upImg.$id).href;
-        }
-        // TODO: Real payment logic - send cost in ETH to your wallet
-        await databases.createDocument(dbId, advertsColl, 'unique()', {
-          title,
-          category,
-          goal: clicks,
-          url,
-          imageUrl,
-          instructions,
-          poster: currentUser.$id,
-          active: true,
-          clicks: 0,
-          maxClicks: Math.round(clicks * 1.55),
-          createdAt: new Date().toISOString()
-        });
-        await databases.createDocument(dbId, txColl, 'unique()', {
-          userId: currentUser.$id,
-          type: "debit",
-          amount: -cost,
-          date: new Date().toISOString(),
-          description: "Advert upload payment",
-          status: "completed"
-        });
-        alert('Advert uploaded!');
-        closeModal("uploadAdvertModal");
-        this.reset();
-        await renderMarket();
-        loadBalance();
-      } catch (err) {
-        alert('Wallet transaction failed or rejected.');
-      } finally {
-        document.getElementById("uploadAdvertBtn").disabled = false;
-      }
-    } else {
-      alert("Please connect your wallet.");
-    }
-  };
-
-  // WALLET CONNECTION ---------------------
-  let provider, signer;
-  let currentAddress = null;
-
-  async function updateWalletDisplay(address, net) {
-    document.getElementById("wallet-address").textContent = address || "";
-    document.getElementById("wallet-network").textContent = net || "";
-    if (provider && address) {
-      const ethBalance = ethers.formatEther(await provider.getBalance(address));
-      document.getElementById("eth-balance").textContent = Number(ethBalance).toFixed(4) + " ETH";
-      await loadSaBalance(address);
-    }
-    document.getElementById("wallet-provider").textContent =
-      window.ethereum && window.ethereum.isMetaMask ? "MetaMask" : "Unknown";
-    document.getElementById("wallet-details").classList.remove("hidden");
-  }
-
-  async function connectWallet() {
-    if(!window.ethereum) {
-      alert("Please install MetaMask or a compatible wallet.");
-      return;
-    }
-    document.getElementById("connectWalletBtn").classList.add("disabled");
-    try {
-      provider = new ethers.BrowserProvider(window.ethereum);
-      await window.ethereum.request({ method: "eth_requestAccounts" });
-      signer = await provider.getSigner();
-      currentAddress = await signer.getAddress();
-      const net = (await provider.getNetwork()).name;
-      document.getElementById("walletStatus").textContent = "Wallet Connected";
-      document.getElementById("connectWalletBtn").textContent = "Wallet Connected";
-      document.getElementById("disconnectWalletBtn").classList.remove("hidden");
-      await updateWalletDisplay(currentAddress, net);
-    } catch (e) {
-      alert("Wallet connection failed: " + (e && e.message ? e.message : e));
+    } catch (err) {
+      alert('Wallet transaction failed or rejected.');
     } finally {
-      document.getElementById("connectWalletBtn").classList.remove("disabled");
+      document.getElementById("uploadAdvertBtn").disabled = false;
     }
+  } else {
+    alert("Please connect your wallet.");
   }
-  document.getElementById("connectWalletBtn").onclick = connectWallet;
-  document.getElementById("disconnectWalletBtn").onclick = () => {
-    provider = signer = null;
-    currentAddress = null;
-    document.getElementById("walletStatus").textContent = "Wallet Disconnected";
-    document.getElementById("wallet-details").classList.add("hidden");
-    document.getElementById("connectWalletBtn").textContent = "Connect Wallet";
-    document.getElementById("disconnectWalletBtn").classList.add("hidden");
-  };
-  if (window.ethereum) {
-    window.ethereum.on('accountsChanged', () => {
-      if(currentAddress) connectWallet();
-    });
-    window.ethereum.on('chainChanged', () => {
-      if(currentAddress) connectWallet();
-    });
-  }
+};
 
-  // Admin Panel Access (show if admin)
-  if (currentUser.email && currentUser.email.endsWith('@supremeamer.com')) {
-    document.getElementById("adminReviewPanel").style.display = "flex";
-    renderProofsForReview(dbId, partsColl, txColl, databases);
-  }
+// ==== ADMIN PANEL/PROOF REVIEW ====
+async function renderProofsForReview() {
+  let proofs = await databases.listDocuments(dbId, partsColl, [
+    Appwrite.Query.equal('status', 'pending')
+  ]);
+  document.getElementById("admin-review-list").innerHTML = proofs.documents.map(proof =>
+    `<div class="p-2 my-2 border rounded flex items-center gap-3">
+      <img src="${proof.screenshotUrl}" width="100"/>
+      <div>User: ${proof.userId}<br>Ad: ${proof.advertId}</div>
+      <button class="bg-green-500 text-white px-3 py-1 rounded" onclick="approveProof('${proof.$id}', ${proof.rewardAmount}, '${proof.userId}')">Approve</button>
+      <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="rejectProof('${proof.$id}', '${proof.userId}')">Reject</button>
+    </div>`
+  ).join('');
+}
+window.approveProof = async (proofId, amount, userId) => {
+  await databases.updateDocument(dbId, partsColl, proofId, { status: "rewarded" });
+  await databases.createDocument(dbId, txColl, 'unique()', {
+    userId,
+    type: "credit",
+    amount,
+    date: new Date().toISOString(),
+    description: "Advert reward (approved)",
+    status: "completed"
+  });
+  renderProofsForReview();
+};
+window.rejectProof = async (proofId, userId) => {
+  await databases.updateDocument(dbId, partsColl, proofId, { status: "rejected" });
+  renderProofsForReview();
+};
 
-})();
+// ==== REAL-TIME LISTENERS ====
+client.subscribe(`databases.${dbId}.collections.${advertsColl}.documents`, response => { renderMarket(); });
+client.subscribe(`databases.${dbId}.collections.${txColl}.documents`, response => { loadBalance(); });
+client.subscribe(`databases.${dbId}.collections.${usersColl}.documents`, response => { renderLeaderboard(); renderReferralAnalytics(); });
+
+// ==== ON LOAD ====
+window.addEventListener("DOMContentLoaded", async () => {
+  try {
+    currentUser = await account.get();
+    let userDocs = await databases.listDocuments(dbId, usersColl, [Appwrite.Query.equal('email', currentUser.email)]);
+    userDoc = userDocs.documents[0];
+    userDocId = userDoc.$id;
+    document.getElementById("user-email").textContent = currentUser.email;
+    document.getElementById("user-username").textContent = currentUser.name || currentUser.email.split('@')[0];
+    document.getElementById("user-username-modal").textContent = currentUser.name || currentUser.email.split('@')[0];
+    document.getElementById("user-email-modal").textContent = currentUser.email;
+    document.getElementById("user-id").textContent = currentUser.$id;
+    setupReferralLinks();
+    showWelcomeCardIfNeeded();
+    await loadBalance();
+    await renderMarket();
+    document.querySelector('[data-tab="inviteTab"]').onclick = async () => {
+      const invited = await databases.listDocuments(dbId, usersColl, [
+        Appwrite.Query.equal('invitedBy', currentUser.$id)
+      ]);
+      document.getElementById("invitee-list").innerHTML = invited.documents.length
+        ? invited.documents.map(u => `<div class="text-green-700">${u.name || u.email} <span class="text-xs text-gray-500">(${u.$id})</span></div>`).join('')
+        : "<div class='text-gray-500'>No invitees yet.</div>";
+      await renderLeaderboard();
+      await renderReferralAnalytics();
+    };
+    if (currentUser.email && currentUser.email.endsWith('@supremeamer.com')) {
+      document.getElementById("adminReviewPanel").style.display = "flex";
+      renderProofsForReview();
+    }
+  } catch (e) {
+    window.location.href = "TelegramLogin.html";
+  }
+});
   </script>
 </body>
 </html>
