@@ -794,7 +794,11 @@ window.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("adminReviewPanel").style.display = "flex";
       renderProofsForReview();
     }
+  }  catch (e) {
+    // window.location.href = "TelegramLogin.html";
+    // Optionally: Show a message or login button, or do nothing.
   }
+});
 });
   </script>
 </body>
