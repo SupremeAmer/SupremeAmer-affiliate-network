@@ -440,7 +440,11 @@ document.querySelector('[data-tab="homeTab"]').onclick = async () => {
 
 window.addEventListener("DOMContentLoaded", adminPanelInit);
 
-// --- Main App Logic ---
+// --let currentUser = null;
+let userDocId = null;
+let marketAdverts = [];
+let pendingParticipation = null;
+let provider, signer, currentAddress;
 (async () => {
 
   // Authentication
@@ -820,6 +824,6 @@ window.addEventListener("DOMContentLoaded", adminPanelInit);
   }
 
 })();
-})();  </script>
+  </script>
 </body>
 </html>
