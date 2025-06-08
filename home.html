@@ -767,6 +767,7 @@ client.subscribe(`databases.${dbId}.collections.${usersColl}.documents`, respons
 window.addEventListener("DOMContentLoaded", async () => {
   try {
     currentUser = await account.get();
+    // ... run your app as usual ...
     let userDocs = await databases.listDocuments(dbId, usersColl, [Appwrite.Query.equal('email', currentUser.email)]);
     userDoc = userDocs.documents[0];
     userDocId = userDoc.$id;
@@ -794,32 +795,10 @@ window.addEventListener("DOMContentLoaded", async () => {
       renderProofsForReview();
     }
   } catch (e) {
-    // ==== LOGIN UI ====
-    document.body.innerHTML = `
-      <div class="flex items-center justify-center min-h-screen bg-gray-100">
-        <div class="bg-white shadow-lg rounded px-10 py-12 text-center">
-          <h2 class="text-xl font-bold mb-4">Sign in to SupremeAmer</h2>
-          <button id="fbLoginBtn" class="bg-blue-700 text-white px-6 py-3 rounded text-lg font-bold mb-4">Login with Facebook</button>
-          <br>
-          <button id="awLoginBtn" class="bg-indigo-700 text-white px-6 py-3 rounded text-lg font-bold">Login with Email</button>
-        </div>
-      </div>
-    `;
-    document.getElementById("fbLoginBtn").onclick = () => {
-      account.createOAuth2Session('facebook', window.location.href, window.location.href);
-    };
-    document.getElementById("awLoginBtn").onclick = () => {
-      const email = prompt("Email:");
-      const password = prompt("Password:");
-      if (email && password) {
-        account.createEmailSession(email, password).then(() => {
-          window.location.reload();
-        }).catch(() => {
-          alert("Login failed. Check credentials.");
-        });
-      }
-    };
-    return;
+    // Do nothing if NOT logged in.
+    // Optionally, you could show an error or blank page.
+    // Example: document.body.innerHTML = "<p>Not logged in.</p>";
+    // But NO relogin prompt, NO redirect, NO login UI!
   }
 });
   </script>
