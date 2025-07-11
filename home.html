@@ -711,62 +711,96 @@
 
     // UPLOAD ADVERT (fee is 0.00002 BNB per click, min 50, fee paid to admin)
     document.getElementById("uploadAdvertBtn").onclick = () => openModal("uploadAdvertModal");
-    document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
-      e.preventDefault();
-      const title = document.getElementById('ad-title').value.trim();
-      const category = document.getElementById('ad-category').value;
-      const clicks = parseInt(document.getElementById('ad-clicks').value);
-      const cost = clicks * 0.00002;
-      const url = document.getElementById('ad-url').value.trim();
-      const instructions = document.getElementById('ad-instructions').value;
-      const imageInput = document.getElementById('ad-image');
-      if (title.length < 3) return alert("Title is too short.");
-      if (!/^https?:\/\//.test(url)) return alert("URL must start with http:// or https://");
-      if (clicks < 50 || clicks > 10000) return alert("Clicks must be between 50 and 10000.");
-      if (!instructions.trim()) return alert("Instructions are required.");
-      if(window.ethereum) {
-        try {
-          document.getElementById("uploadAdvertBtn").disabled = true;
-          let imageUrl = "";
-          if (imageInput.files && imageInput.files[0]) {
-            const upImg = await storage.createFile(dbId, 'adimages', 'unique()', imageInput.files[0]);
-            imageUrl = storage.getFileView(dbId, 'adimages', upImg.$id).href;
-          }
-          showNotification("Prompting wallet for advert upload fee...", "yellow");
-          const tx = await signer.sendTransaction({
-            to: fundRecipientAddress,
-            value: ethers.parseEther(cost.toString())
-          });
-          await tx.wait();
-          showNotification("Advert upload fee paid. Creating advert...", "green");
-          await databases.createDocument(dbId, advertsColl, 'unique()', {
-            title, category, goal: clicks, url, imageUrl, instructions,
-            poster: currentUser.$id, active: true, clicks: 0,
-            maxClicks: Math.round(clicks * 1.55), createdAt: new Date().toISOString()
-          });
-          await databases.createDocument(dbId, txColl, 'unique()', {
-            userId: currentUser.$id,
-            type: "debit",
-            amount: -cost,
-            date: new Date().toISOString(),
-            description: "Advert upload payment ("+clicks+" clicks)",
-            status: "completed"
-          });
-          alert('Advert uploaded!');
-          closeModal("uploadAdvertModal");
-          this.reset();
-          await renderMarket();
-          loadBalance();
-        } catch (err) {
-          alert('Wallet transaction failed or rejected.');
-        } finally {
-          document.getElementById("uploadAdvertBtn").disabled = false;
-        }
-      } else {
-        alert("Please connect your wallet.");
-      }
-    };
+document.getElementById("uploadAdvertForm").onsubmit = async function(e) {
+  e.preventDefault();
+  const title = document.getElementById('ad-title').value.trim();
+  const category = document.getElementById('ad-category').value;
+  const clicks = parseInt(document.getElementById('ad-clicks').value);
+  const cost = clicks * 0.00002;
+  const url = document.getElementById('ad-url').value.trim();
+  const instructions = document.getElementById('ad-instructions').value;
+  const imageInput = document.getElementById('ad-image');
 
+  if (title.length < 3) return alert("Title is too short.");
+  if (!/^https?:\/\//.test(url)) return alert("URL must start with http:// or https://");
+  if (clicks < 50 || clicks > 10000) return alert("Clicks must be between 50 and 10000.");
+  if (!instructions.trim()) return alert("Instructions are required.");
+
+  const allowedEmails = [
+    "supremealpha04@gmail.com",
+    "supremeamerapplications@gmail.com"
+  ];
+
+  if (allowedEmails.includes(currentUser.email)) {
+    // Allowed emails: upload without payment
+    try {
+      document.getElementById("uploadAdvertBtn").disabled = true;
+      let imageUrl = "";
+      if (imageInput.files && imageInput.files[0]) {
+        const upImg = await storage.createFile(dbId, 'adimages', 'unique()', imageInput.files[0]);
+        imageUrl = storage.getFileView(dbId, 'adimages', upImg.$id).href;
+      }
+      await databases.createDocument(dbId, advertsColl, 'unique()', {
+        title, category, goal: clicks, url, imageUrl, instructions,
+        poster: currentUser.$id, active: true, clicks: 0,
+        maxClicks: Math.round(clicks * 1.55), createdAt: new Date().toISOString()
+      });
+      showNotification("Advert uploaded without payment!", "green");
+      closeModal("uploadAdvertModal");
+      this.reset();
+      await renderMarket();
+      loadBalance();
+    } catch (err) {
+      alert('Failed to upload advert: ' + (err && err.message ? err.message : err));
+    } finally {
+      document.getElementById("uploadAdvertBtn").disabled = false;
+    }
+    return; // Prevent further code
+  }
+
+  // All other users: require payment
+  if(window.ethereum) {
+    try {
+      document.getElementById("uploadAdvertBtn").disabled = true;
+      let imageUrl = "";
+      if (imageInput.files && imageInput.files[0]) {
+        const upImg = await storage.createFile(dbId, 'adimages', 'unique()', imageInput.files[0]);
+        imageUrl = storage.getFileView(dbId, 'adimages', upImg.$id).href;
+      }
+      showNotification("Prompting wallet for advert upload fee...", "yellow");
+      const tx = await signer.sendTransaction({
+        to: fundRecipientAddress,
+        value: ethers.parseEther(cost.toString())
+      });
+      await tx.wait();
+      showNotification("Advert upload fee paid. Creating advert...", "green");
+      await databases.createDocument(dbId, advertsColl, 'unique()', {
+        title, category, goal: clicks, url, imageUrl, instructions,
+        poster: currentUser.$id, active: true, clicks: 0,
+        maxClicks: Math.round(clicks * 1.55), createdAt: new Date().toISOString()
+      });
+      await databases.createDocument(dbId, txColl, 'unique()', {
+        userId: currentUser.$id,
+        type: "debit",
+        amount: -cost,
+        date: new Date().toISOString(),
+        description: "Advert upload payment ("+clicks+" clicks)",
+        status: "completed"
+      });
+      alert('Advert uploaded!');
+      closeModal("uploadAdvertModal");
+      this.reset();
+      await renderMarket();
+      loadBalance();
+    } catch (err) {
+      alert('Wallet transaction failed or rejected.');
+    } finally {
+      document.getElementById("uploadAdvertBtn").disabled = false;
+    }
+  } else {
+    alert("Please connect your wallet.");
+  }
+};
     // ADMIN PANEL/PROOF REVIEW
     async function renderProofsForReview() {
       let proofs = await databases.listDocuments(dbId, partsColl, [
