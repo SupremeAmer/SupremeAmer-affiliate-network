@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SupremeAmer Token Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/appwrite@10.1.0"></script>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #4e54c8;
@@ -17,22 +17,23 @@
             --warning: #f39c12;
             --danger: #e74c3c;
             --gray: #95a5a6;
-            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-bg: rgba(255, 255, 255, 0.95);
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--gradient);
             color: var(--dark);
             min-height: 100vh;
-            padding-bottom: 70px;
+            padding-bottom: 80px;
         }
         
         .container {
@@ -82,6 +83,7 @@
             padding: 10px 15px;
             border-radius: 30px;
             box-shadow: var(--shadow);
+            position: relative;
         }
         
         .user-avatar {
@@ -94,6 +96,7 @@
             justify-content: center;
             font-size: 1.5rem;
             color: white;
+            cursor: pointer;
         }
         
         .balance {
@@ -158,6 +161,11 @@
             padding: 20px;
             text-align: center;
             box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
         
         .stat-card i {
@@ -181,6 +189,7 @@
             display: flex;
             gap: 15px;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
         
         .btn {
@@ -222,7 +231,7 @@
         }
         
         .referral-container {
-            background: linear-gradient(135deg, #8f94fb, #4e54c8);
+            background: var(--gradient);
             padding: 20px;
             border-radius: 15px;
             color: white;
@@ -286,6 +295,7 @@
             border: 1px solid #ddd;
             cursor: pointer;
             white-space: nowrap;
+            transition: all 0.2s ease;
         }
         
         .filter-btn.active {
@@ -314,7 +324,7 @@
         
         .ad-image {
             height: 160px;
-            background: #ddd;
+            background: #f0f2f5;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -504,6 +514,218 @@
             color: var(--dark);
         }
         
+        .floating-buttons {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 99;
+        }
+        
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+        }
+        
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+        
+        .auth-header {
+            background: var(--gradient);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .auth-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .auth-body {
+            padding: 30px;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 250px;
+            z-index: 100;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .user-dropdown.active {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .chart-container {
+            height: 250px;
+            margin-top: 20px;
+        }
+        
+        .game-container {
+            background: var(--gradient);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .game-header {
+            margin-bottom: 20px;
+        }
+        
+        .game-area {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-button {
+            background: var(--warning);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .game-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mining-container {
+            background: var(--gradient);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .mining-header {
+            margin-bottom: 20px;
+        }
+        
+        .mining-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .mining-stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .mining-progress {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
         @media (max-width: 768px) {
             .logo h1 {
                 font-size: 1.4rem;
@@ -521,438 +743,636 @@
             .action-buttons {
                 flex-direction: column;
             }
+            
+            .floating-buttons {
+                bottom: 80px;
+                right: 15px;
+            }
+            
+            .floating-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">S</div>
-                <h1>SupremeAmer Token</h1>
-            </div>
-            <div class="wallet-info">
-                <div class="user-avatar">👤</div>
-                <div class="balance">
-                    <div class="bnb-balance">BNB: 0.00</div>
-                    <div class="token-balance">SAT: 0</div>
+    <!-- Auth Section (shown by default) -->
+    <section id="auth-section" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <div class="logo-icon">S</div>
+                    <h1>SupremeAmer Token</h1>
                 </div>
+                <p>Earn tokens by participating in our ecosystem</p>
             </div>
-        </header>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-form="login-form">Login</div>
+                <div class="auth-tab" data-form="register-form">Register</div>
+            </div>
+            
+            <div class="auth-body">
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 15px;">
+                        <p>Don't have an account? <a href="#" id="show-register">Register</a></p>
+                    </div>
+                </form>
+                
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="register-name">Full Name</label>
+                        <input type="text" id="register-name" placeholder="Enter your full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" placeholder="Create a password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-confirm">Confirm Password</label>
+                        <input type="password" id="register-confirm" placeholder="Confirm your password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" required> I agree to pay the $2 registration fee in BNB
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Register & Pay Fee</button>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 15px;">
+                        <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Main App (hidden by default) -->
+    <div id="main-app" style="display: none;">
+        <div class="container">
+            <header>
+                <div class="logo">
+                    <div class="logo-icon">S</div>
+                    <h1>SupremeAmer Token</h1>
+                </div>
+                <div class="wallet-info">
+                    <div class="user-avatar" id="user-avatar">👤</div>
+                    <div class="balance">
+                        <div class="bnb-balance">BNB: <span id="bnb-balance">0.00</span></div>
+                        <div class="token-balance">SAT: <span id="token-balance">0</span></div>
+                    </div>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <div class="dropdown-item" id="profile-item">
+                            <i class="fas fa-user"></i>
+                            <span>My Profile</span>
+                        </div>
+                        <div class="dropdown-item" id="settings-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </div>
+                        <div class="dropdown-item" id="logout-item">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <main>
+                <!-- Home/Dashboard View -->
+                <section id="home-view" class="view active">
+                    <div class="section-title">
+                        <h2>Dashboard</h2>
+                    </div>
+                    
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <i class="fas fa-coins"></i>
+                            <h3 id="sat-balance">24,500</h3>
+                            <p>SupremeAmer Tokens</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-users"></i>
+                            <h3 id="referral-count">12</h3>
+                            <p>Active Referrals</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-ad"></i>
+                            <h3 id="active-ads">8</h3>
+                            <p>Active Ads</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-chart-line"></i>
+                            <h3 id="earnings-today">$24.50</h3>
+                            <p>Earnings Today</p>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="earnings-chart"></canvas>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="add-funds-btn">
+                            <i class="fas fa-wallet"></i> Add Funds
+                        </button>
+                        <button class="btn btn-success" id="cash-out-btn">
+                            <i class="fas fa-money-bill-wave"></i> Cash Out
+                        </button>
+                        <button class="btn btn-secondary" id="invite-btn">
+                            <i class="fas fa-user-plus"></i> Invite Friends
+                        </button>
+                        <button class="btn btn-warning" id="boost-btn">
+                            <i class="fas fa-bolt"></i> Boost Earnings
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Recent Ads</h3>
+                        <div class="ads-grid" id="recent-ads">
+                            <!-- Ads will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Transaction History (Last 30 Days)</h3>
+                        <div class="history-list" id="history-list">
+                            <!-- History will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Earn View -->
+                <section id="earn-view" class="view">
+                    <div class="section-title">
+                        <h2>Earn Tokens</h2>
+                    </div>
+                    
+                    <div class="referral-container">
+                        <h3>Refer Friends & Earn Tokens</h3>
+                        <p>Share your referral link and earn 1000 SAT for each friend who signs up</p>
+                        
+                        <div class="referral-input">
+                            <input type="text" id="referral-link" value="https://supremeamer.com/ref/7X9F3K" readonly>
+                            <button id="copy-link-btn">Copy</button>
+                        </div>
+                        
+                        <div class="referral-stats">
+                            <div class="referral-stat">
+                                <h3 id="total-referrals">12</h3>
+                                <p>Total Referrals</p>
+                            </div>
+                            <div class="referral-stat">
+                                <h3 id="tokens-earned">12,000</h3>
+                                <p>Tokens Earned</p>
+                            </div>
+                            <div class="referral-stat">
+                                <h3 id="indirect-earnings">240</h3>
+                                <p>Indirect Earnings</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Your Referral Activity</h3>
+                        <div class="history-list" id="referral-activity">
+                            <!-- Referral activity will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Market View -->
+                <section id="market-view" class="view">
+                    <div class="section-title">
+                        <h2>Ad Marketplace</h2>
+                        <button class="btn btn-primary" id="upload-ad-btn">
+                            <i class="fas fa-plus"></i> Upload Ad
+                        </button>
+                    </div>
+                    
+                    <div class="market-filters">
+                        <button class="filter-btn active">All</button>
+                        <button class="filter-btn">Crypto</button>
+                        <button class="filter-btn">Facebook</button>
+                        <button class="filter-btn">Instagram</button>
+                        <button class="filter-btn">Twitter</button>
+                        <button class="filter-btn">Referral</button>
+                        <button class="filter-btn">Telegram</button>
+                        <button class="filter-btn">YouTube</button>
+                        <button class="filter-btn">Discord</button>
+                    </div>
+                    
+                    <div class="ads-grid" id="marketplace-ads">
+                        <!-- Marketplace ads will be loaded here -->
+                    </div>
+                </section>
+                
+                <!-- Support View -->
+                <section id="support-view" class="view">
+                    <div class="section-title">
+                        <h2>Support Center</h2>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Frequently Asked Questions</h3>
+                        <div class="faq-list">
+                            <div class="faq-item" style="margin-bottom: 20px;">
+                                <h4>How do I earn SupremeAmer tokens?</h4>
+                                <p>You can earn tokens by referring friends, completing advertisement tasks, and participating in community activities.</p>
+                            </div>
+                            <div class="faq-item" style="margin-bottom: 20px;">
+                                <h4>What is the minimum withdrawal amount?</h4>
+                                <p>The minimum withdrawal amount is 30,000 SupremeAmer tokens.</p>
+                            </div>
+                            <div class="faq-item" style="margin-bottom: 20px;">
+                                <h4>How long does ad validation take?</h4>
+                                <p>Ad validation typically takes 10-15 minutes after you submit your proof of completion.</p>
+                            </div>
+                            <div class="faq-item" style="margin-bottom: 20px;">
+                                <h4>How are referral rewards calculated?</h4>
+                                <p>You earn 1000 SAT for each direct referral. For each referral made by someone you referred, you earn 1% of their reward (10 SAT).</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Contact Support</h3>
+                        <p><i class="fas fa-envelope"></i> Email: support@supremeamer.com</p>
+                        <p><i class="fab fa-telegram"></i> Telegram: @SupremeAmerSupport</p>
+                        <p><i class="fas fa-clock"></i> Response time: 24-48 hours</p>
+                    </div>
+                </section>
+                
+                <!-- Mining View -->
+                <section id="mining-view" class="view">
+                    <div class="mining-container">
+                        <div class="mining-header">
+                            <h2><i class="fas fa-digging"></i> Token Mining</h2>
+                            <p>Mine SupremeAmer tokens using your device's resources</p>
+                        </div>
+                        
+                        <div class="mining-stats">
+                            <div class="mining-stat">
+                                <h3 id="mining-rate">12 SAT/h</h3>
+                                <p>Mining Rate</p>
+                            </div>
+                            <div class="mining-stat">
+                                <h3 id="mining-earned">1,240 SAT</h3>
+                                <p>Total Earned</p>
+                            </div>
+                            <div class="mining-stat">
+                                <h3 id="mining-time">3h 45m</h3>
+                                <p>Active Today</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mining-progress">
+                            <div class="progress-bar" id="mining-progress"></div>
+                        </div>
+                        
+                        <button class="game-button" id="start-mining-btn">
+                            <i class="fas fa-play"></i> Start Mining
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Mining Statistics</h3>
+                        <p>Mining efficiency depends on your device's capabilities. Higher-end devices will mine tokens faster.</p>
+                        <div class="chart-container">
+                            <canvas id="mining-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Mining Rewards</h3>
+                        <p>Upgrade your mining equipment to increase your earnings:</p>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-bolt"></i> Boost Mining
+                            </button>
+                            <button class="btn btn-success">
+                                <i class="fas fa-robot"></i> Buy Miner Bot
+                            </button>
+                            <button class="btn btn-warning">
+                                <i class="fas fa-server"></i> Upgrade Server
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Game View -->
+                <section id="game-view" class="view">
+                    <div class="game-container">
+                        <div class="game-header">
+                            <h2><i class="fas fa-gamepad"></i> Token Games</h2>
+                            <p>Play games to earn extra SupremeAmer tokens</p>
+                        </div>
+                        
+                        <div class="game-area">
+                            <h3 id="game-title">Token Collector</h3>
+                            <div style="font-size: 4rem; margin: 20px 0;" id="game-display">🪙</div>
+                            <p id="game-instruction">Click when the token appears to earn SAT!</p>
+                        </div>
+                        
+                        <button class="game-button" id="start-game-btn">
+                            <i class="fas fa-play"></i> Start Game
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Game Statistics</h3>
+                        <div class="dashboard-stats">
+                            <div class="stat-card">
+                                <i class="fas fa-coins"></i>
+                                <h3 id="game-earnings">850 SAT</h3>
+                                <p>Total Game Earnings</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-trophy"></i>
+                                <h3 id="high-score">1,200 SAT</h3>
+                                <p>Highest Score</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-gamepad"></i>
+                                <h3 id="games-played">24</h3>
+                                <p>Games Played</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Available Games</h3>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary game-select" data-game="collector">
+                                <i class="fas fa-coins"></i> Token Collector
+                            </button>
+                            <button class="btn btn-success game-select" data-game="match">
+                                <i class="fas fa-puzzle-piece"></i> Token Match
+                            </button>
+                            <button class="btn btn-warning game-select" data-game="race">
+                                <i class="fas fa-flag-checkered"></i> Token Race
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
         
-        <main>
-            <!-- Home/Dashboard View -->
-            <section id="home-view" class="view active">
-                <div class="section-title">
-                    <h2>Dashboard</h2>
-                </div>
-                
-                <div class="dashboard-stats">
-                    <div class="stat-card">
-                        <i class="fas fa-coins"></i>
-                        <h3>24,500</h3>
-                        <p>SupremeAmer Tokens</p>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-users"></i>
-                        <h3>12</h3>
-                        <p>Active Referrals</p>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-ad"></i>
-                        <h3>8</h3>
-                        <p>Active Ads</p>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-primary" id="add-funds-btn">
-                        <i class="fas fa-wallet"></i> Add Funds
-                    </button>
-                    <button class="btn btn-success" id="cash-out-btn">
-                        <i class="fas fa-money-bill-wave"></i> Cash Out
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <h3>Recent Ads</h3>
-                    <div class="ads-grid">
-                        <!-- Ads will be loaded here -->
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>Transaction History (Last 30 Days)</h3>
-                    <div class="history-list">
-                        <!-- History will be loaded here -->
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Earn View -->
-            <section id="earn-view" class="view">
-                <div class="section-title">
-                    <h2>Earn Tokens</h2>
-                </div>
-                
-                <div class="referral-container">
-                    <h3>Refer Friends & Earn Tokens</h3>
-                    <p>Share your referral link and earn 1000 SAT for each friend who signs up</p>
-                    
-                    <div class="referral-input">
-                        <input type="text" id="referral-link" value="https://supremeamer.com/ref/7X9F3K" readonly>
-                        <button id="copy-link-btn">Copy</button>
-                    </div>
-                    
-                    <div class="referral-stats">
-                        <div class="referral-stat">
-                            <h3>12</h3>
-                            <p>Total Referrals</p>
-                        </div>
-                        <div class="referral-stat">
-                            <h3>12,000</h3>
-                            <p>Tokens Earned</p>
-                        </div>
-                        <div class="referral-stat">
-                            <h3>240</h3>
-                            <p>Indirect Earnings</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>Your Referral Activity</h3>
-                    <div class="history-list">
-                        <!-- Referral activity will be loaded here -->
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Market View -->
-            <section id="market-view" class="view">
-                <div class="section-title">
-                    <h2>Ad Marketplace</h2>
-                    <button class="btn btn-primary" id="upload-ad-btn">
-                        <i class="fas fa-plus"></i> Upload Ad
-                    </button>
-                </div>
-                
-                <div class="market-filters">
-                    <button class="filter-btn active">All</button>
-                    <button class="filter-btn">Crypto</button>
-                    <button class="filter-btn">Facebook</button>
-                    <button class="filter-btn">Instagram</button>
-                    <button class="filter-btn">Twitter</button>
-                    <button class="filter-btn">Referral</button>
-                    <button class="filter-btn">Telegram</button>
-                    <button class="filter-btn">YouTube</button>
-                    <button class="filter-btn">Discord</button>
-                </div>
-                
-                <div class="ads-grid">
-                    <!-- Marketplace ads will be loaded here -->
-                </div>
-            </section>
-            
-            <!-- Support View -->
-            <section id="support-view" class="view">
-                <div class="section-title">
-                    <h2>Support Center</h2>
-                </div>
-                
-                <div class="card">
-                    <h3>Frequently Asked Questions</h3>
-                    <div class="faq-list">
-                        <div class="faq-item">
-                            <h4>How do I earn SupremeAmer tokens?</h4>
-                            <p>You can earn tokens by referring friends, completing advertisement tasks, and participating in community activities.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4>What is the minimum withdrawal amount?</h4>
-                            <p>The minimum withdrawal amount is 30,000 SupremeAmer tokens.</p>
-                        </div>
-                        <div class="faq-item">
-                            <h4>How long does ad validation take?</h4>
-                            <p>Ad validation typically takes 10-15 minutes after you submit your proof of completion.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3>Contact Support</h3>
-                    <p>Email: support@supremeamer.com</p>
-                    <p>Telegram: @SupremeAmerSupport</p>
-                    <p>Response time: 24-48 hours</p>
-                </div>
-            </section>
-        </main>
-    </div>
-    
-    <!-- Footer Navigation -->
-    <div class="footer-nav">
-        <button class="nav-btn active" data-view="home-view">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </button>
-        <button class="nav-btn" data-view="earn-view">
-            <i class="fas fa-coins"></i>
-            <span>Earn</span>
-        </button>
-        <button class="nav-btn" data-view="market-view">
-            <i class="fas fa-store"></i>
-            <span>Market</span>
-        </button>
-        <button class="nav-btn" data-view="support-view">
-            <i class="fas fa-headset"></i>
-            <span>Support</span>
-        </button>
-    </div>
-    
-    <!-- Upload Ad Modal -->
-    <div class="modal" id="upload-ad-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Upload New Advertisement</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="ad-title">Ad Title</label>
-                    <input type="text" id="ad-title" placeholder="Enter ad title">
-                </div>
-                
-                <div class="form-group">
-                    <label for="ad-category">Category</label>
-                    <select id="ad-category">
-                        <option value="crypto">Crypto</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="twitter">Twitter</option>
-                        <option value="referral">Referral</option>
-                        <option value="telegram">Telegram</option>
-                        <option value="youtube">YouTube</option>
-                        <option value="discord">Discord</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="ad-reach">Reach (People)</label>
-                    <input type="number" id="ad-reach" min="20" value="50">
-                </div>
-                
-                <div class="form-group">
-                    <label for="ad-description">Description</label>
-                    <textarea id="ad-description" placeholder="Describe your advertisement"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="ad-image">Upload Image (Optional)</label>
-                    <input type="file" id="ad-image">
-                </div>
-                
-                <div class="form-group">
-                    <label>Estimated Cost: <span id="cost-estimate">$4.60</span> in BNB</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline close-modal">Cancel</button>
-                <button class="btn btn-primary" id="pay-ad-btn">Pay & Publish</button>
-            </div>
+        <!-- Floating Action Buttons -->
+        <div class="floating-buttons">
+            <button class="floating-btn" id="mining-btn" title="Token Mining">
+                <i class="fas fa-digging"></i>
+            </button>
+            <button class="floating-btn" id="game-btn" title="Earn Games">
+                <i class="fas fa-gamepad"></i>
+            </button>
         </div>
-    </div>
-    
-    <!-- Add Funds Modal -->
-    <div class="modal" id="add-funds-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Add Funds to Wallet</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="fund-amount">Amount (BNB)</label>
-                    <input type="number" id="fund-amount" min="0.01" step="0.01" value="0.05">
-                </div>
-                
-                <div class="form-group">
-                    <label>Registration Fee: $2.00 in BNB</label>
-                </div>
-                
-                <div class="form-group">
-                    <button class="btn btn-secondary" id="connect-wallet-btn">
-                        <i class="fas fa-wallet"></i> Connect Wallet
-                    </button>
-                    <p id="wallet-status">No wallet connected</p>
-                </div>
-                
-                <div class="form-group">
-                    <label>Total to Pay: <span id="total-pay">0.05</span> BNB</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline close-modal">Cancel</button>
-                <button class="btn btn-primary" id="confirm-payment-btn" disabled>Confirm Payment</button>
-            </div>
+        
+        <!-- Footer Navigation -->
+        <div class="footer-nav">
+            <button class="nav-btn active" data-view="home-view">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-btn" data-view="earn-view">
+                <i class="fas fa-coins"></i>
+                <span>Earn</span>
+            </button>
+            <button class="nav-btn" data-view="market-view">
+                <i class="fas fa-store"></i>
+                <span>Market</span>
+            </button>
+            <button class="nav-btn" data-view="support-view">
+                <i class="fas fa-headset"></i>
+                <span>Support</span>
+            </button>
         </div>
+        
+        <!-- Modals (same as before) -->
     </div>
-    
+
     <script>
-        // Initialize Appwrite
-        const appwrite = new Appwrite();
-        appwrite
-            .setEndpoint('https://cloud.appwrite.io/v1')
-            .setProject('supremeamer-platform');
-        
-        // DOM Elements
-        const views = document.querySelectorAll('.view');
-        const navButtons = document.querySelectorAll('.nav-btn');
-        const modals = document.querySelectorAll('.modal');
-        const closeModalButtons = document.querySelectorAll('.close-modal');
-        
-        // Wallet state
-        let walletConnected = false;
-        let walletAddress = '';
-        
-        // View Navigation
-        navButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const targetView = button.getAttribute('data-view');
-                
-                // Update active nav button
-                navButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                // Show target view
-                views.forEach(view => {
-                    view.classList.remove('active');
-                    if (view.id === targetView) {
-                        view.classList.add('active');
-                    }
+        // Auth System
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const formId = tab.getAttribute('data-form');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show target form
+                    forms.forEach(form => {
+                        form.classList.remove('active');
+                        if (form.id === formId) {
+                            form.classList.add('active');
+                        }
+                    });
                 });
             });
-        });
-        
-        // Modal Handling
-        document.getElementById('upload-ad-btn').addEventListener('click', () => {
-            document.getElementById('upload-ad-modal').classList.add('active');
-        });
-        
-        document.getElementById('add-funds-btn').addEventListener('click', () => {
-            document.getElementById('add-funds-modal').classList.add('active');
-        });
-        
-        closeModalButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                modals.forEach(modal => modal.classList.remove('active'));
+            
+            // Switch between login/register
+            document.getElementById('show-register').addEventListener('click', (e) => {
+                e.preventDefault();
+                tabs[1].click();
             });
-        });
-        
-        // Close modal when clicking outside
-        modals.forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('active');
-                }
+            
+            document.getElementById('show-login').addEventListener('click', (e) => {
+                e.preventDefault();
+                tabs[0].click();
             });
-        });
-        
-        // Ad Cost Calculation
-        const adReachInput = document.getElementById('ad-reach');
-        const adCategorySelect = document.getElementById('ad-category');
-        const costEstimate = document.getElementById('cost-estimate');
-        
-        function calculateAdCost() {
-            const reach = parseInt(adReachInput.value) || 50;
-            const category = adCategorySelect.value;
             
-            // Price per reach based on category
-            const pricePerReach = (category === 'crypto' || category === 'referral') ? 0.1 : 0.092;
-            const minReach = (category === 'crypto' || category === 'referral') ? 20 : 50;
+            // Form submission
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                loginUser();
+            });
             
-            // Ensure reach meets minimum
-            const actualReach = Math.max(reach, minReach);
-            adReachInput.value = actualReach;
+            document.getElementById('register-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                registerUser();
+            });
             
-            // Calculate cost
-            const cost = actualReach * pricePerReach;
-            costEstimate.textContent = '$' + cost.toFixed(2);
-        }
-        
-        adReachInput.addEventListener('input', calculateAdCost);
-        adCategorySelect.addEventListener('change', calculateAdCost);
-        
-        // Initialize ad cost calculation
-        calculateAdCost();
-        
-        // Connect Wallet Functionality
-        document.getElementById('connect-wallet-btn').addEventListener('click', async () => {
-            try {
-                // Check if MetaMask is installed
-                if (typeof window.ethereum === 'undefined') {
-                    alert('Please install MetaMask or a compatible wallet extension.');
+            // Login function
+            function loginUser() {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                // Simple validation
+                if (!email || !password) {
+                    alert('Please fill in all fields');
                     return;
                 }
                 
-                // Request account access
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                walletAddress = accounts[0];
-                walletConnected = true;
+                // Simulate login success
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
                 
-                // Update UI
-                document.getElementById('wallet-status').textContent = `Connected: ${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}`;
-                document.getElementById('wallet-status').style.color = 'var(--success)';
-                document.getElementById('confirm-payment-btn').disabled = false;
+                // Set user data
+                localStorage.setItem('user', JSON.stringify({
+                    name: 'John Doe',
+                    email: email,
+                    tokenBalance: 24500,
+                    bnbBalance: 0.25
+                }));
                 
-                // Get BNB balance
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const balance = await provider.getBalance(walletAddress);
-                const balanceInBNB = ethers.utils.formatEther(balance);
+                // Load app data
+                loadAppData();
+            }
+            
+            // Register function
+            function registerUser() {
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                const confirm = document.getElementById('register-confirm').value;
                 
-                // Update balance display
-                document.querySelector('.bnb-balance').textContent = `BNB: ${parseFloat(balanceInBNB).toFixed(4)}`;
-            } catch (error) {
-                console.error('Wallet connection error:', error);
-                document.getElementById('wallet-status').textContent = 'Connection failed';
-                document.getElementById('wallet-status').style.color = 'var(--danger)';
+                // Validation
+                if (!name || !email || !password || !confirm) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                
+                if (password !== confirm) {
+                    alert('Passwords do not match');
+                    return;
+                }
+                
+                // Simulate registration and payment
+                alert('Registration successful! Please pay the $2 registration fee to continue.');
+                
+                // After payment, login the user
+                document.getElementById('login-email').value = email;
+                document.getElementById('login-password').value = password;
+                loginUser();
             }
         });
         
-        // Copy Referral Link
-        document.getElementById('copy-link-btn').addEventListener('click', () => {
-            const referralLink = document.getElementById('referral-link');
-            referralLink.select();
-            document.execCommand('copy');
+        // Main App Functionality
+        function loadAppData() {
+            // Load user data
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                document.getElementById('sat-balance').textContent = user.tokenBalance.toLocaleString();
+                document.getElementById('token-balance').textContent = user.tokenBalance.toLocaleString();
+                document.getElementById('bnb-balance').textContent = user.bnbBalance.toFixed(2);
+                
+                // Set user avatar initial
+                document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
+            }
             
-            // Show copied feedback
-            const originalText = document.getElementById('copy-link-btn').textContent;
-            document.getElementById('copy-link-btn').textContent = 'Copied!';
+            // Load sample data
+            loadSampleData();
             
-            setTimeout(() => {
-                document.getElementById('copy-link-btn').textContent = originalText;
-            }, 2000);
-        });
-        
-        // Fund amount calculation
-        const fundAmountInput = document.getElementById('fund-amount');
-        const totalPay = document.getElementById('total-pay');
-        
-        fundAmountInput.addEventListener('input', () => {
-            const amount = parseFloat(fundAmountInput.value) || 0;
-            const registrationFee = 2; // $2 registration fee
-            const bnbPrice = 300; // Assuming 1 BNB = $300 for demo
+            // Initialize charts
+            initCharts();
             
-            // Calculate total BNB needed
-            const totalBNB = amount + (registrationFee / bnbPrice);
-            totalPay.textContent = totalBNB.toFixed(4);
-        });
+            // Set up event listeners
+            setupEventListeners();
+        }
         
-        // Initialize fund amount
-        fundAmountInput.dispatchEvent(new Event('input'));
+        function setupEventListeners() {
+            // View navigation
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const views = document.querySelectorAll('.view');
+            
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetView = button.getAttribute('data-view');
+                    
+                    // Update active nav button
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Show target view
+                    views.forEach(view => {
+                        view.classList.remove('active');
+                        if (view.id === targetView) {
+                            view.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Floating buttons
+            document.getElementById('mining-btn').addEventListener('click', () => {
+                // Switch to mining view
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.nav-btn[data-view="home-view"]').classList.add('active');
+                views.forEach(view => view.classList.remove('active'));
+                document.getElementById('mining-view').classList.add('active');
+            });
+            
+            document.getElementById('game-btn').addEventListener('click', () => {
+                // Switch to game view
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.nav-btn[data-view="home-view"]').classList.add('active');
+                views.forEach(view => view.classList.remove('active'));
+                document.getElementById('game-view').classList.add('active');
+            });
+            
+            // User dropdown
+            document.getElementById('user-avatar').addEventListener('click', function() {
+                document.getElementById('user-dropdown').classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.wallet-info')) {
+                    document.getElementById('user-dropdown').classList.remove('active');
+                }
+            });
+            
+            // Logout
+            document.getElementById('logout-item').addEventListener('click', function() {
+                localStorage.removeItem('user');
+                document.getElementById('main-app').style.display = 'none';
+                document.getElementById('auth-section').style.display = 'flex';
+            });
+            
+            // Mining functionality
+            document.getElementById('start-mining-btn').addEventListener('click', startMining);
+            
+            // Game functionality
+            document.getElementById('start-game-btn').addEventListener('click', startTokenGame);
+        }
         
-        // Sample data for UI demonstration
         function loadSampleData() {
             // Load ads
-            const adsGrid = document.querySelector('#home-view .ads-grid');
+            const recentAdsGrid = document.querySelector('#recent-ads');
+            const marketplaceAdsGrid = document.querySelector('#marketplace-ads');
             const categories = ['crypto', 'facebook', 'instagram', 'twitter', 'referral', 'telegram', 'youtube', 'discord'];
             const adTitles = [
                 'Join our Crypto Community', 
@@ -965,9 +1385,10 @@
                 'Join Discord Community'
             ];
             
-            adsGrid.innerHTML = '';
+            recentAdsGrid.innerHTML = '';
+            marketplaceAdsGrid.innerHTML = '';
             
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 8; i++) {
                 const category = categories[i];
                 const adCard = document.createElement('div');
                 adCard.className = 'ad-card';
@@ -985,11 +1406,15 @@
                         </div>
                     </div>
                 `;
-                adsGrid.appendChild(adCard);
+                
+                if (i < 4) {
+                    recentAdsGrid.appendChild(adCard.cloneNode(true));
+                }
+                marketplaceAdsGrid.appendChild(adCard);
             }
             
             // Load history
-            const historyList = document.querySelector('#home-view .history-list');
+            const historyList = document.querySelector('#history-list');
             const historyItems = [
                 { type: 'Referral', amount: 1000, date: 'Today', positive: true },
                 { type: 'Ad Completion', amount: 350, date: 'Yesterday', positive: true },
@@ -1014,10 +1439,277 @@
                 `;
                 historyList.appendChild(historyItem);
             });
+            
+            // Load referral activity
+            const referralActivity = document.querySelector('#referral-activity');
+            const referralItems = [
+                { name: 'Jane Smith', date: 'Today', amount: 1000 },
+                { name: 'Robert Johnson', date: 'Yesterday', amount: 1000 },
+                { name: 'Emily Davis', date: '3 days ago', amount: 1000 },
+                { name: 'Michael Wilson', date: '1 week ago', amount: 1000 }
+            ];
+            
+            referralActivity.innerHTML = '';
+            
+            referralItems.forEach(item => {
+                const activityItem = document.createElement('div');
+                activityItem.className = 'history-item';
+                activityItem.innerHTML = `
+                    <div class="history-details">
+                        <div class="history-type">${item.name}</div>
+                        <div class="history-date">${item.date}</div>
+                    </div>
+                    <div class="history-amount history-positive">
+                        +${item.amount} SAT
+                    </div>
+                `;
+                referralActivity.appendChild(activityItem);
+            });
         }
         
-        // Initialize sample data
-        loadSampleData();
+        function initCharts() {
+            // Earnings chart
+            const earningsCtx = document.getElementById('earnings-chart').getContext('2d');
+            new Chart(earningsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'SAT Earned',
+                        data: [1200, 1900, 1500, 2400, 1800, 2100, 2600],
+                        borderColor: '#4e54c8',
+                        backgroundColor: 'rgba(78, 84, 200, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Mining chart
+            const miningCtx = document.getElementById('mining-chart').getContext('2d');
+            new Chart(miningCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'SAT Mined',
+                        data: [1200, 1500, 1800, 2100, 2400, 2800],
+                        backgroundColor: '#2ecc71',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function startMining() {
+            const button = document.getElementById('start-mining-btn');
+            const progressBar = document.getElementById('mining-progress');
+            
+            if (button.innerHTML.includes('Start')) {
+                // Start mining
+                button.innerHTML = '<i class="fas fa-stop"></i> Stop Mining';
+                
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 2;
+                    progressBar.style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        progressBar.style.width = '0%';
+                        
+                        // Update earnings
+                        const earned = Math.floor(Math.random() * 50) + 20;
+                        const user = JSON.parse(localStorage.getItem('user'));
+                        user.tokenBalance += earned;
+                        localStorage.setItem('user', JSON.stringify(user));
+                        
+                        document.getElementById('token-balance').textContent = user.tokenBalance.toLocaleString();
+                        document.getElementById('sat-balance').textContent = user.tokenBalance.toLocaleString();
+                        
+                        // Update mining stats
+                        const miningEarned = parseInt(document.getElementById('mining-earned').textContent.replace(/,/g, '')) + earned;
+                        document.getElementById('mining-earned').textContent = miningEarned.toLocaleString();
+                        
+                        alert(`Mining complete! You earned ${earned} SAT tokens.`);
+                        button.innerHTML = '<i class="fas fa-play"></i> Start Mining';
+                    }
+                }, 100);
+                
+                // Store interval to stop later
+                button.dataset.interval = interval;
+            } else {
+                // Stop mining
+                clearInterval(parseInt(button.dataset.interval));
+                progressBar.style.width = '0%';
+                button.innerHTML = '<i class="fas fa-play"></i> Start Mining';
+            }
+        }
+        
+        function startTokenGame() {
+            const gameDisplay = document.getElementById('game-display');
+            const gameInstruction = document.getElementById('game-instruction');
+            const button = document.getElementById('start-game-btn');
+            
+            if (button.innerHTML.includes('Start')) {
+                // Start game
+                button.innerHTML = '<i class="fas fa-stop"></i> Stop Game';
+                gameInstruction.textContent = 'Get ready... tokens will appear soon!';
+                gameDisplay.textContent = '⏱️';
+                
+                let score = 0;
+                let timeLeft = 30;
+                let gameActive = true;
+                
+                // Countdown timer
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    gameInstruction.textContent = `Time left: ${timeLeft}s | Score: ${score} SAT`;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        gameActive = false;
+                        endGame(score);
+                    }
+                }, 1000);
+                
+                // Token appearance
+                const tokenInterval = setInterval(() => {
+                    if (!gameActive) {
+                        clearInterval(tokenInterval);
+                        return;
+                    }
+                    
+                    gameDisplay.textContent = '🪙';
+                    
+                    // Set timeout to hide token
+                    setTimeout(() => {
+                        if (gameActive) gameDisplay.textContent = '';
+                    }, 1000);
+                }, 1500);
+                
+                // Click to collect token
+                gameDisplay.addEventListener('click', function collectToken() {
+                    if (gameDisplay.textContent === '🪙') {
+                        score += 10;
+                        gameInstruction.textContent = `Time left: ${timeLeft}s | Score: ${score} SAT`;
+                        gameDisplay.textContent = '✅';
+                        
+                        // Remove listener after click to prevent multiple clicks
+                        gameDisplay.removeEventListener('click', collectToken);
+                        
+                        // Re-add listener after a delay
+                        setTimeout(() => {
+                            if (gameActive) gameDisplay.addEventListener('click', collectToken);
+                        }, 500);
+                    }
+                });
+                
+                // Store intervals
+                button.dataset.timer = timer;
+                button.dataset.tokenInterval = tokenInterval;
+            } else {
+                // Stop game
+                clearInterval(parseInt(button.dataset.timer));
+                clearInterval(parseInt(button.dataset.tokenInterval));
+                endGame(0);
+            }
+        }
+        
+        function endGame(score) {
+            const gameDisplay = document.getElementById('game-display');
+            const gameInstruction = document.getElementById('game-instruction');
+            const button = document.getElementById('start-game-btn');
+            
+            // Update game stats
+            if (score > 0) {
+                const user = JSON.parse(localStorage.getItem('user'));
+                user.tokenBalance += score;
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                document.getElementById('token-balance').textContent = user.tokenBalance.toLocaleString();
+                document.getElementById('sat-balance').textContent = user.tokenBalance.toLocaleString();
+                
+                const gameEarnings = parseInt(document.getElementById('game-earnings').textContent.replace(/,/g, '')) + score;
+                document.getElementById('game-earnings').textContent = gameEarnings.toLocaleString();
+                
+                const highScore = parseInt(document.getElementById('high-score').textContent.replace(/,/g, ''));
+                if (score > highScore) {
+                    document.getElementById('high-score').textContent = score.toLocaleString();
+                }
+                
+                const gamesPlayed = parseInt(document.getElementById('games-played').textContent) + 1;
+                document.getElementById('games-played').textContent = gamesPlayed;
+                
+                gameDisplay.textContent = '🎉';
+                gameInstruction.textContent = `Game over! You earned ${score} SAT tokens.`;
+            } else {
+                gameDisplay.textContent = '🛑';
+                gameInstruction.textContent = 'Game stopped. No tokens earned.';
+            }
+            
+            button.innerHTML = '<i class="fas fa-play"></i> Start Game';
+        }
+        
+        // Copy referral link
+        document.getElementById('copy-link-btn').addEventListener('click', () => {
+            const referralLink = document.getElementById('referral-link');
+            referralLink.select();
+            document.execCommand('copy');
+            
+            // Show copied feedback
+            const originalText = document.getElementById('copy-link-btn').textContent;
+            document.getElementById('copy-link-btn').textContent = 'Copied!';
+            
+            setTimeout(() => {
+                document.getElementById('copy-link-btn').textContent = originalText;
+            }, 2000);
+        });
     </script>
 </body>
 </html>
