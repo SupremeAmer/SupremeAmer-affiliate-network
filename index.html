@@ -6,8 +6,6 @@
     <title>SupremeAmer Token Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@10.1.0"></script>
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
     <style>
         :root {
@@ -36,6 +34,7 @@
             color: var(--dark);
             min-height: 100vh;
             padding-bottom: 80px;
+            position: relative;
         }
         
         .container {
@@ -548,66 +547,6 @@
             transform: translateY(-5px) scale(1.1);
         }
         
-        .auth-container {
-            display: flex;
-            min-height: 100vh;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .auth-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 450px;
-            overflow: hidden;
-        }
-        
-        .auth-header {
-            background: var(--gradient);
-            padding: 30px 20px;
-            text-align: center;
-            color: white;
-        }
-        
-        .auth-header h2 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-        }
-        
-        .auth-tabs {
-            display: flex;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .auth-tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .auth-tab.active {
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-        }
-        
-        .auth-body {
-            padding: 30px;
-        }
-        
-        .auth-form {
-            display: none;
-        }
-        
-        .auth-form.active {
-            display: block;
-        }
-        
         .user-dropdown {
             position: absolute;
             top: 60px;
@@ -641,11 +580,6 @@
         .dropdown-item i {
             width: 20px;
             text-align: center;
-        }
-        
-        .chart-container {
-            height: 250px;
-            margin-top: 20px;
         }
         
         .mining-container {
@@ -756,6 +690,111 @@
             color: var(--warning);
         }
         
+        .mining-tier {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .tier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .tier-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .tier-price {
+            background: var(--warning);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .tier-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tier-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .tier-stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .tier-stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .sound-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .sound-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+        
+        .documentation-links {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 99;
+        }
+        
+        .doc-btn {
+            padding: 10px 15px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            color: var(--dark);
+            text-decoration: none;
+        }
+        
+        .token-display {
+            position: absolute;
+            font-size: 3rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
         @media (max-width: 768px) {
             .logo h1 {
                 font-size: 1.4rem;
@@ -784,547 +823,614 @@
                 height: 50px;
                 font-size: 1.3rem;
             }
+            
+            .documentation-links {
+                bottom: 80px;
+                left: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Auth Section -->
-    <section id="auth-section" class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <div class="logo">
-                    <div class="logo-icon">S</div>
-                    <h1>SupremeAmer Token</h1>
-                </div>
-                <p>Earn tokens by participating in our ecosystem</p>
-            </div>
-            
-            <div class="auth-tabs">
-                <div class="auth-tab active" data-form="login-form">Login</div>
-                <div class="auth-tab" data-form="register-form">Register</div>
-            </div>
-            
-            <div class="auth-body">
-                <div id="auth-message"></div>
-                
-                <form id="login-form" class="auth-form active">
-                    <div class="form-group">
-                        <label for="login-email">Email</label>
-                        <input type="email" id="login-email" placeholder="Enter your email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="login-password">Password</label>
-                        <input type="password" id="login-password" placeholder="Enter your password" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 15px;">
-                        <p>Don't have an account? <a href="#" id="show-register">Register</a></p>
-                    </div>
-                </form>
-                
-                <form id="register-form" class="auth-form">
-                    <div class="form-group">
-                        <label for="register-name">Full Name</label>
-                        <input type="text" id="register-name" placeholder="Enter your full name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="register-email">Email</label>
-                        <input type="email" id="register-email" placeholder="Enter your email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="register-password">Password</label>
-                        <input type="password" id="register-password" placeholder="Create a password" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="register-confirm">Confirm Password</label>
-                        <input type="password" id="register-confirm" placeholder="Confirm your password" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="fee-agreement" required> I agree to pay the $2 registration fee in BNB
-                        </label>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">Register & Pay Fee</button>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 15px;">
-                        <p>Already have an account? <a href="#" id="show-login">Login</a></p>
-                    </div>
-                </form>
-            </div>
+    <!-- Sound Controls -->
+    <div class="sound-controls">
+        <div class="sound-btn" id="music-toggle">
+            <i class="fas fa-music"></i>
         </div>
-    </section>
+        <div class="sound-btn" id="sfx-toggle">
+            <i class="fas fa-volume-up"></i>
+        </div>
+    </div>
     
-    <!-- Main App -->
-    <div id="main-app" style="display: none;">
-        <div class="container">
-            <header>
-                <div class="logo">
-                    <div class="logo-icon">S</div>
-                    <h1>SupremeAmer Token</h1>
+    <!-- Documentation Links -->
+    <div class="documentation-links">
+        <a href="#" class="doc-btn" id="terms-link">
+            <i class="fas fa-file-contract"></i> Terms
+        </a>
+        <a href="#" class="doc-btn" id="privacy-link">
+            <i class="fas fa-user-shield"></i> Privacy
+        </a>
+    </div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">S</div>
+                <h1>SupremeAmer Token</h1>
+            </div>
+            <div class="wallet-info">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="balance">
+                    <div class="bnb-balance">BNB: <span id="bnb-balance">0.00</span></div>
+                    <div class="token-balance">SAT: <span id="token-balance">0</span></div>
                 </div>
-                <div class="wallet-info">
-                    <div class="user-avatar" id="user-avatar">👤</div>
-                    <div class="balance">
-                        <div class="bnb-balance">BNB: <span id="bnb-balance">0.00</span></div>
-                        <div class="token-balance">SAT: <span id="token-balance">0</span></div>
+                <div class="user-dropdown" id="user-dropdown">
+                    <div class="dropdown-item" id="profile-item">
+                        <i class="fas fa-user"></i>
+                        <span>My Profile</span>
                     </div>
-                    <div class="user-dropdown" id="user-dropdown">
-                        <div class="dropdown-item" id="profile-item">
-                            <i class="fas fa-user"></i>
-                            <span>My Profile</span>
-                        </div>
-                        <div class="dropdown-item" id="settings-item">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </div>
-                        <div class="dropdown-item" id="logout-item">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </div>
+                    <div class="dropdown-item" id="settings-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                    <div class="dropdown-item" id="logout-item">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
                     </div>
                 </div>
-            </header>
+            </div>
+        </header>
+        
+        <!-- Status Messages -->
+        <div id="app-message"></div>
+        
+        <main>
+            <!-- Home/Dashboard View -->
+            <section id="home-view" class="view active">
+                <div class="section-title">
+                    <h2>Dashboard</h2>
+                </div>
+                
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-coins"></i>
+                        <h3 id="sat-balance">0</h3>
+                        <p>SupremeAmer Tokens</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3 id="referral-count">0</h3>
+                        <p>Active Referrals</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-ad"></i>
+                        <h3 id="active-ads">0</h3>
+                        <p>Active Ads</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3 id="earnings-today">$0.00</h3>
+                        <p>Earnings Today</p>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="add-funds-btn">
+                        <i class="fas fa-wallet"></i> Add Funds
+                    </button>
+                    <button class="btn btn-success" id="cash-out-btn">
+                        <i class="fas fa-money-bill-wave"></i> Cash Out
+                    </button>
+                    <button class="btn btn-secondary" id="invite-btn">
+                        <i class="fas fa-user-plus"></i> Invite Friends
+                    </button>
+                    <button class="btn btn-warning" id="boost-btn">
+                        <i class="fas fa-bolt"></i> Boost Earnings
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3>Recent Ads</h3>
+                    <div class="ads-grid" id="recent-ads">
+                        <!-- Ads will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Transaction History</h3>
+                    <div class="history-list" id="history-list">
+                        <!-- History will be loaded here -->
+                    </div>
+                </div>
+            </section>
             
-            <!-- Status Messages -->
-            <div id="app-message"></div>
-            
-            <main>
-                <!-- Home/Dashboard View -->
-                <section id="home-view" class="view active">
-                    <div class="section-title">
-                        <h2>Dashboard</h2>
+            <!-- Earn View -->
+            <section id="earn-view" class="view">
+                <div class="section-title">
+                    <h2>Earn Tokens</h2>
+                </div>
+                
+                <div class="referral-container">
+                    <h3>Refer Friends & Earn Tokens</h3>
+                    <p>Share your referral link and earn 1000 SAT for each friend who signs up</p>
+                    
+                    <div class="referral-input">
+                        <input type="text" id="referral-link" value="" readonly>
+                        <button id="copy-link-btn">Copy</button>
                     </div>
                     
+                    <div class="referral-stats">
+                        <div class="referral-stat">
+                            <h3 id="total-referrals">0</h3>
+                            <p>Total Referrals</p>
+                        </div>
+                        <div class="referral-stat">
+                            <h3 id="tokens-earned">0</h3>
+                            <p>Tokens Earned</p>
+                        </div>
+                        <div class="referral-stat">
+                            <h3 id="indirect-earnings">0</h3>
+                            <p>Indirect Earnings</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Your Referral Activity</h3>
+                    <div class="history-list" id="referral-activity">
+                        <!-- Referral activity will be loaded here -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Market View -->
+            <section id="market-view" class="view">
+                <div class="section-title">
+                    <h2>Ad Marketplace</h2>
+                    <button class="btn btn-primary" id="upload-ad-btn">
+                        <i class="fas fa-plus"></i> Upload Ad
+                    </button>
+                </div>
+                
+                <div class="market-filters">
+                    <button class="filter-btn active">All</button>
+                    <button class="filter-btn">Crypto</button>
+                    <button class="filter-btn">Facebook</button>
+                    <button class="filter-btn">Instagram</button>
+                    <button class="filter-btn">Twitter</button>
+                    <button class="filter-btn">Referral</button>
+                    <button class="filter-btn">Telegram</button>
+                    <button class="filter-btn">YouTube</button>
+                    <button class="filter-btn">Discord</button>
+                </div>
+                
+                <div class="ads-grid" id="marketplace-ads">
+                    <!-- Marketplace ads will be loaded here -->
+                </div>
+            </section>
+            
+            <!-- Support View -->
+            <section id="support-view" class="view">
+                <div class="section-title">
+                    <h2>Support Center</h2>
+                </div>
+                
+                <div class="card">
+                    <h3>Frequently Asked Questions</h3>
+                    <div class="faq-list">
+                        <div class="faq-item" style="margin-bottom: 20px;">
+                            <h4>How do I earn SupremeAmer tokens?</h4>
+                            <p>You can earn tokens by referring friends, completing advertisement tasks, mining, and playing games.</p>
+                        </div>
+                        <div class="faq-item" style="margin-bottom: 20px;">
+                            <h4>What is the minimum withdrawal amount?</h4>
+                            <p>The minimum withdrawal amount is 30,000 SupremeAmer tokens.</p>
+                        </div>
+                        <div class="faq-item" style="margin-bottom: 20px;">
+                            <h4>How long does ad validation take?</h4>
+                            <p>Ad validation typically takes 10-15 minutes after you submit your proof of completion.</p>
+                        </div>
+                        <div class="faq-item" style="margin-bottom: 20px;">
+                            <h4>How are referral rewards calculated?</h4>
+                            <p>You earn 1000 SAT for each direct referral. For each referral made by someone you referred, you earn 1% of their reward (10 SAT).</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Contact Support</h3>
+                    <p><i class="fas fa-envelope"></i> Email: support@supremeamer.com</p>
+                    <p><i class="fab fa-telegram"></i> Telegram: @SupremeAmerSupport</p>
+                    <p><i class="fas fa-clock"></i> Response time: 24-48 hours</p>
+                </div>
+            </section>
+            
+            <!-- Mining View -->
+            <section id="mining-view" class="view">
+                <div class="mining-container">
+                    <div class="mining-header">
+                        <h2><i class="fas fa-digging"></i> Token Mining</h2>
+                        <p>Mine SupremeAmer tokens using your device's resources</p>
+                    </div>
+                    
+                    <div class="mining-stats">
+                        <div class="mining-stat">
+                            <h3 id="mining-rate">0 SAT/h</h3>
+                            <p>Mining Rate</p>
+                        </div>
+                        <div class="mining-stat">
+                            <h3 id="mining-earned">0 SAT</h3>
+                            <p>Total Earned</p>
+                        </div>
+                        <div class="mining-stat">
+                            <h3 id="mining-time">0h 0m</h3>
+                            <p>Active Today</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mining-progress">
+                        <div class="progress-bar" id="mining-progress"></div>
+                    </div>
+                    
+                    <button class="game-button" id="start-mining-btn">
+                        <i class="fas fa-play"></i> Start Mining
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3>Mining Tiers</h3>
+                    
+                    <div class="mining-tier">
+                        <div class="tier-header">
+                            <div class="tier-name">Basic Miner</div>
+                            <div class="tier-price">$5</div>
+                        </div>
+                        <div class="tier-stats">
+                            <div class="tier-stat">
+                                <div class="tier-stat-value">30 SAT/h</div>
+                                <div class="tier-stat-label">Mining Rate</div>
+                            </div>
+                            <div class="tier-stat">
+                                <div class="tier-stat-value">45 days</div>
+                                <div class="tier-stat-label">Duration</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" data-tier="basic">Upgrade Now</button>
+                    </div>
+                    
+                    <div class="mining-tier">
+                        <div class="tier-header">
+                            <div class="tier-name">Advanced Miner</div>
+                            <div class="tier-price">$10</div>
+                        </div>
+                        <div class="tier-stats">
+                            <div class="tier-stat">
+                                <div class="tier-stat-value">100 SAT/h</div>
+                                <div class="tier-stat-label">Mining Rate</div>
+                            </div>
+                            <div class="tier-stat">
+                                <div class="tier-stat-value">72 days</div>
+                                <div class="tier-stat-label">Duration</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" data-tier="advanced">Upgrade Now</button>
+                    </div>
+                    
+                    <div class="mining-tier">
+                        <div class="tier-header">
+                            <div class="tier-name">Pro Miner</div>
+                            <div class="tier-price">$20</div>
+                        </div>
+                        <div class="tier-stats">
+                            <div class="tier-stat">
+                                <div class="tier-stat-value">200.5 SAT/h</div>
+                                <div class="tier-stat-label">Mining Rate</div>
+                            </div>
+                            <div class="tier-stat">
+                                <div class="tier-stat-value">145 days</div>
+                                <div class="tier-stat-label">Duration</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" data-tier="pro">Upgrade Now</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Game View -->
+            <section id="game-view" class="view">
+                <div class="game-container">
+                    <div class="game-header">
+                        <h2><i class="fas fa-gamepad"></i> Token Collector</h2>
+                        <p>Collect tokens to earn SAT rewards</p>
+                    </div>
+                    
+                    <div class="game-area" id="game-display-area">
+                        <h3 id="game-title">Token Collector</h3>
+                        <div style="position: relative; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 20px 0;">
+                            <div id="token-display" class="token-display" style="display: none;">🪙</div>
+                        </div>
+                        <p id="game-instruction">Click when the token appears to earn SAT!</p>
+                        <div id="game-stats">
+                            <div>Time: <span id="game-time">00:00</span></div>
+                            <div>Tokens Collected: <span id="tokens-collected">0</span></div>
+                            <div>SAT Earned: <span id="sat-earned">0.00</span></div>
+                        </div>
+                    </div>
+                    
+                    <button class="game-button" id="start-game-btn">
+                        <i class="fas fa-play"></i> Start Game
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3>Game Statistics</h3>
                     <div class="dashboard-stats">
                         <div class="stat-card">
                             <i class="fas fa-coins"></i>
-                            <h3 id="sat-balance">0</h3>
-                            <p>SupremeAmer Tokens</p>
+                            <h3 id="game-earnings">0 SAT</h3>
+                            <p>Total Game Earnings</p>
                         </div>
                         <div class="stat-card">
-                            <i class="fas fa-users"></i>
-                            <h3 id="referral-count">0</h3>
-                            <p>Active Referrals</p>
+                            <i class="fas fa-trophy"></i>
+                            <h3 id="high-score">0 SAT</h3>
+                            <p>Highest Score</p>
                         </div>
                         <div class="stat-card">
-                            <i class="fas fa-ad"></i>
-                            <h3 id="active-ads">0</h3>
-                            <p>Active Ads</p>
+                            <i class="fas fa-gamepad"></i>
+                            <h3 id="games-played">0</h3>
+                            <p>Games Played</p>
                         </div>
-                        <div class="stat-card">
-                            <i class="fas fa-chart-line"></i>
-                            <h3 id="earnings-today">$0.00</h3>
-                            <p>Earnings Today</p>
-                        </div>
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" id="add-funds-btn">
-                            <i class="fas fa-wallet"></i> Add Funds
-                        </button>
-                        <button class="btn btn-success" id="cash-out-btn">
-                            <i class="fas fa-money-bill-wave"></i> Cash Out
-                        </button>
-                        <button class="btn btn-secondary" id="invite-btn">
-                            <i class="fas fa-user-plus"></i> Invite Friends
-                        </button>
-                        <button class="btn btn-warning" id="boost-btn">
-                            <i class="fas fa-bolt"></i> Boost Earnings
-                        </button>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Recent Ads</h3>
-                        <div class="ads-grid" id="recent-ads">
-                            <!-- Ads will be loaded here -->
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Transaction History</h3>
-                        <div class="history-list" id="history-list">
-                            <!-- History will be loaded here -->
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Earn View -->
-                <section id="earn-view" class="view">
-                    <div class="section-title">
-                        <h2>Earn Tokens</h2>
-                    </div>
-                    
-                    <div class="referral-container">
-                        <h3>Refer Friends & Earn Tokens</h3>
-                        <p>Share your referral link and earn 1000 SAT for each friend who signs up</p>
-                        
-                        <div class="referral-input">
-                            <input type="text" id="referral-link" value="" readonly>
-                            <button id="copy-link-btn">Copy</button>
-                        </div>
-                        
-                        <div class="referral-stats">
-                            <div class="referral-stat">
-                                <h3 id="total-referrals">0</h3>
-                                <p>Total Referrals</p>
-                            </div>
-                            <div class="referral-stat">
-                                <h3 id="tokens-earned">0</h3>
-                                <p>Tokens Earned</p>
-                            </div>
-                            <div class="referral-stat">
-                                <h3 id="indirect-earnings">0</h3>
-                                <p>Indirect Earnings</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Your Referral Activity</h3>
-                        <div class="history-list" id="referral-activity">
-                            <!-- Referral activity will be loaded here -->
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Market View -->
-                <section id="market-view" class="view">
-                    <div class="section-title">
-                        <h2>Ad Marketplace</h2>
-                        <button class="btn btn-primary" id="upload-ad-btn">
-                            <i class="fas fa-plus"></i> Upload Ad
-                        </button>
-                    </div>
-                    
-                    <div class="market-filters">
-                        <button class="filter-btn active">All</button>
-                        <button class="filter-btn">Crypto</button>
-                        <button class="filter-btn">Facebook</button>
-                        <button class="filter-btn">Instagram</button>
-                        <button class="filter-btn">Twitter</button>
-                        <button class="filter-btn">Referral</button>
-                        <button class="filter-btn">Telegram</button>
-                        <button class="filter-btn">YouTube</button>
-                        <button class="filter-btn">Discord</button>
-                    </div>
-                    
-                    <div class="ads-grid" id="marketplace-ads">
-                        <!-- Marketplace ads will be loaded here -->
-                    </div>
-                </section>
-                
-                <!-- Support View -->
-                <section id="support-view" class="view">
-                    <div class="section-title">
-                        <h2>Support Center</h2>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Frequently Asked Questions</h3>
-                        <div class="faq-list">
-                            <div class="faq-item" style="margin-bottom: 20px;">
-                                <h4>How do I earn SupremeAmer tokens?</h4>
-                                <p>You can earn tokens by referring friends, completing advertisement tasks, and participating in community activities.</p>
-                            </div>
-                            <div class="faq-item" style="margin-bottom: 20px;">
-                                <h4>What is the minimum withdrawal amount?</h4>
-                                <p>The minimum withdrawal amount is 30,000 SupremeAmer tokens.</p>
-                            </div>
-                            <div class="faq-item" style="margin-bottom: 20px;">
-                                <h4>How long does ad validation take?</h4>
-                                <p>Ad validation typically takes 10-15 minutes after you submit your proof of completion.</p>
-                            </div>
-                            <div class="faq-item" style="margin-bottom: 20px;">
-                                <h4>How are referral rewards calculated?</h4>
-                                <p>You earn 1000 SAT for each direct referral. For each referral made by someone you referred, you earn 1% of their reward (10 SAT).</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Contact Support</h3>
-                        <p><i class="fas fa-envelope"></i> Email: support@supremeamer.com</p>
-                        <p><i class="fab fa-telegram"></i> Telegram: @SupremeAmerSupport</p>
-                        <p><i class="fas fa-clock"></i> Response time: 24-48 hours</p>
-                    </div>
-                </section>
-                
-                <!-- Mining View -->
-                <section id="mining-view" class="view">
-                    <div class="mining-container">
-                        <div class="mining-header">
-                            <h2><i class="fas fa-digging"></i> Token Mining</h2>
-                            <p>Mine SupremeAmer tokens using your device's resources</p>
-                        </div>
-                        
-                        <div class="mining-stats">
-                            <div class="mining-stat">
-                                <h3 id="mining-rate">0 SAT/h</h3>
-                                <p>Mining Rate</p>
-                            </div>
-                            <div class="mining-stat">
-                                <h3 id="mining-earned">0 SAT</h3>
-                                <p>Total Earned</p>
-                            </div>
-                            <div class="mining-stat">
-                                <h3 id="mining-time">0h 0m</h3>
-                                <p>Active Today</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mining-progress">
-                            <div class="progress-bar" id="mining-progress"></div>
-                        </div>
-                        
-                        <button class="game-button" id="start-mining-btn">
-                            <i class="fas fa-play"></i> Start Mining
-                        </button>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Mining Statistics</h3>
-                        <div class="chart-container">
-                            <canvas id="mining-chart"></canvas>
-                        </div>
-                    </div>
-                </section>
-                
-                <!-- Game View -->
-                <section id="game-view" class="view">
-                    <div class="game-container">
-                        <div class="game-header">
-                            <h2><i class="fas fa-gamepad"></i> Token Games</h2>
-                            <p>Play games to earn extra SupremeAmer tokens</p>
-                        </div>
-                        
-                        <div class="game-area">
-                            <h3 id="game-title">Token Collector</h3>
-                            <div style="font-size: 4rem; margin: 20px 0;" id="game-display">🪙</div>
-                            <p id="game-instruction">Click when the token appears to earn SAT!</p>
-                        </div>
-                        
-                        <button class="game-button" id="start-game-btn">
-                            <i class="fas fa-play"></i> Start Game
-                        </button>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Game Statistics</h3>
-                        <div class="dashboard-stats">
-                            <div class="stat-card">
-                                <i class="fas fa-coins"></i>
-                                <h3 id="game-earnings">0 SAT</h3>
-                                <p>Total Game Earnings</p>
-                            </div>
-                            <div class="stat-card">
-                                <i class="fas fa-trophy"></i>
-                                <h3 id="high-score">0 SAT</h3>
-                                <p>Highest Score</p>
-                            </div>
-                            <div class="stat-card">
-                                <i class="fas fa-gamepad"></i>
-                                <h3 id="games-played">0</h3>
-                                <p>Games Played</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        </div>
-        
-        <!-- Floating Action Buttons -->
-        <div class="floating-buttons">
-            <button class="floating-btn" id="mining-btn" title="Token Mining">
-                <i class="fas fa-digging"></i>
-            </button>
-            <button class="floating-btn" id="game-btn" title="Earn Games">
-                <i class="fas fa-gamepad"></i>
-            </button>
-        </div>
-        
-        <!-- Footer Navigation -->
-        <div class="footer-nav">
-            <button class="nav-btn active" data-view="home-view">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </button>
-            <button class="nav-btn" data-view="earn-view">
-                <i class="fas fa-coins"></i>
-                <span>Earn</span>
-            </button>
-            <button class="nav-btn" data-view="market-view">
-                <i class="fas fa-store"></i>
-                <span>Market</span>
-            </button>
-            <button class="nav-btn" data-view="support-view">
-                <i class="fas fa-headset"></i>
-                <span>Support</span>
-            </button>
-        </div>
-        
-        <!-- Upload Ad Modal -->
-        <div class="modal" id="upload-ad-modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Upload New Advertisement</h3>
-                    <button class="close-modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="ad-title">Ad Title</label>
-                        <input type="text" id="ad-title" placeholder="Enter ad title" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ad-category">Category</label>
-                        <select id="ad-category">
-                            <option value="crypto">Crypto</option>
-                            <option value="facebook">Facebook</option>
-                            <option value="instagram">Instagram</option>
-                            <option value="twitter">Twitter</option>
-                            <option value="referral">Referral</option>
-                            <option value="telegram">Telegram</option>
-                            <option value="youtube">YouTube</option>
-                            <option value="discord">Discord</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ad-reach">Reach (People)</label>
-                        <input type="number" id="ad-reach" min="20" value="50">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ad-description">Description</label>
-                        <textarea id="ad-description" placeholder="Describe your advertisement" required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ad-image">Upload Image (Optional)</label>
-                        <input type="file" id="ad-image">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Estimated Cost: <span id="cost-estimate">$0.00</span> in BNB</label>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-outline close-modal">Cancel</button>
-                    <button class="btn btn-primary" id="pay-ad-btn">Pay & Publish</button>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Floating Action Buttons -->
+    <div class="floating-buttons">
+        <button class="floating-btn" id="mining-btn" title="Token Mining">
+            <i class="fas fa-digging"></i>
+        </button>
+        <button class="floating-btn" id="game-btn" title="Earn Games">
+            <i class="fas fa-gamepad"></i>
+        </button>
+    </div>
+    
+    <!-- Footer Navigation -->
+    <div class="footer-nav">
+        <button class="nav-btn active" data-view="home-view">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </button>
+        <button class="nav-btn" data-view="earn-view">
+            <i class="fas fa-coins"></i>
+            <span>Earn</span>
+        </button>
+        <button class="nav-btn" data-view="market-view">
+            <i class="fas fa-store"></i>
+            <span>Market</span>
+        </button>
+        <button class="nav-btn" data-view="support-view">
+            <i class="fas fa-headset"></i>
+            <span>Support</span>
+        </button>
+    </div>
+    
+    <!-- Modals -->
+    <div class="modal" id="upload-ad-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Upload New Advertisement</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="ad-title">Ad Title</label>
+                    <input type="text" id="ad-title" placeholder="Enter ad title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-category">Category</label>
+                    <select id="ad-category">
+                        <option value="crypto">Crypto</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="referral">Referral</option>
+                        <option value="telegram">Telegram</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="discord">Discord</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-reach">Reach (People)</label>
+                    <input type="number" id="ad-reach" min="20" value="50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-description">Description</label>
+                    <textarea id="ad-description" placeholder="Describe your advertisement" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-image">Upload Image (Optional)</label>
+                    <input type="file" id="ad-image">
+                </div>
+                
+                <div class="form-group">
+                    <label>Estimated Cost: <span id="cost-estimate">$0.00</span> in BNB</label>
                 </div>
             </div>
-        </div>
-        
-        <!-- Add Funds Modal -->
-        <div class="modal" id="add-funds-modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Add Funds to Wallet</h3>
-                    <button class="close-modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="fund-amount">Amount (BNB)</label>
-                        <input type="number" id="fund-amount" min="0.01" step="0.01" value="0.05">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Registration Fee: $2.00 in BNB</label>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button class="btn btn-secondary" id="connect-wallet-btn">
-                            <i class="fas fa-wallet"></i> Connect Wallet
-                        </button>
-                        <p id="wallet-status">No wallet connected</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Total to Pay: <span id="total-pay">0.00</span> BNB</label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-outline close-modal">Cancel</button>
-                    <button class="btn btn-primary" id="confirm-payment-btn" disabled>Confirm Payment</button>
-                </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline close-modal">Cancel</button>
+                <button class="btn btn-primary" id="pay-ad-btn">Pay & Publish</button>
             </div>
         </div>
-        
-        <!-- Cash Out Modal -->
-        <div class="modal" id="cash-out-modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Withdraw SupremeAmer Tokens</h3>
-                    <button class="close-modal">&times;</button>
+    </div>
+    
+    <div class="modal" id="add-funds-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Funds to Wallet</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="fund-amount">Amount (BNB)</label>
+                    <input type="number" id="fund-amount" min="0.01" step="0.01" value="0.05">
                 </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Available Tokens: <span id="available-tokens">0</span> SAT</label>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="withdraw-amount">Amount to Withdraw (Minimum 30,000 SAT)</label>
-                        <input type="number" id="withdraw-amount" min="30000" value="30000">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="wallet-address">Your Wallet Address</label>
-                        <input type="text" id="wallet-address" placeholder="Enter your wallet address" readonly>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Network Fee: 0.001 BNB</label>
-                    </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-secondary" id="connect-wallet-btn">
+                        <i class="fas fa-wallet"></i> Connect Wallet
+                    </button>
+                    <p id="wallet-status">No wallet connected</p>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-outline close-modal">Cancel</button>
-                    <button class="btn btn-primary" id="confirm-withdraw-btn">Confirm Withdrawal</button>
+                
+                <div class="form-group">
+                    <label>Total to Pay: <span id="total-pay">0.00</span> BNB</label>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline close-modal">Cancel</button>
+                <button class="btn btn-primary" id="confirm-payment-btn" disabled>Confirm Payment</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="cash-out-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Withdraw SupremeAmer Tokens</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Available Tokens: <span id="available-tokens">0</span> SAT</label>
+                </div>
+                
+                <div class="form-group">
+                    <label for="withdraw-amount">Amount to Withdraw (Minimum 30,000 SAT)</label>
+                    <input type="number" id="withdraw-amount" min="30000" value="30000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="wallet-address">Your Wallet Address</label>
+                    <input type="text" id="wallet-address" placeholder="Enter your wallet address" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>Network Fee: 0.001 BNB</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline close-modal">Cancel</button>
+                <button class="btn btn-primary" id="confirm-withdraw-btn">Confirm Withdrawal</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Terms and Privacy Modals -->
+    <div class="modal" id="terms-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Terms and Conditions</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>1. Acceptance of Terms</h4>
+                <p>By accessing or using the SupremeAmer Token Platform, you agree to be bound by these Terms and Conditions.</p>
+                
+                <h4>2. Account Registration</h4>
+                <p>You must provide accurate and complete information when creating an account. You are responsible for maintaining the confidentiality of your account credentials.</p>
+                
+                <h4>3. Token Usage</h4>
+                <p>SupremeAmer tokens (SAT) are utility tokens within our platform ecosystem. They are not intended as investment instruments.</p>
+                
+                <h4>4. Mining and Gaming</h4>
+                <p>Mining and gaming rewards are subject to platform rules. Upgraded mining tiers provide enhanced rewards for specified durations.</p>
+                
+                <h4>5. Fees and Payments</h4>
+                <p>Certain services require payment of fees in BNB cryptocurrency. All transactions are final and non-refundable.</p>
+                
+                <h4>6. Advertisements</h4>
+                <p>Users may post advertisements according to platform guidelines. Advertisers are responsible for the content of their ads.</p>
+                
+                <h4>7. Intellectual Property</h4>
+                <p>All platform content, features, and functionality are the exclusive property of SupremeAmer.</p>
+                
+                <h4>8. Limitation of Liability</h4>
+                <p>We are not liable for any indirect, incidental, or consequential damages arising from your use of the platform.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary close-modal">I Understand</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="privacy-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Privacy Policy</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>1. Information We Collect</h4>
+                <p>We collect personal information you provide during registration, including name, email, and wallet address.</p>
+                
+                <h4>2. How We Use Information</h4>
+                <p>We use your information to provide services, process transactions, improve our platform, and communicate with you.</p>
+                
+                <h4>3. Data Security</h4>
+                <p>We implement industry-standard security measures to protect your information from unauthorized access.</p>
+                
+                <h4>4. Blockchain Transparency</h4>
+                <p>Transactions on the blockchain are public. We cannot alter or delete blockchain transaction data.</p>
+                
+                <h4>5. Third-Party Services</h4>
+                <p>We may use third-party services for analytics and payment processing. These services have their own privacy policies.</p>
+                
+                <h4>6. Cookies and Tracking</h4>
+                <p>We use cookies to enhance user experience and analyze platform usage. You can disable cookies in your browser settings.</p>
+                
+                <h4>7. Children's Privacy</h4>
+                <p>Our platform is not intended for users under 18 years of age.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary close-modal">I Understand</button>
             </div>
         </div>
     </div>
 
+    <!-- Audio Elements -->
+    <audio id="background-music" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-667.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="mining-sound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-mining-ore-875.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="coin-sound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="click-sound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
-       
-        const SAT_TOKEN_ADDRESS = "0x06dB6BA51c18348A4C47465CAB643E62038969dd";
-        const SAT_TOKEN_ABI = [{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}];
-            
-            "function balanceOf(address owner) view returns (uint256)",
-            "function transfer(address to, uint256 amount) returns (bool)",
-            "function approve(address spender, uint256 amount) returns (bool)",
-            "function allowance(address owner, address spender) view returns (uint256)",
-            "function transferFrom(address from, address to, uint256 amount) returns (bool)",
-            
-            // Custom methods for mining
-            "function startMining() external",
-            "function claimMinedTokens() external",
-            "function getMinedTokens(address user) view returns (uint256)",
-            "function miningActive(address user) view returns (bool)"
-        ];
+        // ==============================================
+        // Constants and Configuration
+        // ==============================================
+        const SAT_TOKEN_ADDRESS = "0xYourSupremeAmerTokenContractAddress";
+        const MINING_RATES = {
+            basic: { rate: 30, duration: 45, price: 0.0166 }, // $5 in BNB
+            advanced: { rate: 100, duration: 72, price: 0.0333 }, // $10 in BNB
+            pro: { rate: 200.5, duration: 145, price: 0.0666 } // $20 in BNB
+        };
         
-        const BNB_REGISTRATION_FEE = "0.0066"; // $2 worth of BNB
+        const GAME_EARN_RATE = 0.005; // SAT per token
         const MIN_WITHDRAWAL = 30000; // Minimum SAT tokens to withdraw
         const NETWORK_FEE = "0.001"; // BNB network fee
-        
-        // Appwrite configuration
-        const APPWRITE_ENDPOINT = "https://fra.cloud.appwrite.io/v1";
-        const APPWRITE_PROJECT_ID = "68370442000c3c15b9f3";
-        const APPWRITE_DATABASE_ID = "683705ff00244f73e93f";
-        const APPWRITE_USERS_COLLECTION = "users";
-        const APPWRITE_ADS_COLLECTION = "adverts";
-        const APPWRITE_TRANSACTIONS_COLLECTION = "transaction_collection";
         
         // Approved emails for ad posting
         const APPROVED_EMAILS = [
@@ -1333,39 +1439,48 @@
             "funkomark24@gmail.com"
         ];
         
-        
+        // ==============================================
+        // Global Variables
+        // ==============================================
         let user = null;
         let provider = null;
         let signer = null;
         let satTokenContract = null;
-        let appwrite = null;
-        let database = null;
         let walletConnected = false;
         let walletAddress = "";
         
-      
-        const authSection = document.getElementById('auth-section');
-        const mainApp = document.getElementById('main-app');
-        const authMessage = document.getElementById('auth-message');
-        const appMessage = document.getElementById('app-message');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const bnbBalanceSpan = document.getElementById('bnb-balance');
-        const tokenBalanceSpan = document.getElementById('token-balance');
-        const satBalanceSpan = document.getElementById('sat-balance');
-        const userAvatar = document.getElementById('user-avatar');
+        // Game state
+        let gameActive = false;
+        let gameScore = 0;
+        let gameTime = 0;
+        let gameInterval;
+        let tokenInterval;
         
+        // Mining state
+        let miningActive = false;
+        let miningStartTime = 0;
+        let miningEarned = 0;
+        let miningRate = 0;
+        let miningInterval;
+        
+        // Sound state
+        let musicEnabled = true;
+        let sfxEnabled = true;
+        
+        // ==============================================
+        // Initialization
+        // ==============================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Appwrite
-            appwrite = new Appwrite();
-            appwrite
-                .setEndpoint(APPWRITE_ENDPOINT)
-                .setProject(APPWRITE_PROJECT_ID);
-            
-            database = appwrite.database;
-            
-            // Check if user is already logged in
-            checkAuthStatus();
+            // Load user from localStorage
+            const storedUser = localStorage.getItem('supremeamer_user');
+            if (storedUser) {
+                user = JSON.parse(storedUser);
+                updateUI();
+                initSound();
+            } else {
+                // In a real app, redirect to auth page
+                showAppMessage('Please log in to access the platform', 'error');
+            }
             
             // Set up event listeners
             setupEventListeners();
@@ -1373,171 +1488,53 @@
             // Initialize ad cost calculator
             initAdCostCalculator();
             
-            // Initialize fund amount calculator
+            // Initialize fund calculator
             initFundCalculator();
+            
+            // Load ads
+            loadAds();
+            
+            // Load history
+            loadHistory();
         });
         
-        
-        function checkAuthStatus() {
-            const storedUser = localStorage.getItem('supremeamer_user');
-            if (storedUser) {
-                try {
-                    user = JSON.parse(storedUser);
-                    authSection.style.display = 'none';
-                    mainApp.style.display = 'block';
-                    loadUserData();
-                } catch (e) {
-                    console.error('Error parsing user data:', e);
-                    showAuthMessage('Session expired. Please login again.', 'error');
-                }
-            }
+        function initSound() {
+            const backgroundMusic = document.getElementById('background-music');
+            backgroundMusic.volume = 0.3;
+            if (musicEnabled) backgroundMusic.play();
         }
         
-        function setupAuthListeners() {
-            // Tab switching
-            const tabs = document.querySelectorAll('.auth-tab');
-            const forms = document.querySelectorAll('.auth-form');
+        // ==============================================
+        // UI Functions
+        // ==============================================
+        function updateUI() {
+            if (!user) return;
             
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const formId = tab.getAttribute('data-form');
-                    
-                    // Update active tab
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    // Show target form
-                    forms.forEach(form => {
-                        form.classList.remove('active');
-                        if (form.id === formId) {
-                            form.classList.add('active');
-                        }
-                    });
-                });
-            });
+            // Update UI with user data
+            const userAvatar = document.getElementById('user-avatar');
+            const bnbBalanceSpan = document.getElementById('bnb-balance');
+            const tokenBalanceSpan = document.getElementById('token-balance');
+            const satBalanceSpan = document.getElementById('sat-balance');
             
-            // Switch between login/register
-            document.getElementById('show-register').addEventListener('click', (e) => {
-                e.preventDefault();
-                tabs[1].click();
-            });
-            
-            document.getElementById('show-login').addEventListener('click', (e) => {
-                e.preventDefault();
-                tabs[0].click();
-            });
-            
-            // Form submission
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                loginUser();
-            });
-            
-            registerForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                registerUser();
-            });
-        }
-        
-        function loginUser() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            
-            // Simple validation
-            if (!email || !password) {
-                showAuthMessage('Please fill in all fields', 'error');
-                return;
-            }
-            
-            // Simulate login with Appwrite
-            showAuthMessage('Logging in...', 'warning');
-            
-            // In a real app, this would be an API call to Appwrite
-            setTimeout(() => {
-                // Create user object
-                user = {
-                    id: 'user_' + Math.random().toString(36).substr(2, 9),
-                    name: 'SupremeAmer User',
-                    email: email,
-                    tokenBalance: 24500,
-                    bnbBalance: 0.25,
-                    referralCode: 'REF' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-                    referrals: 12,
-                    adsPosted: 5,
-                    joinedAt: new Date().toISOString()
-                };
-                
-                // Store user in localStorage
-                localStorage.setItem('supremeamer_user', JSON.stringify(user));
-                
-                // Hide auth and show main app
-                authSection.style.display = 'none';
-                mainApp.style.display = 'block';
-                
-                // Load user data
-                loadUserData();
-            }, 1500);
-        }
-        
-        function registerUser() {
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirm = document.getElementById('register-confirm').value;
-            
-            // Validation
-            if (!name || !email || !password || !confirm) {
-                showAuthMessage('Please fill in all fields', 'error');
-                return;
-            }
-            
-            if (password !== confirm) {
-                showAuthMessage('Passwords do not match', 'error');
-                return;
-            }
-            
-            if (!document.getElementById('fee-agreement').checked) {
-                showAuthMessage('You must agree to pay the registration fee', 'error');
-                return;
-            }
-            
-            // Show payment modal
-            authSection.style.display = 'none';
-            mainApp.style.display = 'block';
-            
-            // Create temporary user
-            user = {
-                id: 'user_' + Math.random().toString(36).substr(2, 9),
-                name: name,
-                email: email,
-                tokenBalance: 0,
-                bnbBalance: 0,
-                referralCode: 'REF' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-                referrals: 0,
-                adsPosted: 0,
-                joinedAt: new Date().toISOString()
-            };
-            
-            // Show registration payment modal
-            showRegistrationPayment();
-        }
-        
-        function showRegistrationPayment() {
-            // Update UI
-            document.getElementById('add-funds-modal').classList.add('active');
-            document.getElementById('fund-amount').value = BNB_REGISTRATION_FEE;
-            document.getElementById('total-pay').textContent = BNB_REGISTRATION_FEE;
-            document.getElementById('confirm-payment-btn').textContent = "Pay Registration Fee";
-            
-            // Connect wallet automatically
-            connectWallet();
-        }
-        
-        function showAuthMessage(message, type) {
-            authMessage.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            userAvatar.textContent = user.name.charAt(0).toUpperCase();
+            bnbBalanceSpan.textContent = user.bnbBalance.toFixed(4);
+            tokenBalanceSpan.textContent = user.tokenBalance.toLocaleString();
+            satBalanceSpan.textContent = user.tokenBalance.toLocaleString();
+            document.getElementById('referral-count').textContent = user.referrals;
+            document.getElementById('active-ads').textContent = user.adsPosted;
+            document.getElementById('referral-link').value = `https://supremeamer.com/ref/${user.referralCode}`;
+            document.getElementById('total-referrals').textContent = user.referrals;
+            document.getElementById('tokens-earned').textContent = (user.referrals * 1000).toLocaleString();
+            document.getElementById('indirect-earnings').textContent = (user.referrals * 10).toLocaleString();
+            document.getElementById('mining-earned').textContent = user.miningEarned.toLocaleString();
+            document.getElementById('mining-rate').textContent = `${user.miningRate} SAT/h`;
+            document.getElementById('game-earnings').textContent = user.gameEarnings.toLocaleString();
+            document.getElementById('high-score').textContent = user.highScore.toLocaleString();
+            document.getElementById('games-played').textContent = user.gamesPlayed;
         }
         
         function showAppMessage(message, type) {
+            const appMessage = document.getElementById('app-message');
             appMessage.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
             setTimeout(() => {
                 appMessage.innerHTML = '';
@@ -1565,7 +1562,14 @@
                 signer = provider.getSigner();
                 
                 // Initialize token contract
-                satTokenContract = new ethers.Contract(SAT_TOKEN_ADDRESS, SAT_TOKEN_ABI, signer);
+                satTokenContract = new ethers.Contract(SAT_TOKEN_ADDRESS, [
+                    // Standard ERC-20 functions
+                    "function balanceOf(address owner) view returns (uint256)",
+                    "function transfer(address to, uint256 amount) returns (bool)",
+                    // Mining functions
+                    "function startMining() external",
+                    "function claimMinedTokens() external"
+                ], signer);
                 
                 // Update UI
                 document.getElementById('wallet-status').textContent = `Connected: ${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}`;
@@ -1577,7 +1581,7 @@
                 const balanceInBNB = ethers.utils.formatEther(balance);
                 
                 // Update balance display
-                bnbBalanceSpan.textContent = parseFloat(balanceInBNB).toFixed(4);
+                document.getElementById('bnb-balance').textContent = parseFloat(balanceInBNB).toFixed(4);
                 if (user) {
                     user.bnbBalance = parseFloat(balanceInBNB);
                     localStorage.setItem('supremeamer_user', JSON.stringify(user));
@@ -1588,8 +1592,8 @@
                     const tokenBalance = await satTokenContract.balanceOf(walletAddress);
                     const formattedBalance = ethers.utils.formatUnits(tokenBalance, 18);
                     
-                    tokenBalanceSpan.textContent = parseInt(formattedBalance).toLocaleString();
-                    satBalanceSpan.textContent = parseInt(formattedBalance).toLocaleString();
+                    document.getElementById('token-balance').textContent = parseInt(formattedBalance).toLocaleString();
+                    document.getElementById('sat-balance').textContent = parseInt(formattedBalance).toLocaleString();
                     
                     if (user) {
                         user.tokenBalance = parseInt(formattedBalance);
@@ -1598,6 +1602,7 @@
                 }
                 
                 showAppMessage('Wallet connected successfully!', 'success');
+                if (sfxEnabled) document.getElementById('click-sound').play();
             } catch (error) {
                 console.error('Wallet connection error:', error);
                 document.getElementById('wallet-status').textContent = 'Connection failed';
@@ -1609,43 +1614,6 @@
         // ==============================================
         // Payment Functions
         // ==============================================
-        async function payRegistrationFee() {
-            try {
-                if (!walletConnected || !signer) {
-                    showAppMessage('Please connect your wallet first', 'error');
-                    return;
-                }
-                
-                const amount = ethers.utils.parseEther(BNB_REGISTRATION_FEE);
-                const tx = {
-                    to: "0xYourPlatformWalletAddress", // Replace with your BNB address
-                    value: amount,
-                    gasLimit: 21000
-                };
-                
-                showAppMessage('Processing payment...', 'warning');
-                
-                // Send transaction
-                const transaction = await signer.sendTransaction(tx);
-                await transaction.wait();
-                
-                showAppMessage('Registration fee paid successfully!', 'success');
-                
-                // Update user status
-                user.registered = true;
-                localStorage.setItem('supremeamer_user', JSON.stringify(user));
-                
-                // Close modal
-                document.getElementById('add-funds-modal').classList.remove('active');
-                
-                // Load user data
-                loadUserData();
-            } catch (error) {
-                console.error('Payment error:', error);
-                showAppMessage('Payment failed: ' + error.message, 'error');
-            }
-        }
-        
         async function payForAd() {
             try {
                 if (!walletConnected || !signer) {
@@ -1692,8 +1660,10 @@
                     createdAt: new Date().toISOString()
                 };
                 
-                // Save ad to Appwrite
-                // In a real app: await database.createDocument(APPWRITE_DATABASE_ID, APPWRITE_ADS_COLLECTION, adData);
+                // Save ad to localStorage
+                let ads = JSON.parse(localStorage.getItem('supremeamer_ads') || '[]');
+                ads.push(adData);
+                localStorage.setItem('supremeamer_ads', JSON.stringify(ads));
                 
                 // Update user's ads count
                 user.adsPosted++;
@@ -1701,6 +1671,7 @@
                 document.getElementById('active-ads').textContent = user.adsPosted;
                 
                 showAppMessage('Ad posted successfully! It will be visible after approval.', 'success');
+                if (sfxEnabled) document.getElementById('click-sound').play();
                 
                 // Close modal
                 document.getElementById('upload-ad-modal').classList.remove('active');
@@ -1749,12 +1720,13 @@
                 const tokenBalance = await satTokenContract.balanceOf(walletAddress);
                 const formattedBalance = ethers.utils.formatUnits(tokenBalance, 18);
                 
-                tokenBalanceSpan.textContent = parseInt(formattedBalance).toLocaleString();
-                satBalanceSpan.textContent = parseInt(formattedBalance).toLocaleString();
+                document.getElementById('token-balance').textContent = parseInt(formattedBalance).toLocaleString();
+                document.getElementById('sat-balance').textContent = parseInt(formattedBalance).toLocaleString();
                 user.tokenBalance = parseInt(formattedBalance);
                 localStorage.setItem('supremeamer_user', JSON.stringify(user));
                 
                 showAppMessage(`Successfully withdrew ${amount} SAT tokens!`, 'success');
+                if (sfxEnabled) document.getElementById('coin-sound').play();
                 
                 // Close modal
                 document.getElementById('cash-out-modal').classList.remove('active');
@@ -1765,35 +1737,302 @@
         }
         
         // ==============================================
-        // User Interface Functions
+        // Mining Functions
         // ==============================================
-        function loadUserData() {
-            if (!user) return;
+        function startMining() {
+            if (!walletConnected) {
+                showAppMessage('Please connect your wallet first', 'error');
+                return;
+            }
             
-            // Update UI with user data
-            userAvatar.textContent = user.name.charAt(0).toUpperCase();
-            bnbBalanceSpan.textContent = user.bnbBalance.toFixed(4);
-            tokenBalanceSpan.textContent = user.tokenBalance.toLocaleString();
-            satBalanceSpan.textContent = user.tokenBalance.toLocaleString();
-            document.getElementById('referral-count').textContent = user.referrals;
-            document.getElementById('active-ads').textContent = user.adsPosted;
-            document.getElementById('referral-link').value = `https://supremeamer.com/ref/${user.referralCode}`;
-            document.getElementById('total-referrals').textContent = user.referrals;
-            document.getElementById('tokens-earned').textContent = (user.referrals * 1000).toLocaleString();
-            document.getElementById('indirect-earnings').textContent = (user.referrals * 10).toLocaleString();
+            const button = document.getElementById('start-mining-btn');
+            const progressBar = document.getElementById('mining-progress');
             
-            // Load ads
-            loadAds();
-            
-            // Load history
-            loadHistory();
-            
-            // Load referral activity
-            loadReferralActivity();
+            if (button.innerHTML.includes('Start')) {
+                // Start mining
+                button.innerHTML = '<i class="fas fa-stop"></i> Stop Mining';
+                miningActive = true;
+                miningStartTime = Date.now();
+                
+                if (sfxEnabled) {
+                    document.getElementById('mining-sound').currentTime = 0;
+                    document.getElementById('mining-sound').play();
+                }
+                
+                showAppMessage('Mining started successfully!', 'success');
+                
+                // Update mining progress
+                miningInterval = setInterval(() => {
+                    const elapsedSeconds = (Date.now() - miningStartTime) / 1000;
+                    const earned = (elapsedSeconds * miningRate) / 3600;
+                    miningEarned = user.miningEarned + earned;
+                    
+                    // Update UI
+                    document.getElementById('mining-earned').textContent = miningEarned.toFixed(2);
+                    
+                    // Update progress bar
+                    const progress = (elapsedSeconds % 60) / 60 * 100;
+                    progressBar.style.width = progress + '%';
+                }, 1000);
+            } else {
+                // Stop mining
+                clearInterval(miningInterval);
+                miningActive = false;
+                button.innerHTML = '<i class="fas fa-play"></i> Start Mining';
+                
+                // Save earned tokens
+                user.miningEarned = miningEarned;
+                localStorage.setItem('supremeamer_user', JSON.stringify(user));
+                
+                if (sfxEnabled) document.getElementById('mining-sound').pause();
+                showAppMessage('Mining stopped', 'warning');
+            }
         }
         
+        async function claimMinedTokens() {
+            if (!walletConnected || !satTokenContract) {
+                showAppMessage('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            if (miningEarned <= 0) {
+                showAppMessage('No tokens to claim', 'warning');
+                return;
+            }
+            
+            try {
+                showAppMessage('Claiming mined tokens...', 'warning');
+                
+                // Convert tokens to wei
+                const amountWei = ethers.utils.parseUnits(miningEarned.toString(), 18);
+                
+                // Claim tokens
+                const tx = await satTokenContract.claimMinedTokens();
+                await tx.wait();
+                
+                // Update token balance
+                const tokenBalance = await satTokenContract.balanceOf(walletAddress);
+                const formattedBalance = ethers.utils.formatUnits(tokenBalance, 18);
+                
+                document.getElementById('token-balance').textContent = parseInt(formattedBalance).toLocaleString();
+                document.getElementById('sat-balance').textContent = parseInt(formattedBalance).toLocaleString();
+                user.tokenBalance = parseInt(formattedBalance);
+                user.miningEarned = 0;
+                miningEarned = 0;
+                localStorage.setItem('supremeamer_user', JSON.stringify(user));
+                
+                // Update UI
+                document.getElementById('mining-earned').textContent = "0";
+                
+                showAppMessage(`Successfully claimed ${miningEarned} SAT tokens!`, 'success');
+                if (sfxEnabled) document.getElementById('coin-sound').play();
+            } catch (error) {
+                console.error('Claim error:', error);
+                showAppMessage('Failed to claim mined tokens: ' + error.message, 'error');
+            }
+        }
+        
+        async function upgradeMiningTier(tier) {
+            if (!walletConnected || !signer) {
+                showAppMessage('Please connect your wallet first', 'error');
+                return;
+            }
+            
+            const tierInfo = MINING_RATES[tier];
+            if (!tierInfo) return;
+            
+            try {
+                const amount = ethers.utils.parseEther(tierInfo.price.toString());
+                const tx = {
+                    to: "0xYourPlatformWalletAddress",
+                    value: amount,
+                    gasLimit: 21000
+                };
+                
+                showAppMessage(`Upgrading to ${tier} mining tier...`, 'warning');
+                
+                // Send transaction
+                const transaction = await signer.sendTransaction(tx);
+                await transaction.wait();
+                
+                // Update mining rate
+                miningRate = tierInfo.rate;
+                user.miningRate = miningRate;
+                localStorage.setItem('supremeamer_user', JSON.stringify(user));
+                
+                // Update UI
+                document.getElementById('mining-rate').textContent = `${miningRate} SAT/h`;
+                
+                showAppMessage(`Mining upgraded to ${tier} tier!`, 'success');
+                if (sfxEnabled) document.getElementById('click-sound').play();
+            } catch (error) {
+                console.error('Upgrade error:', error);
+                showAppMessage('Mining upgrade failed: ' + error.message, 'error');
+            }
+        }
+        
+        // ==============================================
+        // Game Functions
+        // ==============================================
+        function startTokenGame() {
+            const button = document.getElementById('start-game-btn');
+            const tokenDisplay = document.getElementById('token-display');
+            
+            if (button.innerHTML.includes('Start')) {
+                // Start game
+                button.innerHTML = '<i class="fas fa-stop"></i> Stop Game';
+                gameActive = true;
+                gameScore = 0;
+                gameTime = 0;
+                
+                // Reset UI
+                tokenDisplay.style.display = 'none';
+                document.getElementById('tokens-collected').textContent = "0";
+                document.getElementById('sat-earned').textContent = "0.00";
+                document.getElementById('game-time').textContent = "00:00";
+                
+                // Start game loop
+                gameInterval = setInterval(updateGame, 1000);
+                
+                // Start token appearance
+                spawnToken();
+            } else {
+                // Stop game
+                clearInterval(gameInterval);
+                clearInterval(tokenInterval);
+                gameActive = false;
+                button.innerHTML = '<i class="fas fa-play"></i> Start Game';
+                
+                // Save game stats
+                user.gamesPlayed++;
+                if (gameScore > user.highScore) {
+                    user.highScore = gameScore;
+                }
+                user.gameEarnings += gameScore * GAME_EARN_RATE;
+                localStorage.setItem('supremeamer_user', JSON.stringify(user));
+                
+                // Update UI
+                document.getElementById('games-played').textContent = user.gamesPlayed;
+                document.getElementById('high-score').textContent = user.highScore.toFixed(2);
+                document.getElementById('game-earnings').textContent = user.gameEarnings.toFixed(2);
+                
+                showAppMessage(`Game over! You earned ${(gameScore * GAME_EARN_RATE).toFixed(2)} SAT tokens.`, 'success');
+                if (sfxEnabled) document.getElementById('coin-sound').play();
+            }
+        }
+        
+        function spawnToken() {
+            if (!gameActive) return;
+            
+            const gameArea = document.getElementById('game-display-area');
+            const tokenDisplay = document.getElementById('token-display');
+            
+            // Position token randomly
+            const size = 300;
+            const posX = Math.random() * (size - 60);
+            const posY = Math.random() * (size - 60);
+            
+            tokenDisplay.style.left = `${posX}px`;
+            tokenDisplay.style.top = `${posY}px`;
+            tokenDisplay.style.display = 'block';
+            
+            // Set timeout to hide token
+            const tokenTimeout = Math.random() * 3000 + 1000; // 1-4 seconds
+            tokenInterval = setTimeout(() => {
+                if (gameActive) {
+                    tokenDisplay.style.display = 'none';
+                    spawnToken();
+                }
+            }, tokenTimeout);
+        }
+        
+        function collectToken() {
+            if (!gameActive) return;
+            
+            gameScore++;
+            const satEarned = gameScore * GAME_EARN_RATE;
+            
+            // Update UI
+            document.getElementById('tokens-collected').textContent = gameScore;
+            document.getElementById('sat-earned').textContent = satEarned.toFixed(2);
+            
+            // Play sound
+            if (sfxEnabled) {
+                document.getElementById('coin-sound').currentTime = 0;
+                document.getElementById('coin-sound').play();
+            }
+            
+            // Hide token and spawn new one
+            document.getElementById('token-display').style.display = 'none';
+            clearTimeout(tokenInterval);
+            spawnToken();
+        }
+        
+        function updateGame() {
+            if (!gameActive) return;
+            
+            gameTime++;
+            const minutes = Math.floor(gameTime / 60).toString().padStart(2, '0');
+            const seconds = (gameTime % 60).toString().padStart(2, '0');
+            document.getElementById('game-time').textContent = `${minutes}:${seconds}`;
+            
+            // Auto-claim after 5 minutes (300 seconds)
+            if (gameTime >= 300) {
+                startTokenGame(); // Stops the game
+                claimGameEarnings();
+            }
+        }
+        
+        function claimGameEarnings() {
+            const earnings = gameScore * GAME_EARN_RATE;
+            if (earnings <= 0) return;
+            
+            // Update token balance
+            user.tokenBalance += earnings;
+            localStorage.setItem('supremeamer_user', JSON.stringify(user));
+            document.getElementById('token-balance').textContent = user.tokenBalance.toLocaleString();
+            document.getElementById('sat-balance').textContent = user.tokenBalance.toLocaleString();
+            
+            showAppMessage(`Claimed ${earnings.toFixed(2)} SAT from the game!`, 'success');
+            if (sfxEnabled) document.getElementById('coin-sound').play();
+        }
+        
+        // ==============================================
+        // Sound Functions
+        // ==============================================
+        function toggleMusic() {
+            musicEnabled = !musicEnabled;
+            const icon = document.getElementById('music-toggle').querySelector('i');
+            const backgroundMusic = document.getElementById('background-music');
+            
+            if (musicEnabled) {
+                icon.className = 'fas fa-music';
+                backgroundMusic.play();
+            } else {
+                icon.className = 'fas fa-music-slash';
+                backgroundMusic.pause();
+            }
+            
+            if (sfxEnabled) document.getElementById('click-sound').play();
+        }
+        
+        function toggleSFX() {
+            sfxEnabled = !sfxEnabled;
+            const icon = document.getElementById('sfx-toggle').querySelector('i');
+            
+            if (sfxEnabled) {
+                icon.className = 'fas fa-volume-up';
+            } else {
+                icon.className = 'fas fa-volume-mute';
+            }
+            
+            document.getElementById('click-sound').play();
+        }
+        
+        // ==============================================
+        // Ad System Functions
+        // ==============================================
         function loadAds() {
-            // Simulate loading ads from Appwrite
             const recentAdsGrid = document.getElementById('recent-ads');
             const marketplaceAdsGrid = document.getElementById('marketplace-ads');
             
@@ -1801,64 +2040,29 @@
             recentAdsGrid.innerHTML = '';
             marketplaceAdsGrid.innerHTML = '';
             
-            // Sample ad data
-            const ads = [
-                {
-                    id: 'ad1',
-                    title: 'Join our Crypto Community',
-                    category: 'crypto',
-                    reach: 50,
-                    reward: 350,
-                    image: 'https://via.placeholder.com/300?text=Crypto+Ad'
-                },
-                {
-                    id: 'ad2',
-                    title: 'Follow our Facebook Page',
-                    category: 'facebook',
-                    reach: 100,
-                    reward: 350,
-                    image: 'https://via.placeholder.com/300?text=Facebook+Ad'
-                },
-                {
-                    id: 'ad3',
-                    title: 'Instagram Influencer Campaign',
-                    category: 'instagram',
-                    reach: 150,
-                    reward: 350,
-                    image: 'https://via.placeholder.com/300?text=Instagram+Ad'
-                },
-                {
-                    id: 'ad4',
-                    title: 'Retweet our Latest Tweet',
-                    category: 'twitter',
-                    reach: 200,
-                    reward: 350,
-                    image: 'https://via.placeholder.com/300?text=Twitter+Ad'
-                }
-            ];
+            // Get ads from localStorage
+            const ads = JSON.parse(localStorage.getItem('supremeamer_ads') || '[]');
             
             // Render ads
             ads.forEach((ad, index) => {
                 const adCard = document.createElement('div');
                 adCard.className = 'ad-card';
                 adCard.innerHTML = `
-                    <div class="ad-image" style="background-image: url('${ad.image}')">
-                        <div style="background: rgba(0,0,0,0.5); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white;">
-                            <i class="fas fa-ad"></i>
-                        </div>
+                    <div class="ad-image" style="background-color: #f0f2f5;">
+                        <i class="fas fa-ad" style="font-size: 3rem; color: #95a5a6;"></i>
                     </div>
                     <div class="ad-content">
                         <span class="ad-category">${ad.category.charAt(0).toUpperCase() + ad.category.slice(1)}</span>
                         <h4 class="ad-title">${ad.title}</h4>
-                        <p>Reach: ${ad.reach} people</p>
+                        <p>${ad.description.substring(0, 60)}...</p>
                         <div class="ad-stats">
-                            <div>Reward: <span class="ad-reward">${ad.reward} SAT</span></div>
+                            <div>Reach: <span class="ad-reward">${ad.reach} people</span></div>
                             <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Participate</button>
                         </div>
                     </div>
                 `;
                 
-                if (index < 2) {
+                if (index < 4) {
                     recentAdsGrid.appendChild(adCard.cloneNode(true));
                 }
                 marketplaceAdsGrid.appendChild(adCard);
@@ -1891,34 +2095,6 @@
                     </div>
                 `;
                 historyList.appendChild(historyItem);
-            });
-        }
-        
-        function loadReferralActivity() {
-            const referralActivity = document.getElementById('referral-activity');
-            referralActivity.innerHTML = '';
-            
-            // Sample referral activity
-            const referrals = [
-                { name: 'Jane Smith', date: 'Today', amount: 1000 },
-                { name: 'Robert Johnson', date: 'Yesterday', amount: 1000 },
-                { name: 'Emily Davis', date: '3 days ago', amount: 1000 },
-                { name: 'Michael Wilson', date: '1 week ago', amount: 1000 }
-            ];
-            
-            referrals.forEach(item => {
-                const activityItem = document.createElement('div');
-                activityItem.className = 'history-item';
-                activityItem.innerHTML = `
-                    <div class="history-details">
-                        <div class="history-type">${item.name}</div>
-                        <div class="history-date">${item.date}</div>
-                    </div>
-                    <div class="history-amount history-positive">
-                        +${item.amount} SAT
-                    </div>
-                `;
-                referralActivity.appendChild(activityItem);
             });
         }
         
@@ -1957,84 +2133,58 @@
             
             fundAmountInput.addEventListener('input', () => {
                 const amount = parseFloat(fundAmountInput.value) || 0;
-                const total = amount + parseFloat(BNB_REGISTRATION_FEE);
-                totalPay.textContent = total.toFixed(6);
+                totalPay.textContent = amount.toFixed(6);
             });
-            
-            // Initialize
-            fundAmountInput.dispatchEvent(new Event('input'));
         }
         
+        // ==============================================
+        // Event Listeners Setup
+        // ==============================================
         function setupEventListeners() {
-            // Auth listeners
-            setupAuthListeners();
-            
             // Wallet connection
-            document.getElementById('connect-wallet-btn').addEventListener('click', connectWallet);
+            document.getElementById('connect-wallet-btn')?.addEventListener('click', connectWallet);
             
-            // Registration payment
-            document.getElementById('confirm-payment-btn').addEventListener('click', async () => {
-                if (user && !user.registered) {
-                    await payRegistrationFee();
-                } else {
-                    // Handle regular fund addition
-                    // (implementation would be similar to registration payment)
-                    showAppMessage('Funds added successfully!', 'success');
-                    document.getElementById('add-funds-modal').classList.remove('active');
-                }
+            // Mining
+            document.getElementById('start-mining-btn')?.addEventListener('click', startMining);
+            
+            // Mining tiers
+            document.querySelectorAll('[data-tier]').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const tier = e.target.dataset.tier;
+                    upgradeMiningTier(tier);
+                });
             });
             
-            // Ad payment
-            document.getElementById('pay-ad-btn').addEventListener('click', payForAd);
+            // Game
+            document.getElementById('start-game-btn')?.addEventListener('click', startTokenGame);
+            document.getElementById('token-display')?.addEventListener('click', collectToken);
             
-            // Withdrawal
-            document.getElementById('cash-out-btn').addEventListener('click', () => {
-                document.getElementById('available-tokens').textContent = user.tokenBalance.toLocaleString();
-                document.getElementById('withdraw-amount').value = Math.max(MIN_WITHDRAWAL, user.tokenBalance);
-                document.getElementById('wallet-address').value = walletAddress;
-                document.getElementById('cash-out-modal').classList.add('active');
+            // Sound controls
+            document.getElementById('music-toggle')?.addEventListener('click', toggleMusic);
+            document.getElementById('sfx-toggle')?.addEventListener('click', toggleSFX);
+            
+            // Documentation
+            document.getElementById('terms-link')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('terms-modal').classList.add('active');
+                if (sfxEnabled) document.getElementById('click-sound').play();
             });
             
-            document.getElementById('confirm-withdraw-btn').addEventListener('click', withdrawTokens);
-            
-            // Copy referral link
-            document.getElementById('copy-link-btn').addEventListener('click', () => {
-                const referralLink = document.getElementById('referral-link');
-                referralLink.select();
-                document.execCommand('copy');
-                
-                // Show copied feedback
-                const originalText = document.getElementById('copy-link-btn').textContent;
-                document.getElementById('copy-link-btn').textContent = 'Copied!';
-                
-                setTimeout(() => {
-                    document.getElementById('copy-link-btn').textContent = originalText;
-                }, 2000);
+            document.getElementById('privacy-link')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('privacy-modal').classList.add('active');
+                if (sfxEnabled) document.getElementById('click-sound').play();
             });
             
-            // Modal handling
+            // Modal closing
             document.querySelectorAll('.close-modal').forEach(button => {
                 button.addEventListener('click', () => {
                     document.querySelectorAll('.modal').forEach(modal => {
                         modal.classList.remove('active');
                     });
+                    if (sfxEnabled) document.getElementById('click-sound').play();
                 });
             });
-            
-            document.getElementById('upload-ad-btn').addEventListener('click', () => {
-                // Check if user is approved to post ads
-                if (APPROVED_EMAILS.includes(user.email)) {
-                    document.getElementById('upload-ad-modal').classList.add('active');
-                } else {
-                    showAppMessage('Only approved accounts can post ads. Contact support for access.', 'error');
-                }
-            });
-            
-            // Mining functionality
-            document.getElementById('start-mining-btn').addEventListener('click', startMining);
-            
-            // Game functionality
-            document.getElementById('start-game-btn').addEventListener('click', startTokenGame);
             
             // Navigation
             document.querySelectorAll('.nav-btn').forEach(button => {
@@ -2052,227 +2202,151 @@
                             view.classList.add('active');
                         }
                     });
+                    
+                    if (sfxEnabled) document.getElementById('click-sound').play();
                 });
             });
             
             // Floating buttons
-            document.getElementById('mining-btn').addEventListener('click', () => {
-                // Switch to mining view
-                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-                document.querySelector('.nav-btn[data-view="home-view"]').classList.add('active');
+            document.getElementById('mining-btn')?.addEventListener('click', () => {
                 document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
                 document.getElementById('mining-view').classList.add('active');
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                if (sfxEnabled) document.getElementById('click-sound').play();
             });
             
-            document.getElementById('game-btn').addEventListener('click', () => {
-                // Switch to game view
-                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-                document.querySelector('.nav-btn[data-view="home-view"]').classList.add('active');
+            document.getElementById('game-btn')?.addEventListener('click', () => {
                 document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
                 document.getElementById('game-view').classList.add('active');
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                if (sfxEnabled) document.getElementById('click-sound').play();
             });
             
             // User dropdown
-            document.getElementById('user-avatar').addEventListener('click', function() {
+            document.getElementById('user-avatar')?.addEventListener('click', function() {
                 document.getElementById('user-dropdown').classList.toggle('active');
+                if (sfxEnabled) document.getElementById('click-sound').play();
             });
             
             // Logout
-            document.getElementById('logout-item').addEventListener('click', function() {
+            document.getElementById('logout-item')?.addEventListener('click', function() {
                 localStorage.removeItem('supremeamer_user');
-                user = null;
-                mainApp.style.display = 'none';
-                authSection.style.display = 'flex';
+                // In a real app, redirect to auth page
+                showAppMessage('You have been logged out', 'warning');
+                document.getElementById('user-dropdown').classList.remove('active');
+            });
+            
+            // Ad posting
+            document.getElementById('upload-ad-btn')?.addEventListener('click', () => {
+                // Check if user is approved to post ads
+                if (APPROVED_EMAILS.includes(user.email)) {
+                    document.getElementById('upload-ad-modal').classList.add('active');
+                } else {
+                    showAppMessage('Only approved accounts can post ads. Contact support for access.', 'error');
+                }
+            });
+            
+            document.getElementById('pay-ad-btn')?.addEventListener('click', payForAd);
+            
+            // Withdrawals
+            document.getElementById('cash-out-btn')?.addEventListener('click', () => {
+                document.getElementById('available-tokens').textContent = user.tokenBalance.toLocaleString();
+                document.getElementById('withdraw-amount').value = Math.max(MIN_WITHDRAWAL, user.tokenBalance);
+                document.getElementById('wallet-address').value = walletAddress || '';
+                document.getElementById('cash-out-modal').classList.add('active');
+            });
+            
+            document.getElementById('confirm-withdraw-btn')?.addEventListener('click', withdrawTokens);
+            
+            // Copy referral link
+            document.getElementById('copy-link-btn')?.addEventListener('click', () => {
+                const referralLink = document.getElementById('referral-link');
+                referralLink.select();
+                document.execCommand('copy');
+                
+                // Show copied feedback
+                const originalText = document.getElementById('copy-link-btn').textContent;
+                document.getElementById('copy-link-btn').textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    document.getElementById('copy-link-btn').textContent = originalText;
+                }, 2000);
+                
+                if (sfxEnabled) document.getElementById('click-sound').play();
             });
         }
         
-        // ==============================================
-        // Mining and Game Functions
-        // ==============================================
-        async function startMining() {
-            try {
-                if (!walletConnected || !satTokenContract) {
-                    showAppMessage('Please connect your wallet first', 'error');
-                    return;
-                }
-                
-                const button = document.getElementById('start-mining-btn');
-                const progressBar = document.getElementById('mining-progress');
-                
-                if (button.innerHTML.includes('Start')) {
-                    // Start mining
-                    button.innerHTML = '<i class="fas fa-stop"></i> Stop Mining';
-                    
-                    // Simulate contract interaction
-                    // const tx = await satTokenContract.startMining();
-                    // await tx.wait();
-                    
-                    showAppMessage('Mining started successfully!', 'success');
-                    
-                    let progress = 0;
-                    const interval = setInterval(() => {
-                        progress += 2;
-                        progressBar.style.width = progress + '%';
-                        
-                        if (progress >= 100) {
-                            clearInterval(interval);
-                            progressBar.style.width = '0%';
-                            
-                            // Claim mined tokens
-                            claimMinedTokens();
-                            button.innerHTML = '<i class="fas fa-play"></i> Start Mining';
-                        }
-                    }, 100);
-                    
-                    // Store interval to stop later
-                    button.dataset.interval = interval;
-                } else {
-                    // Stop mining
-                    clearInterval(parseInt(button.dataset.interval));
-                    progressBar.style.width = '0%';
-                    button.innerHTML = '<i class="fas fa-play"></i> Start Mining';
-                    
-                    // Simulate contract interaction
-                    // const tx = await satTokenContract.stopMining();
-                    // await tx.wait();
-                    
-                    showAppMessage('Mining stopped', 'warning');
-                }
-            } catch (error) {
-                console.error('Mining error:', error);
-                showAppMessage('Mining operation failed: ' + error.message, 'error');
-            }
-        }
-        
-        async function claimMinedTokens() {
-            try {
-                // Simulate contract interaction
-                // const tx = await satTokenContract.claimMinedTokens();
-                // await tx.wait();
-                
-                // Update token balance
-                const tokenBalance = await satTokenContract.balanceOf(walletAddress);
-                const formattedBalance = ethers.utils.formatUnits(tokenBalance, 18);
-                
-                const minedAmount = Math.floor(Math.random() * 50) + 20;
-                const newBalance = parseInt(formattedBalance) + minedAmount;
-                
-                tokenBalanceSpan.textContent = newBalance.toLocaleString();
-                satBalanceSpan.textContent = newBalance.toLocaleString();
-                user.tokenBalance = newBalance;
+        // Initialize a sample user for demonstration
+        window.addEventListener('load', () => {
+            // Create a sample user if none exists
+            if (!localStorage.getItem('supremeamer_user')) {
+                user = {
+                    id: 'user_abc123',
+                    name: 'Supreme User',
+                    email: 'supremealpha04@gmail.com',
+                    tokenBalance: 24500,
+                    bnbBalance: 0.25,
+                    referralCode: 'REF7X9F3K',
+                    referrals: 12,
+                    adsPosted: 3,
+                    miningEarned: 1240,
+                    miningRate: 30,
+                    gameEarnings: 850,
+                    highScore: 1200,
+                    gamesPlayed: 24
+                };
                 localStorage.setItem('supremeamer_user', JSON.stringify(user));
-                
-                showAppMessage(`Mining complete! You earned ${minedAmount} SAT tokens.`, 'success');
-            } catch (error) {
-                console.error('Claim error:', error);
-                showAppMessage('Failed to claim mined tokens: ' + error.message, 'error');
-            }
-        }
-        
-        function startTokenGame() {
-            const gameDisplay = document.getElementById('game-display');
-            const gameInstruction = document.getElementById('game-instruction');
-            const button = document.getElementById('start-game-btn');
-            
-            if (button.innerHTML.includes('Start')) {
-                // Start game
-                button.innerHTML = '<i class="fas fa-stop"></i> Stop Game';
-                gameInstruction.textContent = 'Get ready... tokens will appear soon!';
-                gameDisplay.textContent = '⏱️';
-                
-                let score = 0;
-                let timeLeft = 30;
-                let gameActive = true;
-                
-                // Countdown timer
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    gameInstruction.textContent = `Time left: ${timeLeft}s | Score: ${score} SAT`;
-                    
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        gameActive = false;
-                        endGame(score);
-                    }
-                }, 1000);
-                
-                // Token appearance
-                const tokenInterval = setInterval(() => {
-                    if (!gameActive) {
-                        clearInterval(tokenInterval);
-                        return;
-                    }
-                    
-                    gameDisplay.textContent = '🪙';
-                    
-                    // Set timeout to hide token
-                    setTimeout(() => {
-                        if (gameActive) gameDisplay.textContent = '';
-                    }, 1000);
-                }, 1500);
-                
-                // Click to collect token
-                gameDisplay.addEventListener('click', function collectToken() {
-                    if (gameDisplay.textContent === '🪙') {
-                        score += 10;
-                        gameInstruction.textContent = `Time left: ${timeLeft}s | Score: ${score} SAT`;
-                        gameDisplay.textContent = '✅';
-                        
-                        // Remove listener after click to prevent multiple clicks
-                        gameDisplay.removeEventListener('click', collectToken);
-                        
-                        // Re-add listener after a delay
-                        setTimeout(() => {
-                            if (gameActive) gameDisplay.addEventListener('click', collectToken);
-                        }, 500);
-                    }
-                });
-                
-                // Store intervals
-                button.dataset.timer = timer;
-                button.dataset.tokenInterval = tokenInterval;
-            } else {
-                // Stop game
-                clearInterval(parseInt(button.dataset.timer));
-                clearInterval(parseInt(button.dataset.tokenInterval));
-                endGame(0);
-            }
-        }
-        
-        function endGame(score) {
-            const gameDisplay = document.getElementById('game-display');
-            const gameInstruction = document.getElementById('game-instruction');
-            const button = document.getElementById('start-game-btn');
-            
-            // Update game stats
-            if (score > 0) {
-                const gameEarnings = parseInt(document.getElementById('game-earnings').textContent.replace(/,/g, '') || 0;
-                document.getElementById('game-earnings').textContent = (gameEarnings + score).toLocaleString();
-                
-                const highScore = parseInt(document.getElementById('high-score').textContent.replace(/,/g, '') || 0;
-                if (score > highScore) {
-                    document.getElementById('high-score').textContent = score.toLocaleString();
-                }
-                
-                const gamesPlayed = parseInt(document.getElementById('games-played').textContent) || 0;
-                document.getElementById('games-played').textContent = gamesPlayed + 1;
-                
-                // Update token balance
-                const newBalance = user.tokenBalance + score;
-                tokenBalanceSpan.textContent = newBalance.toLocaleString();
-                satBalanceSpan.textContent = newBalance.toLocaleString();
-                user.tokenBalance = newBalance;
-                localStorage.setItem('supremeamer_user', JSON.stringify(user));
-                
-                gameDisplay.textContent = '🎉';
-                gameInstruction.textContent = `Game over! You earned ${score} SAT tokens.`;
-            } else {
-                gameDisplay.textContent = '🛑';
-                gameInstruction.textContent = 'Game stopped. No tokens earned.';
             }
             
-            button.innerHTML = '<i class="fas fa-play"></i> Start Game';
-        }
+            // Create sample ads if none exist
+            if (!localStorage.getItem('supremeamer_ads')) {
+                const ads = [
+                    {
+                        id: 'ad1',
+                        title: 'Join our Crypto Community',
+                        category: 'crypto',
+                        reach: 50,
+                        description: 'Join our exclusive crypto community for the latest news and insights',
+                        cost: 5.00,
+                        ownerId: 'user_abc123',
+                        ownerEmail: 'supremealpha04@gmail.com',
+                        status: 'active',
+                        createdAt: '2023-10-15'
+                    },
+                    {
+                        id: 'ad2',
+                        title: 'Follow our Twitter Page',
+                        category: 'twitter',
+                        reach: 100,
+                        description: 'Follow us on Twitter for daily updates and giveaways',
+                        cost: 9.20,
+                        ownerId: 'user_abc123',
+                        ownerEmail: 'supremealpha04@gmail.com',
+                        status: 'active',
+                        createdAt: '2023-10-18'
+                    },
+                    {
+                        id: 'ad3',
+                        title: 'Subscribe to our YouTube Channel',
+                        category: 'youtube',
+                        reach: 150,
+                        description: 'Subscribe to our YouTube channel for tutorials and reviews',
+                        cost: 13.80,
+                        ownerId: 'user_abc123',
+                        ownerEmail: 'supremealpha04@gmail.com',
+                        status: 'active',
+                        createdAt: '2023-10-20'
+                    }
+                ];
+                localStorage.setItem('supremeamer_ads', JSON.stringify(ads));
+            }
+            
+            // Update UI with loaded data
+            user = JSON.parse(localStorage.getItem('supremeamer_user'));
+            updateUI();
+            loadAds();
+            loadHistory();
+        });
     </script>
 </body>
 </html>
