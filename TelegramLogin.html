@@ -27,7 +27,7 @@
     }
     
     body {
-      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      background: linear-gradient(135deg, #4b0082 0%, #7c43bd 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -38,48 +38,88 @@
     .card {
       background: white;
       border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
       overflow: hidden;
       width: 100%;
-      max-width: 440px;
-      transition: all 0.3s ease;
+      max-width: 460px;
+      transition: all 0.4s ease;
+      transform: translateY(0);
+      animation: cardEntrance 0.6s ease-out;
+    }
+    
+    @keyframes cardEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     
     .card-header {
       background: linear-gradient(to right, var(--primary) 0%, var(--primary-light) 100%);
       color: white;
-      padding: 24px;
+      padding: 28px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: pulse 8s infinite linear;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
     }
     
     .logo {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
       margin-bottom: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
     }
     
     .logo-icon {
       background: white;
       color: var(--primary);
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     
     .subtitle {
       font-size: 14px;
       opacity: 0.9;
+      position: relative;
+      z-index: 2;
     }
     
     .card-body {
-      padding: 24px;
+      padding: 28px;
     }
     
     .form-toggle {
@@ -88,6 +128,8 @@
       border-radius: 12px;
       padding: 4px;
       margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
     }
     
     .toggle-btn {
@@ -100,17 +142,40 @@
       transition: all 0.3s ease;
       border: none;
       background: transparent;
+      position: relative;
+      z-index: 2;
     }
     
     .toggle-btn.active {
+      color: var(--primary);
+    }
+    
+    .toggle-indicator {
+      position: absolute;
+      top: 4px;
+      height: calc(100% - 8px);
+      border-radius: 8px;
       background: white;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      color: var(--primary);
+      transition: all 0.3s ease;
+      z-index: 1;
     }
     
     .form-group {
       margin-bottom: 20px;
       position: relative;
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     
     .form-label {
@@ -136,9 +201,13 @@
       box-shadow: 0 0 0 3px rgba(123, 67, 189, 0.2);
     }
     
-    .form-input:read-only {
-      background-color: #f8fafc;
-      color: #64748b;
+    .referral-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .referral-group .form-input {
+      flex: 1;
     }
     
     .btn {
@@ -154,6 +223,23 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.6s ease;
+    }
+    
+    .btn:hover::before {
+      left: 100%;
     }
     
     .btn-primary {
@@ -163,43 +249,16 @@
     
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(123, 67, 189, 0.3);
+      box-shadow: 0 8px 20px rgba(123, 67, 189, 0.4);
     }
     
-    .btn-social {
-      background: white;
-      border: 1px solid #cbd5e1;
+    .btn-secondary {
+      background: #f1f5f9;
       color: var(--dark);
     }
     
-    .btn-social:hover {
-      background: #f8fafc;
-    }
-    
-    .divider {
-      display: flex;
-      align-items: center;
-      margin: 24px 0;
-      color: #64748b;
-      font-size: 14px;
-    }
-    
-    .divider::before,
-    .divider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: #cbd5e1;
-    }
-    
-    .divider-text {
-      padding: 0 12px;
-    }
-    
-    .social-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .btn-secondary:hover {
+      background: #e2e8f0;
     }
     
     .alert {
@@ -210,6 +269,18 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      animation: alertIn 0.4s ease-out;
+    }
+    
+    @keyframes alertIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     
     .alert-error {
@@ -254,21 +325,75 @@
       to { transform: rotate(360deg); }
     }
     
+    .terms {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: #64748b;
+    }
+    
+    .terms input {
+      margin-top: 3px;
+    }
+    
+    .terms a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .terms a:hover {
+      text-decoration: underline;
+    }
+    
+    .session-info {
+      background: #f1f5f9;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    .session-info button {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 12px;
+      text-decoration: underline;
+    }
+    
+    .session-info button:hover {
+      color: var(--primary);
+    }
+    
     @media (max-width: 480px) {
       .card {
         border-radius: 12px;
       }
       
       .card-header {
-        padding: 20px;
+        padding: 24px;
       }
       
       .card-body {
-        padding: 20px;
+        padding: 24px;
       }
       
       .logo {
-        font-size: 24px;
+        font-size: 28px;
+      }
+      
+      .logo-icon {
+        width: 42px;
+        height: 42px;
       }
     }
   </style>
@@ -287,8 +412,17 @@
     
     <div class="card-body">
       <div class="form-toggle">
+        <div class="toggle-indicator" id="toggle-indicator"></div>
         <button id="show-login" class="toggle-btn active">Login</button>
         <button id="show-register" class="toggle-btn">Register</button>
+      </div>
+      
+      <div id="session-info" class="session-info hidden">
+        <div>
+          <i class="fas fa-user-check"></i>
+          <span>You're already logged in</span>
+        </div>
+        <button id="logout-session">Logout</button>
       </div>
       
       <div id="error" class="alert alert-error hidden">
@@ -318,11 +452,22 @@
         </div>
         
         <div class="form-group">
-          <input type="text" id="reg-invitedby" class="form-input" placeholder="Invited By (referrer)" readonly style="display:none"/>
+          <label for="reg-referral" class="form-label">Referral Code (Optional)</label>
+          <div class="referral-group">
+            <input type="text" id="reg-referral" class="form-input" placeholder="Enter referral code" />
+            <button type="button" id="apply-referral" class="btn btn-secondary">Apply</button>
+          </div>
           <div id="referral-notice" class="referral-badge hidden">
             <i class="fas fa-gift"></i>
             <span>You were invited by a friend!</span>
           </div>
+        </div>
+        
+        <div class="terms">
+          <input type="checkbox" id="terms-agree" required />
+          <label for="terms-agree">
+            By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+          </label>
         </div>
         
         <button type="submit" id="register-btn" class="btn btn-primary">
@@ -345,22 +490,6 @@
           <span>Sign In</span>
         </button>
       </form>
-      
-      <div class="divider">
-        <span class="divider-text">Or continue with</span>
-      </div>
-      
-      <div class="social-buttons">
-        <button id="fb-login-btn" class="btn btn-social">
-          <i class="fab fa-facebook" style="color: #1877F2;"></i>
-          <span>Continue with Facebook</span>
-        </button>
-        
-        <button id="github-login-btn" class="btn btn-social">
-          <i class="fab fa-github"></i>
-          <span>Continue with GitHub</span>
-        </button>
-      </div>
     </div>
   </div>
 
@@ -378,40 +507,79 @@
     const registerForm = document.getElementById('register-form');
     const showLoginBtn = document.getElementById('show-login');
     const showRegisterBtn = document.getElementById('show-register');
+    const toggleIndicator = document.getElementById('toggle-indicator');
     const errorDiv = document.getElementById('error');
     const successDiv = document.getElementById('success');
-    const referralInput = document.getElementById('reg-invitedby');
+    const referralInput = document.getElementById('reg-referral');
+    const applyReferralBtn = document.getElementById('apply-referral');
     const referralNotice = document.getElementById('referral-notice');
     const registerBtn = document.getElementById('register-btn');
     const loginBtn = document.getElementById('login-btn');
-    const fbLoginBtn = document.getElementById('fb-login-btn');
-    const githubLoginBtn = document.getElementById('github-login-btn');
+    const sessionInfo = document.getElementById('session-info');
+    const logoutSessionBtn = document.getElementById('logout-session');
+    const termsAgree = document.getElementById('terms-agree');
+
+    // Initialize toggle indicator position
+    toggleIndicator.style.width = `${showLoginBtn.offsetWidth}px`;
+    toggleIndicator.style.left = `${showLoginBtn.offsetLeft}px`;
+
+    // Check for existing session
+    async function checkSession() {
+      try {
+        const user = await account.get();
+        sessionInfo.classList.remove('hidden');
+        showSuccess(`Welcome back, ${user.name}!`);
+        
+        // Redirect to home after a brief delay
+        setTimeout(() => {
+          window.location.href = 'home.html';
+        }, 2000);
+        
+        return true;
+      } catch (error) {
+        sessionInfo.classList.add('hidden');
+        return false;
+      }
+    }
 
     // Toggle between Login/Register
-    showLoginBtn.onclick = () => {
-      loginForm.classList.remove('hidden');
-      registerForm.classList.add('hidden');
-      showLoginBtn.classList.add('active');
-      showRegisterBtn.classList.remove('active');
+    function toggleForm(isLogin) {
+      if (isLogin) {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        showLoginBtn.classList.add('active');
+        showRegisterBtn.classList.remove('active');
+        toggleIndicator.style.left = `${showLoginBtn.offsetLeft}px`;
+      } else {
+        registerForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        showRegisterBtn.classList.add('active');
+        showLoginBtn.classList.remove('active');
+        toggleIndicator.style.left = `${showRegisterBtn.offsetLeft}px`;
+      }
       hideMessages();
-    };
+    }
 
-    showRegisterBtn.onclick = () => {
-      registerForm.classList.remove('hidden');
-      loginForm.classList.add('hidden');
-      showRegisterBtn.classList.add('active');
-      showLoginBtn.classList.remove('active');
-      hideMessages();
-    };
+    showLoginBtn.onclick = () => toggleForm(true);
+    showRegisterBtn.onclick = () => toggleForm(false);
 
-    // Pre-fill invitedBy from URL parameter
+    // Pre-fill referral from URL parameter
     const urlParams = new URLSearchParams(window.location.search);
     const invitedBy = urlParams.get('invite');
     if (invitedBy) {
       referralInput.value = invitedBy;
-      referralInput.style.display = 'block';
       referralNotice.classList.remove('hidden');
     }
+
+    // Apply referral code manually
+    applyReferralBtn.onclick = () => {
+      if (referralInput.value.trim()) {
+        referralNotice.classList.remove('hidden');
+        showSuccess('Referral code applied successfully!');
+      } else {
+        referralNotice.classList.add('hidden');
+      }
+    };
 
     // Show/hide messages
     function showError(message) {
@@ -449,12 +617,19 @@
     // Registration
     registerForm.onsubmit = async function(e) {
       e.preventDefault();
+      
+      if (!termsAgree.checked) {
+        showError('You must accept the Terms of Service and Privacy Policy');
+        return;
+      }
+      
       setLoading(registerBtn, true);
       hideMessages();
       
       const username = document.getElementById('reg-username').value;
       const email = document.getElementById('reg-email').value;
       const password = document.getElementById('reg-password').value;
+      const referralCode = referralInput.value.trim();
       
       try {
         // Validate password strength
@@ -473,7 +648,7 @@
           dbId, usersColl, 'unique()', {
             email: email,
             name: username,
-            invitedBy: invitedBy || "",
+            invitedBy: referralCode || "",
             walletAddress: "",
             welcomeBonus: false
           }
@@ -502,6 +677,13 @@
       const password = document.getElementById('login-password').value;
       
       try {
+        // Terminate any existing sessions
+        try {
+          await account.deleteSession('current');
+        } catch (e) {
+          // Ignore errors if no session exists
+        }
+        
         await account.createEmailSession(email, password);
         showSuccess('Login successful! Redirecting...');
         
@@ -516,55 +698,30 @@
       }
     };
 
-    // Facebook Login
-    fbLoginBtn.onclick = function(e) {
-      e.preventDefault();
-      hideMessages();
-      
-      // Initialize Facebook SDK if not already loaded
-      if (typeof FB === 'undefined') {
-        showError('Facebook SDK is still loading. Please try again in a moment.');
-        return;
+    // Logout from session
+    logoutSessionBtn.onclick = async function() {
+      try {
+        await account.deleteSession('current');
+        sessionInfo.classList.add('hidden');
+        showSuccess('You have been logged out successfully.');
+      } catch (error) {
+        showError('Failed to logout: ' + error.message);
       }
+    };
+
+    // Initialize page
+    async function init() {
+      // Check if user already has a session
+      const hasSession = await checkSession();
       
-      FB.login(function(response) {
-        if (response.authResponse) {
-          FB.api('/me', {fields: 'name,email'}, function(response) {
-            showSuccess('Facebook login successful! Redirecting...');
-            setTimeout(() => {
-              window.location.href = 'home.html';
-            }, 1000);
-          });
-        } else {
-          showError('Facebook login was cancelled.');
-        }
-      }, {scope: 'email,public_profile'});
-    };
+      // If no session, check for referral code in URL
+      if (!hasSession && invitedBy) {
+        toggleForm(false);
+      }
+    }
 
-    // GitHub Login (placeholder - would need proper implementation)
-    githubLoginBtn.onclick = function(e) {
-      e.preventDefault();
-      showError('GitHub login is not yet implemented.');
-    };
-
-    // Load Facebook SDK
-    (function(d, s, id){
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) {return;}
-      js = d.createElement(s); js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-
-    // Initialize Facebook SDK when loaded
-    window.fbAsyncInit = function() {
-      FB.init({
-        appId: '3535690456739980',
-        xfbml: true,
-        version: 'v22.0',
-        cookie: true
-      });
-    };
+    // Run initialization
+    init();
   </script>
 </body>
 </html>
